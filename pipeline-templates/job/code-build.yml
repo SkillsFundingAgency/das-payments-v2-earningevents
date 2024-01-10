@@ -39,7 +39,7 @@ jobs:
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Domain.csproj
+      projects: src/SFA.DAS.Payments.EarningEvents.Domain/SFA.DAS.Payments.EarningEvents.Domain.csproj
       arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
       modifyOutputPath: true
 
@@ -48,7 +48,7 @@ jobs:
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Messages.csproj
+      projects: src/SFA.DAS.Payments.EarningEvents.Messages/SFA.DAS.Payments.EarningEvents.Messages.csproj
       arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
       modifyOutputPath: true
 
@@ -57,7 +57,7 @@ jobs:
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj
+      projects: src/SFA.DAS.Payments.EarningEvents.Messages.Internal/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj
       arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
       modifyOutputPath: true
 
@@ -78,7 +78,7 @@ jobs:
   - template: /azure-pipelines-templates/build/step/nuget-pack.yml
     parameters:
       DotNetStandardPackagesToPack: |
-         src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Domain.csproj;
-         src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Messages.csproj;
-         src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj;
+         src/SFA.DAS.Payments.EarningEvents.Domain/SFA.DAS.Payments.EarningEvents.Domain.csproj;
+         src/SFA.DAS.Payments.EarningEvents.Messages/SFA.DAS.Payments.EarningEvents.Messages.csproj;
+         src/SFA.DAS.Payments.EarningEvents.Messages.Internal/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj;
         
