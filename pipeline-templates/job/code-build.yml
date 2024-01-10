@@ -1,5 +1,5 @@
 parameters:
-  TargetProjects: 'src/**/*.csproj'
+  TargetProjects: 'src/**/*.csproj !**/*Tests*.csproj'
 jobs:
 - job: CodeBuild
   pool:
