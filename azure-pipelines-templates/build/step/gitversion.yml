@@ -7,9 +7,9 @@ steps:
   inputs:
     versionSpec: 5.x
 
-- task: gitversion/execute@0
-  displayName: gitversion/execute
-  inputs:
-    useConfigFile: true
-    configFilePath: ${{ parameters.ConfigFilePath }}
-    includePrerelease: false
+# - task: gitversion/execute@0
+#   displayName: gitversion/execute
+#   inputs:
+#     useConfigFile: true
+#     configFilePath: ${{ parameters.ConfigFilePath }}
+#     includePrerelease: false
