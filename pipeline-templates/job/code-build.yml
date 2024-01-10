@@ -35,7 +35,7 @@ jobs:
       arguments: '--configuration $(buildConfiguration) --no-restore'
 
   - task: DotNetCoreCLI@2
-    displayName: "Publish $(SolutionBaseName)"
+    displayName: "Publish SFA.DAS.Payments.EarningEvents.Domain"
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
@@ -44,7 +44,7 @@ jobs:
       modifyOutputPath: true
 
   - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.Core"
+    displayName: "Publish SFA.DAS.Payments.EarningEvents.Messages"
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
@@ -53,7 +53,7 @@ jobs:
       modifyOutputPath: true
 
   - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.Messages.Common"
+    displayName: "Publish SFA.DAS.Payments.EarningEvents.Messages.Internal"
     inputs:
       command: publish
       publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
@@ -78,9 +78,7 @@ jobs:
   - template: /azure-pipelines-templates/build/step/nuget-pack.yml
     parameters:
       DotNetStandardPackagesToPack: |
-         src/SFA.DAS.Payments.Messages.Common/SFA.DAS.Payments.Messages.Common.csproj;
-         src/SFA.DAS.Payments.Application/SFA.DAS.Payments.Application.csproj;
-         src/SFA.DAS.Payments.Core/SFA.DAS.Payments.Core.csproj;
-         src/SFA.DAS.Payments.Messaging/SFA.DAS.Payments.Messaging.csproj;
-         src/SFA.DAS.Payments.Model.Core/SFA.DAS.Payments.Model.Core.csproj;
+         src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Domain.csproj;
+         src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Messages.csproj;
+         src/SFA.DAS.Payments.EarningEvents/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj;
         
