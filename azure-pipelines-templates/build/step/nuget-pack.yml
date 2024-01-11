@@ -3,14 +3,14 @@
   DotNetStandardPackagesToPack: ''
 
 steps:
-#- task: PowerShell@2
-#  displayName: 'Set NuGet Package Version'
-#  inputs:
-#    targetType: inline
-#    script: |
-#      if ("$(GitVersion.PreReleaseLabel)" -ne "") { $NuGetPackageVersion = "$(GitVersion.MajorMinorPatch)-prerelease-$(PreReleaseNumber)" } else { $NuGetPackageVersion = "$(GitVersion.MajorMinorPatch)" }
-#      Write-Host "NuGetPackageVersion: $NuGetPackageVersion"
-#      Write-Host "##vso[task.setvariable variable=NuGetPackageVersion]$NuGetPackageVersion"
+- task: PowerShell@2
+  displayName: 'Set NuGet Package Version'
+  inputs:
+    targetType: inline
+    script: |
+      if ("$(GitVersion.PreReleaseLabel)" -ne "") { $NuGetPackageVersion = "$(GitVersion.MajorMinorPatch)-prerelease-$(PreReleaseNumber)" } else { $NuGetPackageVersion = "$(GitVersion.MajorMinorPatch)" }
+      Write-Host "NuGetPackageVersion: $NuGetPackageVersion"
+      Write-Host "##vso[task.setvariable variable=NuGetPackageVersion]$NuGetPackageVersion"
 - task: DotNetCoreCLI@2
   condition: ne('${{ parameters.DotNetStandardPackagesToPack }}', '')
   displayName: 'dotnet pack'
