@@ -7,7 +7,7 @@ jobs:
     #demands: LATEST_DOTNET_VERSION
   variables:
   - group: BUILD Management Resources
-  #steps:
+  steps:
   #- template: /azure-pipelines-templates/build/step/gitversion.yml
 
   - task: DotNetCoreCLI@2
