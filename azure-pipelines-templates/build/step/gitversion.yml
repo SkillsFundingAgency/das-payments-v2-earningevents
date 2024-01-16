@@ -3,8 +3,10 @@ parameters:
 
 steps:
 - checkout: self
-  fetchDepth: 0
-  
+  fetchDepth: 1  <<< updated this line
+  clean: true
+  persistCredentials: true
+
 - task: gitversion/setup@0
   displayName: gitversion/setup
   inputs:
