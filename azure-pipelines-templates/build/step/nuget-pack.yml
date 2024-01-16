@@ -3,25 +3,22 @@
   DotNetStandardPackagesToPack: ''
 
 steps:
-#- task: PowerShell@2
-#  displayName: 'Set NuGet Package Version'
-#  inputs:
-#    targetType: inline
-#    script: |
-#      if ("$(GitVersion.PreReleaseLabel)" -ne "") { $NuGetPackageVersion = "$(GitVersion.MajorMinorPatch)-prerelease-$(PreReleaseNumber)" } else { $NuGetPackageVersion = "$(GitVersion.MajorMinorPatch)" }
-#      Write-Host "NuGetPackageVersion: $NuGetPackageVersion"
-#      Write-Host "##vso[task.setvariable variable=NuGetPackageVersion]$NuGetPackageVersion"
+- task: PowerShell@2
+  displayName: 'Set NuGet Package Version'
+  inputs:
+    targetType: inline
+    script: |
+      if ("$(GitVersion.PreReleaseLabel)" -ne "") { $NuGetPackageVersion = "$(GitVersion.MajorMinorPatch)-prerelease-$(PreReleaseNumber)" } else { $NuGetPackageVersion = "$(GitVersion.MajorMinorPatch)" }
+      Write-Host "NuGetPackageVersion: $NuGetPackageVersion"
+      Write-Host "##vso[task.setvariable variable=NuGetPackageVersion]$NuGetPackageVersion"
 - task: DotNetCoreCLI@2
   condition: ne('${{ parameters.DotNetStandardPackagesToPack }}', '')
   displayName: 'dotnet pack'
   inputs:
     command: pack
     packagesToPack: ${{ parameters.DotNetStandardPackagesToPack }}
-    #versioningScheme: byPrereleaseNumber
-    #versioningScheme: byBuildNumber
-    majorVersion: 1
-    minorVersion: 1
-    patchVersion: 2
+    versioningScheme: byEnvVar
+    versionEnvVar: NuGetPackageVersion
     packDirectory: $(build.artifactstagingdirectory)/NuGetPackages
 
 - task: PublishBuildArtifacts@1
