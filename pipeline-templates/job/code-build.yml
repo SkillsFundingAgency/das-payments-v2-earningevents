@@ -1,5 +1,6 @@
 parameters:
-  TargetProjects: 'src/**/*.csproj'
+  # TECHDEBT: Set back to 'src/**/*.csproj' once everything is building
+  TargetProjects: 'src/SFA.DAS.Payments.EarningEvents.Messages src/SFA.DAS.Payments.EarningEvents.Messages.Internal'
 jobs:
 - job: CodeBuild
   pool:
@@ -34,14 +35,14 @@ jobs:
       projects:  ${{ parameters.TargetProjects }}
       arguments: '--configuration $(buildConfiguration) --no-restore'
 
-  - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.EarningEvents.Domain"
-    inputs:
-      command: publish
-      publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.EarningEvents.Domain/SFA.DAS.Payments.EarningEvents.Domain.csproj
-      arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
-      modifyOutputPath: true
+  # - task: DotNetCoreCLI@2
+  #   displayName: "Publish SFA.DAS.Payments.EarningEvents.Domain"
+  #   inputs:
+  #     command: publish
+  #     publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
+  #     projects: src/SFA.DAS.Payments.EarningEvents.Domain/SFA.DAS.Payments.EarningEvents.Domain.csproj
+  #     arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
+  #     modifyOutputPath: true
 
   - task: DotNetCoreCLI@2
     displayName: "Publish SFA.DAS.Payments.EarningEvents.Messages"
