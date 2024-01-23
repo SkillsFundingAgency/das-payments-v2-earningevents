@@ -1,6 +1,6 @@
-﻿using SFA.DAS.Payments.Messages.Core;
-using SFA.DAS.Payments.Model.Core;
+﻿using SFA.DAS.Payments.Model.Core;
 using System;
+using SFA.DAS.Payments.Messages.Common;
 
 namespace SFA.DAS.Payments.EarningEvents.Messages.Events
 {
