@@ -348,3 +348,49 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+## Existing entries from the first .gitignore (not displayed here for brevity)
+
+# PV2 CUSTOM
+*/local.settings.json
+*/App.Debug.config
+*.v3.ncrunchsolution
+*.v3.ncrunchproject
+TestResult.xml
+.JustCode
+.sass-cache/
+[Ee]xpress/
+**/packages/*
+!**/packages/build/
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+**/*.HTMLClient/GeneratedArtifacts
+**/*.DesktopClient/GeneratedArtifacts
+**/*.DesktopClient/ModelManifest.xml
+**/*.Server/GeneratedArtifacts
+**/*.Server/ModelManifest.xml
+_Pvt_Extensions
+.paket/paket.exe
+paket-files/
+.fake/
+.idea/
+*.sln.iml
+src/Tools/**/*.*
+**/*.orig
+src/ReleaseTemplate.sql
+*.jfm
+*.DS_Store
+*.stackdump
+desktop.ini
+**/ApplicationParameters/Local.1Node.xml
+**/ApplicationParameters/Local.5Node.xml
+*.bak
+*.feature.cs
+src/SFA.DAS.Payments.AcceptanceTests.EndToEnd/App.Debug.config-sit
+src/SFA.DAS.Payments.AcceptanceTests.EndToEnd/App.Debug.config-das
+*.DotSettings
+/src/NDependOut
+local.settings.json
+src/Directory.Build.targets
