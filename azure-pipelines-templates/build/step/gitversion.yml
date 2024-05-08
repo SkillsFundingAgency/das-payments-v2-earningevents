@@ -2,11 +2,6 @@ parameters:
   ConfigFilePath: GitVersion.yml
 
 steps:
-- checkout: self
-  fetchDepth: 1  <<< updated this line
-  clean: true
-  persistCredentials: true
-
 - task: gitversion/setup@0
   displayName: gitversion/setup
   inputs:

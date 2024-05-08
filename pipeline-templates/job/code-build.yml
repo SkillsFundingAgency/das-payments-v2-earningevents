@@ -1,86 +1,140 @@
 parameters:
-  # TECHDEBT: Set back to 'src/**/*.csproj' once everything is building
-  TargetProjects: 'src/SFA.DAS.Payments.EarningEvents.Messages/SFA.DAS.Payments.EarningEvents.Messages.csproj'
+  TargetProjects: 'src/**/*.csproj'
+  
 jobs:
 - job: CodeBuild
   pool:
     name: SLD Build pool
-    #demands: LATEST_DOTNET_VERSION
   variables:
   - group: BUILD Management Resources
+  - name: SolutionBaseName
+    value: SFA.DAS.Payments.EarningEvents
   steps:
   - template: /azure-pipelines-templates/build/step/gitversion.yml
 
-  - task: DotNetCoreCLI@2
-    displayName: Restore
-    inputs:
-      command: restore
-      projects: |
-        **/SFA.DAS.Payments.EarningEvents.Messages.csproj
-        **/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj
-      noCache: true
-      feedsToUse: 'select'
-      vstsFeed: 'dct-pkg'
-
   - task: NuGetCommand@2
-    displayName: Restore
+    displayName: Nuget Restore
     inputs:
       command: restore
-      projects: |
-        **/SFA.DAS.Payments.EarningEvents.Messages.csproj
-        **/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj
+      projects: ${{ parameters.TargetProjects }}
       noCache: true
       feedsToUse: 'select'
       vstsFeed: 'dct-pkg'
-    
-  - task: DotNetCoreCLI@2
-    displayName: Build
-    inputs:
-      projects:  |
-        **/SFA.DAS.Payments.EarningEvents.Messages.csproj
-        **/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj
-      arguments: '--configuration $(buildConfiguration) --no-restore'
-
-  # - task: DotNetCoreCLI@2
-  #   displayName: "Publish SFA.DAS.Payments.EarningEvents.Domain"
-  #   inputs:
-  #     command: publish
-  #     publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-  #     projects: src/SFA.DAS.Payments.EarningEvents.Domain/SFA.DAS.Payments.EarningEvents.Domain.csproj
-  #     arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
-  #     modifyOutputPath: true
+      includeNuGetOrg: true
 
   - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.EarningEvents.Messages"
+    displayName: Dotnet Restore
     inputs:
-      command: publish
-      publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.EarningEvents.Messages/SFA.DAS.Payments.EarningEvents.Messages.csproj
-      arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
-      modifyOutputPath: true
+      command: restore
+      projects: ${{ parameters.TargetProjects }}
+      noCache: true
+      feedsToUse: 'select'
+      vstsFeed: 'dct-pkg'
+      includeNuGetOrg: true
+
+  - task: MSBuild@1
+    displayName: 'Build solution'
+    inputs:
+      solution: '**/*.sln'
+      msbuildArchitecture: x64
+      configuration: '$(BuildConfiguration)'
+      msbuildArguments: '/p:version=$(Build.BuildNumber) /p:FileVersion=$(Build.BuildNumber)'
+      maximumCpuCount: true
+      logProjectEvents: true
+      createLogFile: true
+      continueOnError: true
+      clean: true
+      
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build UnitTest Projects'
+    inputs:
+      command: build
+      projects: '**/*unittest*.csproj'
 
   - task: DotNetCoreCLI@2
-    displayName: "Publish SFA.DAS.Payments.EarningEvents.Messages.Internal"
+    displayName: 'dotnet test UnitTest Projects'
     inputs:
-      command: publish
-      publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-      projects: src/SFA.DAS.Payments.EarningEvents.Messages.Internal/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj
-      arguments: "-o $(build.artifactstagingdirectory)/publish -c $(BuildConfiguration) --no-restore --no-build"
-      modifyOutputPath: true
+      command: test
+      projects: '**/*unittest*.csproj'
+      arguments: '--filter FullyQualifiedName~UnitTests'
+
+  - task: MSBuild@1
+    displayName: 'Build solution'
+    inputs:
+      solution: 'src/SFA.DAS.Payments.EarningEvents.ServiceFabric/SFA.DAS.Payments.EarningEvents.ServiceFabric.sfproj'
+      msbuildArchitecture: x64
+      configuration: '$(BuildConfiguration)'
+      msbuildArguments: '/p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /t:Package /p:PackageLocation="$(build.artifactstagingdirectory)\ApplicationPackage" /p:version=$(Build.BuildNumber) /p:FileVersion=$(Build.BuildNumber)'
+      maximumCpuCount: true
+      logProjectEvents: true
+      createLogFile: true
+      continueOnError: true
+
+  - task: DeleteFiles@1
+    displayName: 'Delete Symbols files from Artifact Folder '
+    inputs:
+      SourceFolder: '$(build.artifactstagingdirectory)/ApplicationPackage/'
+      Contents: '**/*ApplicationPackage*/*.pdb'
+      continueOnError: true
+
+  - task: ServiceFabricUpdateManifests@2
+    displayName: 'Update Service Fabric Manifests (Manifest versions)'
+    inputs:
+      applicationPackagePath: '$(build.artifactstagingdirectory)/ApplicationPackage'
+      versionBehavior: Replace
+      continueOnError: true
+
 
   - task: CopyFiles@2
-    displayName: 'Copy Files to: $(build.artifactstagingdirectory)/publish'
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
     inputs:
       Contents: |
-       /**
+        pipeline-templates/scripts/**    
       TargetFolder: '$(build.artifactstagingdirectory)/publish'
       OverWrite: true
+      CleanTargetFolder: true
+      flattenFolders: true  
+      continueOnError: true
+
+  - task: CopyFiles@2 
+    displayName: 'Copy Nuget Files to: Artifact Nuget Directory'
+    inputs:
+     Contents: |
+       **\*.nupkg
+       !**\packages\**
+       !**\bin\x64\**
+     TargetFolder: '$(build.artifactstagingdirectory)/NugetPackages'
+     OverWrite: true
+     CleanTargetFolder: true
+     flattenFolders: true
+     continueOnError: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy ApplicationParameters Files to: Artifact ApplicationParameters Directory'
+    inputs:
+      Contents: 'src/SFA.DAS.Payments.EarningEvents.ServiceFabric/ApplicationParameters/*.xml'
+      TargetFolder: '$(build.artifactstagingdirectory)/ApplicationParameters'
+      OverWrite: true
+      CleanTargetFolder: true
+      flattenFolders: true
+      continueOnError: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy PublishProfiles Files to: Artifact PublishProfiles Directory'
+    inputs:
+      Contents: 'src/SFA.DAS.Payments.EarningEvents.ServiceFabric/PublishProfiles/*.xml'
+      TargetFolder: '$(build.artifactstagingdirectory)/PublishProfiles'
+      OverWrite: true
+      CleanTargetFolder: true
+      flattenFolders: true
+      continueOnError: true
 
   - task: PublishPipelineArtifact@1
-    displayName: 'Publish Artifact: drop'
+    displayName: 'Publish Pipeline Artifact - Earning Events'
     inputs:
-      targetPath: $(build.artifactstagingdirectory)/publish
-      artifactName: drop
+      targetPath: $(build.artifactstagingdirectory)
+      artifact: earningevents-drop
+      continueOnError: true
 
   - template: /azure-pipelines-templates/build/step/nuget-pack.yml
     parameters:

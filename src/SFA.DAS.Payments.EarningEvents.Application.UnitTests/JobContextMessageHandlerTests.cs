@@ -19,7 +19,7 @@ using SFA.DAS.Payments.EarningEvents.Messages.Internal.Commands;
 using SFA.DAS.Payments.JobContextMessageHandling.Infrastructure;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.Monitoring.Jobs.Client;
-using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using SFA.DAS.Payments.Monitoring.Jobs.DataMessages.Commands;
 using ITelemetry = SFA.DAS.Payments.Application.Infrastructure.Telemetry.ITelemetry;
 
 namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
