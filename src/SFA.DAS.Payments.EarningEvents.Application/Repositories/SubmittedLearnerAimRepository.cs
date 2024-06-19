@@ -22,7 +22,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Repositories
 
         public async Task<int> DeletePreviouslySubmittedAims(long ukprn, byte period, short academicYear, DateTime newIlrSubmissionDate, CancellationToken cancellationToken)
         {
-            return await paymentsDataContext.Database.ExecuteSqlCommandAsync($@"
+            return await paymentsDataContext.Database.ExecuteSqlRawAsync($@"
                 delete from [Payments2].[SubmittedLearnerAim] 
                 where 
                     [Ukprn] = {ukprn}
