@@ -15,19 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="8.0.0" />
+    <PackageReference Include="Autofac" Version="7.0.1" />
     <PackageReference Include="Autofac.ServiceFabric" Version="4.0.0" />
     <PackageReference Include="ESFA.DC.Logging" Version="0.1.4-beta0001" />
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.2.0" />
-    <PackageReference Include="Microsoft.ServiceFabric" Version="10.0.1816" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.0.1816" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="7.0.1816" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data.Interfaces" Version="7.0.1816" />
-    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="7.0.1816" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="7.0.1816" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="7.0.1816" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="NServiceBus" Version="8.2.1" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.0.1010" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="7.0.1010" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="7.0.1010" />
+    <PackageReference Include="NServiceBus" Version="8.1.1" />
     <PackageReference Include="NServiceBus.Azure.Transports.WindowsAzureStorageQueues" Version="8.1.0" />
     <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="3.0.0" />
     <PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="3.2.1" />
