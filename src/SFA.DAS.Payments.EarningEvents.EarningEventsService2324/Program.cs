@@ -2,11 +2,7 @@ using System;
 using System.Threading;
 using SFA.DAS.Payments.ServiceFabric.Core.Infrastructure.Ioc;
 
-<<<<<<<< HEAD:src/SFA.DAS.Payments.EarningEvents.EarningEventsService2324/Program.cs
 namespace SFA.DAS.Payments.EarningEvents.EarningEventsService2324
-========
-namespace SFA.DAS.Payments.EarningEvents.EarningEventsService2425
->>>>>>>> 841fb31 (Merge pull request #1202 from SkillsFundingAgency/PV2-3299_earning_event_2425_AY_service):src/SFA.DAS.Payments.EarningEvents.EarningEventsService2425/Program.cs
 {
     internal static class Program
     {
@@ -14,11 +10,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningEventsService2425
         {
             try
             {
-<<<<<<<< HEAD:src/SFA.DAS.Payments.EarningEvents.EarningEventsService2324/Program.cs
                 using (ServiceFabricContainerFactory.CreateContainerForStatelessService<EarningEventsService2324>())
-========
-                using (ServiceFabricContainerFactory.CreateContainerForStatelessService<EarningEvents.EarningEventsService2425.EarningEventsService2425>())
->>>>>>>> 841fb31 (Merge pull request #1202 from SkillsFundingAgency/PV2-3299_earning_event_2425_AY_service):src/SFA.DAS.Payments.EarningEvents.EarningEventsService2425/Program.cs
                 {
                     Thread.Sleep(Timeout.Infinite);
                 }
