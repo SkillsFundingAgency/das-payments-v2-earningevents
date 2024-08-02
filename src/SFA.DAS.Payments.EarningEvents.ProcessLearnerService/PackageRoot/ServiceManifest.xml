@@ -9,7 +9,6 @@
             <ReplicatorEndpoint Name="ProcessLearnerServiceActorServiceReplicatorEndpoint" />
             <ReplicatorConfigSection Name="ProcessLearnerServiceActorServiceReplicatorConfig" />
             <ReplicatorSecurityConfigSection Name="ProcessLearnerServiceActorServiceReplicatorSecurityConfig" />
-            <StoreConfigSection Name="ProcessLearnerServiceActorServiceLocalStoreConfig" />
             <ServiceEndpointV2_1 Name="ProcessLearnerServiceActorServiceEndpointV2_1" />
           </GeneratedNames>
         </Extension>

@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Threading;
 using SFA.DAS.Payments.ServiceFabric.Core.Infrastructure.Ioc;
 
-namespace SFA.DAS.Payments.EarningEvents.EarningEventsService2223
+namespace SFA.DAS.Payments.EarningEvents.EarningEventsService2324
 {
     internal static class Program
     {
@@ -10,7 +10,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningEventsService2223
         {
             try
             {
-                using (ServiceFabricContainerFactory.CreateContainerForStatelessService<EarningEventsService2223>())
+                using (ServiceFabricContainerFactory.CreateContainerForStatelessService<EarningEventsService2324>())
                 {
                     Thread.Sleep(Timeout.Infinite);
                 }
