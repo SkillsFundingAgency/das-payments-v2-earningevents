@@ -26,6 +26,8 @@ using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.Monitoring.Jobs.Client;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using SFA.DAS.Payments.ServiceFabric.Core.Infrastructure.Configuration;
+using SFA.DAS.Payments.Core.Configuration;
 
 namespace SFA.DAS.Payments.EarningEvents.Application.Handlers
 {
@@ -41,6 +43,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Handlers
         private readonly ISubmittedLearnerAimBuilder submittedLearnerAimBuilder;
         private readonly ISubmittedLearnerAimRepository submittedLearnerAimRepository;
         private readonly IJobStatusService jobStatusService;
+        private readonly IConfigurationHelper configHelper;
 
         public JobContextMessageHandler(IPaymentLogger logger,
             IFileService azureFileService,
@@ -51,7 +54,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Handlers
             IBulkWriter<SubmittedLearnerAimModel> submittedAimWriter,
             ISubmittedLearnerAimBuilder submittedLearnerAimBuilder,
             ISubmittedLearnerAimRepository submittedLearnerAimRepository,
-            IJobStatusService jobStatusService)
+            IJobStatusService jobStatusService,
+            IConfigurationHelper configHelper)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.azureFileService = azureFileService ?? throw new ArgumentNullException(nameof(azureFileService));
@@ -63,6 +67,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Handlers
             this.submittedLearnerAimBuilder = submittedLearnerAimBuilder;
             this.submittedLearnerAimRepository = submittedLearnerAimRepository;
             this.jobStatusService = jobStatusService;
+            this.configHelper = configHelper;
         }
 
         public async Task<bool> HandleAsync(JobContextMessage message, CancellationToken cancellationToken)
@@ -378,7 +383,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Handlers
                         return stopwatch.ElapsedMilliseconds;
                     }
 
-                    await endpointInstance.Send(learnerCommand).ConfigureAwait(false);
+                    var endpointName = configHelper.GetSetting("ProcessLearnerEndpoint");
+                    await endpointInstance.Send(endpointName, learnerCommand, cancellationToken).ConfigureAwait(false);
 
                     var aims = submittedLearnerAimBuilder.Build(learnerCommand);
                     await Task.WhenAll(aims.Select(aim => submittedAimWriter.Write(aim, cancellationToken))).ConfigureAwait(false);

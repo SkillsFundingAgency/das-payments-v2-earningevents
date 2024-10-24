@@ -26,7 +26,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                 .ForMember(destinationMember => destinationMember.JobId, opt => opt.MapFrom(source => source.JobId))
                 .ForMember(destinationMember => destinationMember.EventTime, opt => opt.Ignore())
                 .ForMember(destinationMember => destinationMember.EventId, opt => opt.Ignore())
-                .ForMember(dest => dest.CollectionPeriod, opt => opt.ResolveUsing(src => CollectionPeriodFactory.CreateFromAcademicYearAndPeriod(src.AcademicYear, (byte)src.CollectionPeriod)))
+                .ForMember(dest => dest.CollectionPeriod, opt => opt.MapFrom(src => CollectionPeriodFactory.CreateFromAcademicYearAndPeriod(src.AcademicYear, (byte)src.CollectionPeriod)))
                 .ForMember(dest => dest.LearningAim, opt => opt.MapFrom(source => source))
                 .ForMember(destinationMember => destinationMember.AgeAtStartOfLearning,
                     opt => opt.MapFrom(source =>
@@ -42,8 +42,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
             CreateMap<IntermediateLearningAim, ApprenticeshipContractTypeEarningsEvent>()
                 .Include<IntermediateLearningAim, ApprenticeshipContractType1EarningEvent>()
                 .Include<IntermediateLearningAim, ApprenticeshipContractType2EarningEvent>()
-                .ForMember(destinationMember => destinationMember.OnProgrammeEarnings, opt => opt.ResolveUsing<OnProgrammeEarningValueResolver>())
-                .ForMember(destinationMember => destinationMember.IncentiveEarnings, opt => opt.ResolveUsing<IncentiveEarningValueResolver>())
+                .ForMember(destinationMember => destinationMember.OnProgrammeEarnings, opt => opt.MapFrom<OnProgrammeEarningValueResolver>())
+                .ForMember(destinationMember => destinationMember.IncentiveEarnings, opt => opt.MapFrom<IncentiveEarningValueResolver>())
                 .ForMember(destinationMember => destinationMember.AgeAtStartOfLearning,
                     opt => opt.MapFrom(source =>
                         source.Aims.OrderBy(aim => aim.LearningDeliveryValues.LearnStartDate).First()
@@ -65,7 +65,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
             CreateMap<IntermediateLearningAim, FunctionalSkillEarningsEvent>()
                 .Include<IntermediateLearningAim, Act1FunctionalSkillEarningsEvent>()
                 .Include<IntermediateLearningAim, Act2FunctionalSkillEarningsEvent>()
-                .ForMember(destinationMember => destinationMember.Earnings, opt => opt.ResolveUsing<FunctionalSkillsEarningValueResolver>())
+                .ForMember(destinationMember => destinationMember.Earnings, opt => opt.MapFrom<FunctionalSkillsEarningValueResolver>())
                 .ForMember(destinationMember => destinationMember.StartDate, opt => opt.MapFrom(source => source.Aims.Min(aim => aim.LearningDeliveryValues.LearnStartDate)))
                 .ForMember(destinationMember => destinationMember.AgeAtStartOfLearning,
                     opt => opt.MapFrom(source =>

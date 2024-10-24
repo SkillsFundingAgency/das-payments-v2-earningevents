@@ -18,6 +18,7 @@ using SFA.DAS.Payments.EarningEvents.Domain.Validation.Learner;
 using SFA.DAS.Payments.EarningEvents.Messages.Internal.Commands;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ServiceFabric.Core.Infrastructure.Configuration;
+using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 
 namespace SFA.DAS.Payments.EarningEvents.Application.Infrastructure.Ioc
 {

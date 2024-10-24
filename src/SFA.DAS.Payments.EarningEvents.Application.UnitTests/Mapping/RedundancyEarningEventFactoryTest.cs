@@ -13,12 +13,21 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
     [TestFixture]
     public class RedundancyEarningEventFactoryTest
     {
+        private MapperConfiguration config;
+        private IMapper Mapper;
         [OneTimeSetUp]
         public void InitialiseMapper()
         {
-            Mapper.Reset();
-            Mapper.Initialize(cfg => { cfg.AddProfile<EarningsEventProfile>(); });
-            Mapper.AssertConfigurationIsValid();
+
+            config = null;
+            // Arrange
+            config = new MapperConfiguration(configuration =>
+            {
+                configuration.AddProfile<EarningsEventProfile>();
+
+            });
+            config.AssertConfigurationIsValid();
+            Mapper = config.CreateMapper();
         }
 
 
@@ -28,7 +37,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
             typeof(ApprenticeshipContractType2RedundancyEarningEvent))]
         public void CreateRedundancyContractType_CreatesCorrectContractTypeEvents(Type inputType, Type expectedType)
         {
-            var factory = new RedundancyEarningEventFactory(Mapper.Instance);
+            var factory = new RedundancyEarningEventFactory(Mapper);
 
             var earningEvent = factory.CreateRedundancyContractTypeEarningsEvent(
                 (ApprenticeshipContractTypeEarningsEvent) Activator.CreateInstance(inputType));
@@ -39,7 +48,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
         [Test]
         public void CreateRedundancyContractType_ForAct1ContractType_ShouldCreateANewEventId()
         {
-            var factory = new RedundancyEarningEventFactory(Mapper.Instance);
+            var factory = new RedundancyEarningEventFactory(Mapper);
             var earningEvent = new ApprenticeshipContractType1EarningEvent {EventId = Guid.NewGuid()};
 
             var createdEvent = factory.CreateRedundancyContractTypeEarningsEvent(earningEvent);
@@ -51,7 +60,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
         [Test]
         public void CreateRedundancyContractType_ForAct2ContractType_ShouldCreateANewEventId()
         {
-            var factory = new RedundancyEarningEventFactory(Mapper.Instance);
+            var factory = new RedundancyEarningEventFactory(Mapper);
             var earningEvent = new ApprenticeshipContractType2EarningEvent {EventId = Guid.NewGuid()};
 
             var createdEvent = factory.CreateRedundancyContractTypeEarningsEvent(earningEvent);
@@ -63,7 +72,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
         [Test]
         public void CreateRedundancyContractType_ForAct1RedundancyFunctionalSkillEarningsEvent_ShouldCreateANewEventId()
         {
-            var factory = new RedundancyEarningEventFactory(Mapper.Instance);
+            var factory = new RedundancyEarningEventFactory(Mapper);
             var earningEvent = new Act1FunctionalSkillEarningsEvent
             {
                 EventId = Guid.NewGuid(),
@@ -79,7 +88,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
         [Test]
         public void CreateRedundancyContractType_ForAct2RedundancyFunctionalSkillEarningsEvent_ShouldCreateANewEventId()
         {
-            var factory = new RedundancyEarningEventFactory(Mapper.Instance);
+            var factory = new RedundancyEarningEventFactory(Mapper);
             var earningEvent = new Act2FunctionalSkillEarningsEvent
             {
                 EventId = Guid.NewGuid(),

@@ -13,6 +13,7 @@ using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.Payments.Application.Messaging;
+using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.EarningEvents.Application.Handlers;
 using SFA.DAS.Payments.EarningEvents.Domain.Mapping;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
@@ -21,6 +22,7 @@ using SFA.DAS.Payments.JobContextMessageHandling.Infrastructure;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.Monitoring.Jobs.Client;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
+using SFA.DAS.Payments.ServiceFabric.Core.Infrastructure.Configuration;
 using ITelemetry = SFA.DAS.Payments.Application.Infrastructure.Telemetry.ITelemetry;
 
 namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
@@ -38,11 +40,18 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             var endpointInstance = new Mock<IEndpointInstance>();
 
             mocker.Mock<IEndpointInstance>()
-                .Setup(x => x.Publish(It.IsAny<object>(), It.IsAny<PublishOptions>()))
+                .Setup(x => x.Publish(It.IsAny<object>(), It.IsAny<PublishOptions>(), CancellationToken.None))
                 .Returns(Task.CompletedTask);
             mocker.Mock<IEndpointInstanceFactory>()
                 .Setup(factory => factory.GetEndpointInstance())
                 .ReturnsAsync(mocker.Mock<IEndpointInstance>().Object);
+            mocker.Mock<IConfigurationHelper>()
+                .Setup(x => x.HasSetting(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+            mocker.Mock<IConfigurationHelper>()
+                .Setup(x => x.GetSetting(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns("some-value");
+
             fm36Global = new FM36Global
             {
                 UKPRN = 123,
@@ -239,7 +248,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             var handler = mocker.Create<JobContextMessageHandler>();
             await handler.HandleAsync(jobContextMessage, CancellationToken.None);
 
-            mocker.Mock<IEndpointInstance>().Verify(x => x.Publish(It.IsAny<object>(), It.IsAny<PublishOptions>()), Times.Once);
+            mocker.Mock<IEndpointInstance>().Verify(x => x.Publish(It.IsAny<object>(), It.IsAny<PublishOptions>(), CancellationToken.None), Times.Once);
         }
 
         [Test]
@@ -290,7 +299,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             var handler = mocker.Create<JobContextMessageHandler>();
             await handler.HandleAsync(jobContextMessage, CancellationToken.None);
 
-            mocker.Mock<IEndpointInstance>().Verify(x => x.Publish(It.IsAny<object>(), It.IsAny<PublishOptions>()), Times.Once);
+            mocker.Mock<IEndpointInstance>().Verify(x => x.Publish(It.IsAny<object>(), It.IsAny<PublishOptions>(), CancellationToken.None), Times.Once);
 
             mocker.Mock<ITelemetry>().Verify(x => x.TrackEvent("Sent All ProcessLearnerCommand Messages", It.IsAny<Dictionary<string, string>>(), It.IsAny<Dictionary<string, double>>()));
         }
@@ -343,7 +352,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             var handler = mocker.Create<JobContextMessageHandler>();
             await handler.HandleAsync(jobContextMessage, CancellationToken.None);
 
-            mocker.Mock<IEndpointInstance>().Verify(x => x.Publish(It.IsAny<object>(), It.IsAny<PublishOptions>()));
+            mocker.Mock<IEndpointInstance>().Verify(x => x.Publish(It.IsAny<object>(), It.IsAny<PublishOptions>(), CancellationToken.None));
         }
 
         [Test]
@@ -394,7 +403,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             var handler = mocker.Create<JobContextMessageHandler>();
             await handler.HandleAsync(jobContextMessage, CancellationToken.None);
 
-            mocker.Mock<IEndpointInstance>().Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>()), Times.Once);
+            mocker.Mock<IEndpointInstance>().Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>(), CancellationToken.None), Times.Once);
 
             mocker.Mock<ITelemetry>().Verify(x => x.TrackEvent("Sent All ProcessLearnerCommand Messages", It.IsAny<Dictionary<string, string>>(), It.IsAny<Dictionary<string, double>>()));
         }
@@ -448,7 +457,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             await handler.HandleAsync(jobContextMessage, CancellationToken.None);
 
             mocker.Mock<IEndpointInstance>()
-                .Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>()), Times.Never);
+                .Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>(), CancellationToken.None), Times.Never);
         }
 
         [Test]
@@ -648,7 +657,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             await handler.HandleAsync(jobContextMessage, CancellationToken.None);
             
             mocker.Mock<IEndpointInstance>()
-                .Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>()), Times.Once);
+                .Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>(), CancellationToken.None), Times.Once);
 
             mocker.Mock<ISubmittedLearnerAimBuilder>()
                 .Verify(builder => builder.Build(It.Is<ProcessLearnerCommand>(x => x.Learner.ULN == learners[0].ULN)), Times.Once);
@@ -731,7 +740,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             await handler.HandleAsync(jobContextMessage, CancellationToken.None);
 
             mocker.Mock<IEndpointInstance>()
-                .Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>()), Times.Once);
+                .Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>(), CancellationToken.None), Times.Once);
 
             mocker.Mock<ISubmittedLearnerAimBuilder>()
                 .Verify(builder => builder.Build(It.IsAny<ProcessLearnerCommand>()), Times.Never);
@@ -810,7 +819,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             await handler.HandleAsync(jobContextMessage, CancellationToken.None);
 
             mocker.Mock<IEndpointInstance>()
-                .Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>()), Times.Once);
+                .Verify(x => x.Publish(It.IsAny<ReceivedProviderEarningsEvent>(), It.IsAny<PublishOptions>(), CancellationToken.None), Times.Once);
 
             mocker.Mock<ISubmittedLearnerAimBuilder>()
                 .Verify(builder => builder.Build(It.Is<ProcessLearnerCommand>(x => x.Learner.ULN == learners[0].ULN)), Times.Once);
