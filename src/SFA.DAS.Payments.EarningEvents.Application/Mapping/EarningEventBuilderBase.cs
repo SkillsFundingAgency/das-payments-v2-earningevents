@@ -68,6 +68,11 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
             var yearEndDate = yearStartDate.AddYears(1);
 
             var episodeStartDate = priceEpisodeValues.EpisodeStartDate;
+            /*
+             * return episodeStartDate.HasValue &&
+               episodeStartDate.Value.ToDateTime(TimeOnly.MinValue) >= yearStartDate &&
+               episodeStartDate.Value.ToDateTime(TimeOnly.MinValue) < yearEndDate;
+             */
             return episodeStartDate.HasValue &&
                    episodeStartDate.Value >= yearStartDate &&
                    episodeStartDate.Value < yearEndDate;

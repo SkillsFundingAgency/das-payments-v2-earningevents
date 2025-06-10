@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net6.0</TargetFramework>
+	  <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ESFA.DC.ILR.2425.FundingService.FM36.FundingOutput.Model" Version="0.1.17" />
+    <PackageReference Include="ESFA.DC.ILR.2526.FundingService.FM36.FundingOutput.Model" Version="0.4.1" />
     <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.6-prerelease-31" />
     <PackageReference Include="SFA.DAS.Payments.Core" Version="2.0.6-prerelease-31" />
     <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.0.6-prerelease-31" />
