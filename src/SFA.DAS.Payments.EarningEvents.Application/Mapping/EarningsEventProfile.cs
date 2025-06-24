@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AutoMapper;
 using ESFA.DC.ILR.FundingService.FM36.FundingOutput.Model.Output;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
@@ -14,6 +15,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
     {
         public EarningsEventProfile()
         {
+            CreateMap<DateOnly, DateTime>().ConvertUsing(source => source.ToDateTime(TimeOnly.MinValue));
+
             CreateMap<IntermediateLearningAim, EarningEvent>()
                 .Include<IntermediateLearningAim, ApprenticeshipContractTypeEarningsEvent>()
                 .Include<IntermediateLearningAim, FunctionalSkillEarningsEvent>()

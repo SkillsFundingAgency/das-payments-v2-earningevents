@@ -67,10 +67,14 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
             var yearStartDate = new DateTime(calendarYear, 8, 1);
             var yearEndDate = yearStartDate.AddYears(1);
 
-            var episodeStartDate = priceEpisodeValues.EpisodeStartDate;
-            return episodeStartDate.HasValue &&
-                   episodeStartDate.Value >= yearStartDate &&
-                   episodeStartDate.Value < yearEndDate;
+            if (!priceEpisodeValues.EpisodeStartDate.HasValue)
+            {
+                return false;
+            }
+
+            var episodeStartDate = priceEpisodeValues.EpisodeStartDate.Value.ToDateTime(TimeOnly.MinValue);
+            return episodeStartDate >= yearStartDate &&
+                   episodeStartDate < yearEndDate;
         }
 
         private static List<IntermediateLearningAim> GetMathsAndEnglishAim(ProcessLearnerCommand learnerSubmission,
