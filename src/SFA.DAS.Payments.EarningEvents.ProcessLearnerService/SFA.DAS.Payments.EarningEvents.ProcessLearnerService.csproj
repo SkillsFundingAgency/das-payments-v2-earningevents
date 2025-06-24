@@ -16,6 +16,7 @@
     <PackageReference Include="Autofac" Version="7.0.1" />
     <PackageReference Include="Autofac.ServiceFabric" Version="4.0.0" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="ESFA.DC.ILR.2526.FundingService.FM36.FundingOutput.Model" Version="0.4.5" />
     <PackageReference Include="Microsoft.ServiceFabric" Version="10.0.1010" />
     <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.0.1001" />
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="7.0.1010" />
