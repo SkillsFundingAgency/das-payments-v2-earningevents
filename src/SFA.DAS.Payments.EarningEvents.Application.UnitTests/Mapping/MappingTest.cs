@@ -20,8 +20,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
         private FM36Learner fm36Learner;
         private ProcessLearnerCommand processLearnerCommand;
         private IntermediateLearningAim learningAim;
-        private DateTime currentYearStart = new DateTime(2018, 8, 1);
-        private DateTime currentYearEnd = new DateTime(2019, 8, 1).AddSeconds(-1);
+        private DateOnly currentYearStart = new DateOnly(2018, 8, 1);
+        private DateOnly currentYearEnd = DateOnly.FromDateTime(new DateTime(2019, 8, 1).AddSeconds(-1));
 
 
         private MapperConfiguration config;
@@ -167,8 +167,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
                             PriceEpisodeAimSeqNumber = 1,
                             EpisodeStartDate = currentYearStart,
                             EpisodeEffectiveTNPStartDate = currentYearStart.AddMonths(1), 
-                            PriceEpisodePlannedEndDate = DateTime.Today,
-                            PriceEpisodeActualEndDate = DateTime.Today,
+                            PriceEpisodePlannedEndDate = DateOnly.FromDateTime(DateTime.Today),
+                            PriceEpisodeActualEndDate = DateOnly.FromDateTime(DateTime.Today),
                             PriceEpisodePlannedInstalments = 12,
                             PriceEpisodeCompletionElement = 3000,
                             PriceEpisodeInstalmentValue = 1000,
@@ -325,7 +325,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
             earningEvent.PriceEpisodes.Should().NotBeEmpty();
             earningEvent.PriceEpisodes.First().Identifier.Should().Be("pe-1");
             earningEvent.PriceEpisodes.First().CourseStartDate.Should().Be(DateTime.Today.AddDays(-5));
-            earningEvent.PriceEpisodes.First().EffectiveTotalNegotiatedPriceStartDate.Should().Be(currentYearStart.AddMonths(1));
+            earningEvent.PriceEpisodes.First().EffectiveTotalNegotiatedPriceStartDate.Should().Be(currentYearStart.AddMonths(1).ToDateTime(TimeOnly.MinValue));
             earningEvent.PriceEpisodes.First().TotalNegotiatedPrice1.Should().Be(15000);
             earningEvent.PriceEpisodes.First().TotalNegotiatedPrice2.Should().Be(15000);
             earningEvent.PriceEpisodes.First().CompletionAmount.Should().Be(3000);
@@ -585,8 +585,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
                 {
 
                     EpisodeStartDate = currentYearStart.AddMonths(7),
-                    PriceEpisodePlannedEndDate = currentYearEnd.Date,
-                    PriceEpisodeActualEndDate = currentYearEnd.Date,
+                    PriceEpisodePlannedEndDate = currentYearEnd,
+                    PriceEpisodeActualEndDate = currentYearEnd,
                     PriceEpisodePlannedInstalments = 6,
                     PriceEpisodeCompletionElement = 1500,
                     PriceEpisodeInstalmentValue = 500,
@@ -771,8 +771,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
                 PriceEpisodeIdentifier = "pe-next-year",
                 PriceEpisodeValues = new PriceEpisodeValues
                 {
-                    EpisodeStartDate = currentYearEnd.AddDays(1).Date,
-                    PriceEpisodePlannedEndDate = currentYearEnd.AddYears(1).Date,
+                    EpisodeStartDate = currentYearEnd.AddDays(1),
+                    PriceEpisodePlannedEndDate = currentYearEnd.AddYears(1),
                     PriceEpisodePlannedInstalments = 6,
                     PriceEpisodeCompletionElement = 1500,
                     PriceEpisodeInstalmentValue = 500,

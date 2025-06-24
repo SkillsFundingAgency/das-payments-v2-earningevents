@@ -21,9 +21,9 @@ namespace SFA.DAS.Payments.EarningEvents.Domain.UnitTests.Validation.Learner
                         PriceEpisodeIdentifier = "pe-1",
                         PriceEpisodeValues = new PriceEpisodeValues
                         {
-                            EpisodeStartDate = DateTime.Today.AddMonths(-2),
-                            PriceEpisodePlannedEndDate = DateTime.Today.AddDays(-30),
-                            PriceEpisodeActualEndDate = DateTime.Today.AddDays(-30)
+                            EpisodeStartDate = DateOnly.FromDateTime(DateTime.Today.AddMonths(-2)),
+                            PriceEpisodePlannedEndDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-30)),
+                            PriceEpisodeActualEndDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-30))
                         }
                     },
                     new PriceEpisode
@@ -31,8 +31,8 @@ namespace SFA.DAS.Payments.EarningEvents.Domain.UnitTests.Validation.Learner
                         PriceEpisodeIdentifier = "pe-2",
                         PriceEpisodeValues = new PriceEpisodeValues
                         {
-                            EpisodeStartDate = DateTime.Today.AddDays(-35),
-                            PriceEpisodePlannedEndDate = DateTime.Today,
+                            EpisodeStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-35)),
+                            PriceEpisodePlannedEndDate = DateOnly.FromDateTime(DateTime.Today),
                         }
                     }
                 }
@@ -56,9 +56,9 @@ namespace SFA.DAS.Payments.EarningEvents.Domain.UnitTests.Validation.Learner
                         PriceEpisodeIdentifier = "pe-1",
                         PriceEpisodeValues = new PriceEpisodeValues
                         {
-                            EpisodeStartDate = DateTime.Today.AddMonths(-2),
-                            PriceEpisodePlannedEndDate = DateTime.Today,
-                            PriceEpisodeActualEndDate = DateTime.Today.AddDays(-36)
+                            EpisodeStartDate = DateOnly.FromDateTime(DateTime.Today.AddMonths(-2)),
+                            PriceEpisodePlannedEndDate = DateOnly.FromDateTime(DateTime.Today),
+                            PriceEpisodeActualEndDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-36))
                         }
                     },
                     new PriceEpisode
@@ -66,8 +66,8 @@ namespace SFA.DAS.Payments.EarningEvents.Domain.UnitTests.Validation.Learner
                         PriceEpisodeIdentifier = "pe-2",
                         PriceEpisodeValues = new PriceEpisodeValues
                         {
-                            EpisodeStartDate = DateTime.Today.AddDays(-35),
-                            PriceEpisodePlannedEndDate = DateTime.Today,
+                            EpisodeStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-35)),
+                            PriceEpisodePlannedEndDate = DateOnly.FromDateTime(DateTime.Today),
                         }
                     }
                 }

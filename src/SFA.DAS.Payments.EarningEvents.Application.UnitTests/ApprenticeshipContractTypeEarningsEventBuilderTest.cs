@@ -89,13 +89,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "pe-1",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2019-08-01"),
+                                EpisodeStartDate = DateOnly.Parse("2019-08-01"),
                                 PriceEpisodeActualEndDate = null,
                                 PriceEpisodeFundLineType = "19+ Apprenticeship Non-Levy Contract (procured)",
-                                EpisodeEffectiveTNPStartDate = DateTime.Parse("2017-05-08T00:00:00+00:00"),
+                                EpisodeEffectiveTNPStartDate = DateOnly.Parse("2017-05-08"),
                                 PriceEpisodeContractType = "Non-Levy Contract",
                                 PriceEpisodeAimSeqNumber = 1,
-                                PriceEpisodePlannedEndDate = DateTime.Parse("2019-10-01"),
+                                PriceEpisodePlannedEndDate = DateOnly.Parse("2019-10-01"),
                                 PriceEpisodePlannedInstalments = 12,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
@@ -163,13 +163,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "pe-2",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = new DateTime(2019,10,1),
+                                EpisodeStartDate = new DateOnly(2019,10,1),
                                 PriceEpisodeActualEndDate = null,
                                 PriceEpisodeFundLineType = "19+ Apprenticeship Levy Contract (procured)",
-                                EpisodeEffectiveTNPStartDate = new DateTime(2017,05,1),
+                                EpisodeEffectiveTNPStartDate = new DateOnly(2017,05,1),
                                 PriceEpisodeContractType = "Levy Contract",
                                 PriceEpisodeAimSeqNumber = 2,
-                                PriceEpisodePlannedEndDate = new DateTime(2019,12,1),
+                                PriceEpisodePlannedEndDate = new DateOnly(2019,12,1),
                                 PriceEpisodePlannedInstalments = 12,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
@@ -492,13 +492,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "pe-1",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2019-08-01T00:00:00+00:00"),
+                                EpisodeStartDate = DateOnly.Parse("2019-08-01"),
                                 PriceEpisodeActualEndDate = null,
                                 PriceEpisodeFundLineType = "19+ Apprenticeship Non-Levy Contract (procured)",
-                                EpisodeEffectiveTNPStartDate = DateTime.Parse("2017-05-08T00:00:00+00:00"),
+                                EpisodeEffectiveTNPStartDate = DateOnly.Parse("2017-05-08"),
                                 PriceEpisodeContractType = "Non-Levy Contract",
                                 PriceEpisodeAimSeqNumber = 1,
-                                PriceEpisodePlannedEndDate = DateTime.Today,
+                                PriceEpisodePlannedEndDate = DateOnly.FromDateTime(DateTime.Today),
                                 PriceEpisodePlannedInstalments = 12,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
@@ -566,13 +566,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "pe-2",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2019-08-01T00:00:00+00:00"),
+                                EpisodeStartDate = DateOnly.Parse("2019-08-01"),
                                 PriceEpisodeActualEndDate = null,
                                 PriceEpisodeFundLineType = "19+ Apprenticeship Non-Levy Contract (procured)",
-                                EpisodeEffectiveTNPStartDate = DateTime.Parse("2017-05-08T00:00:00+00:00"),
+                                EpisodeEffectiveTNPStartDate = DateOnly.Parse("2017-05-08"),
                                 PriceEpisodeContractType = "Levy Contract",
                                 PriceEpisodeAimSeqNumber = 5,
-                                PriceEpisodePlannedEndDate = DateTime.Today,
+                                PriceEpisodePlannedEndDate = DateOnly.FromDateTime(DateTime.Today),
                                 PriceEpisodePlannedInstalments = 12,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
@@ -640,13 +640,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "pe-3",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2019-08-01T00:00:00+00:00"),
+                                EpisodeStartDate = DateOnly.Parse("2019-08-01"),
                                 PriceEpisodeActualEndDate = null,
                                 PriceEpisodeFundLineType = "19+ Apprenticeship Non-Levy Contract (procured)",
-                                EpisodeEffectiveTNPStartDate = DateTime.Parse("2017-05-08T00:00:00+00:00"),
+                                EpisodeEffectiveTNPStartDate = DateOnly.Parse("2017-05-08"),
                                 PriceEpisodeContractType = "Non-Levy Contract",
                                 PriceEpisodeAimSeqNumber = 5,
-                                PriceEpisodePlannedEndDate = DateTime.Today,
+                                PriceEpisodePlannedEndDate = DateOnly.FromDateTime(DateTime.Today),
                                 PriceEpisodePlannedInstalments = 12,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
@@ -791,13 +791,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "25-17-07/11/2020",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2020-11-07"),
+                                EpisodeStartDate = DateOnly.Parse("2020-11-07"),
                                 PriceEpisodeActualEndDate = null,
                                 PriceEpisodeFundLineType = "19+ Apprenticeship (Employer on App Service)",
-                                EpisodeEffectiveTNPStartDate = DateTime.Parse("2017-05-08T00:00:00+00:00"),
+                                EpisodeEffectiveTNPStartDate = DateOnly.Parse("2017-05-08"),
                                 PriceEpisodeContractType = "Contract for services with the employer",
                                 PriceEpisodeAimSeqNumber = 1,
-                                PriceEpisodePlannedEndDate = DateTime.Parse("2021-08-01"),
+                                PriceEpisodePlannedEndDate = DateOnly.Parse("2021-08-01"),
                                 PriceEpisodePlannedInstalments = 12,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
@@ -946,13 +946,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "25-17-01/08/2020",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2020-08-01"),
+                                EpisodeStartDate = DateOnly.Parse("2020-08-01"),
                                 PriceEpisodeActualEndDate = null,
                                 PriceEpisodeFundLineType = "19+ Apprenticeship (Employer on App Service)",
-                                EpisodeEffectiveTNPStartDate = new DateTime(2017,05,1),
+                                EpisodeEffectiveTNPStartDate = new DateOnly(2017,05,1),
                                 PriceEpisodeContractType = "Contract for services with the employer",
                                 PriceEpisodeAimSeqNumber = 2,
-                                PriceEpisodePlannedEndDate = DateTime.Parse("2021-07-31"),
+                                PriceEpisodePlannedEndDate = DateOnly.Parse("2021-07-31"),
                                 PriceEpisodePlannedInstalments = 12,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
@@ -962,7 +962,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                                 PriceEpisodeCumulativePMRs = 13,
                                 PriceEpisodeCompExemCode = 14,
                                 PriceEpisodeTotalTNPPrice = 15000,
-                                PriceEpisodeRedStartDate = DateTime.Parse("2020-10-16"),
+                                PriceEpisodeRedStartDate = DateOnly.Parse("2020-10-16"),
                                 PriceEpisodeRedStatusCode = 1,
                             },
                             PriceEpisodePeriodisedValues = new List<PriceEpisodePeriodisedValues>
@@ -1183,8 +1183,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                     PriceEpisodeValues = new PriceEpisodeValues
                     {
                         PriceEpisodeRedStatusCode = 1,
-                        EpisodeStartDate = new DateTime(2020, 8, 1),
-                        PriceEpisodeRedStartDate = new DateTime(2020, 10, 2)
+                        EpisodeStartDate = new DateOnly(2020, 8, 1),
+                        PriceEpisodeRedStartDate = new DateOnly(2020, 10, 2)
                     }
                 }
             });
@@ -1208,8 +1208,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                     PriceEpisodeValues = new PriceEpisodeValues
                     {
                         PriceEpisodeRedStatusCode = 1,
-                        EpisodeStartDate = new DateTime(2020, 8, 1),
-                        PriceEpisodeRedStartDate = new DateTime(2020, 10, 2)
+                        EpisodeStartDate = new DateOnly(2020, 8, 1),
+                        PriceEpisodeRedStartDate = new DateOnly(2020, 10, 2)
                     }
                 },
                 new PriceEpisode
@@ -1217,7 +1217,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                     PriceEpisodeValues = new PriceEpisodeValues
                     {
                         PriceEpisodeRedStatusCode = 0,
-                        EpisodeStartDate = new DateTime(2020, 11, 14),
+                        EpisodeStartDate = new DateOnly(2020, 11, 14),
                     }
                 }
             });
@@ -1240,8 +1240,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                     PriceEpisodeValues = new PriceEpisodeValues
                     {
                         PriceEpisodeRedStatusCode = 1,
-                        EpisodeStartDate = new DateTime(2020, 8, 1),
-                        PriceEpisodeRedStartDate = new DateTime(2020, 10, 2)
+                        EpisodeStartDate = new DateOnly(2020, 8, 1),
+                        PriceEpisodeRedStartDate = new DateOnly(2020, 10, 2)
                     }
                 },
                 new PriceEpisode
@@ -1249,8 +1249,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                     PriceEpisodeValues = new PriceEpisodeValues
                     {
                         PriceEpisodeRedStatusCode = 1,
-                        EpisodeStartDate = new DateTime(2020, 11, 14),
-                        PriceEpisodeRedStartDate = new DateTime(2021, 1, 17),
+                        EpisodeStartDate = new DateOnly(2020, 11, 14),
+                        PriceEpisodeRedStartDate = new DateOnly(2021, 1, 17),
                     }
                 },
                 new PriceEpisode
@@ -1258,7 +1258,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                     PriceEpisodeValues = new PriceEpisodeValues
                     {
                         PriceEpisodeRedStatusCode = 0,
-                        EpisodeStartDate = new DateTime(2021, 4, 9),
+                        EpisodeStartDate = new DateOnly(2021, 4, 9),
                     }
                 }
             });
@@ -1291,13 +1291,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "20-593-1-06/08/2019",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2019-08-06T00:00:00+00:00"),
-                                PriceEpisodeActualEndDate = DateTime.Parse("2019-10-05T00:00:00+00:00"),
+                                EpisodeStartDate = DateOnly.Parse("2019-08-06"),
+                                PriceEpisodeActualEndDate = DateOnly.Parse("2019-10-05"),
                                 PriceEpisodeFundLineType = "19+ Apprenticeship (Employer on App Service)",
-                                EpisodeEffectiveTNPStartDate = DateTime.Parse("2017-05-08T00:00:00+00:00"),
+                                EpisodeEffectiveTNPStartDate = DateOnly.Parse("2017-05-08"),
                                 PriceEpisodeContractType = "Contract for services with the employer",
                                 PriceEpisodeAimSeqNumber = 1,
-                                PriceEpisodePlannedEndDate = DateTime.Parse("2020-08-06T00:00:00+00:00"),
+                                PriceEpisodePlannedEndDate = DateOnly.Parse("2020-08-06"),
                                 PriceEpisodePlannedInstalments = 12,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
@@ -1381,13 +1381,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "20-593-1-06/10/2019",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2019-10-06T00:00:00+00:00"),
-                                PriceEpisodeActualEndDate = DateTime.Parse("2020-07-31T00:00:00+00:00"),
+                                EpisodeStartDate = DateOnly.Parse("2019-10-06"),
+                                PriceEpisodeActualEndDate = DateOnly.Parse("2020-07-31"),
                                 PriceEpisodeFundLineType = "19+ Apprenticeship (Employer on App Service)",
-                                EpisodeEffectiveTNPStartDate = DateTime.Parse("2017-05-08T00:00:00+00:00"),
+                                EpisodeEffectiveTNPStartDate = DateOnly.Parse("2017-05-08"),
                                 PriceEpisodeContractType = "Contract for services with the employer",
                                 PriceEpisodeAimSeqNumber = 1,
-                                PriceEpisodePlannedEndDate = DateTime.Parse("2020-08-06T00:00:00+00:00"),
+                                PriceEpisodePlannedEndDate = DateOnly.Parse("2020-08-06"),
                                 PriceEpisodePlannedInstalments = 10,
                                 PriceEpisodeCompletionElement = 3000,
                                 PriceEpisodeInstalmentValue = 1000,
