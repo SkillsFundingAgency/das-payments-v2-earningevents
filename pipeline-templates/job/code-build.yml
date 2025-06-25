@@ -12,6 +12,12 @@ jobs:
   steps:
   - template: /azure-pipelines-templates/build/step/gitversion.yml
 
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk 8.0.x'
+    inputs:
+      version: 8.0.x
+      performMultiLevelLookup: true
+
   - task: NuGetCommand@2
     displayName: Nuget Restore
     inputs:
