@@ -24,7 +24,7 @@ jobs:
     displayName: 'Install .NET SDK'
     inputs:
       packageType: 'sdk'
-      version: 7.0.400
+      version: 8.0.x
 
   - task: NuGetCommand@2
     displayName: Nuget Restore
