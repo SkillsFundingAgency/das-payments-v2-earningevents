@@ -4,7 +4,9 @@ parameters:
 jobs:
 - job: CodeBuild
   pool:
-    name: SLD Build pool
+    name: DCT
+    workspace: 
+      clean: all
   variables:
   - group: BUILD Management Resources
   - name: SolutionBaseName
