@@ -20,6 +20,12 @@ jobs:
       version: 8.0.x
       performMultiLevelLookup: true
 
+  - task: UseDotNet@2
+    displayName: 'Install .NET SDK'
+    inputs:
+      packageType: 'sdk'
+      version: 8.0.x
+
   - task: NuGetCommand@2
     displayName: Nuget Restore
     inputs:
