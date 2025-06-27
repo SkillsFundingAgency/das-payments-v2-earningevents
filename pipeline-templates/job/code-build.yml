@@ -4,7 +4,7 @@ parameters:
 jobs:
 - job: CodeBuild
   pool:
-    name: DCT
+    name: SLD BUILD Pool - CD
     workspace: 
       clean: all
   variables:
@@ -19,6 +19,12 @@ jobs:
     inputs:
       version: 8.0.x
       performMultiLevelLookup: true
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET SDK'
+    inputs:
+      packageType: 'sdk'
+      version: 8.0.x
 
   - task: NuGetCommand@2
     displayName: Nuget Restore
@@ -43,7 +49,7 @@ jobs:
   - task: MSBuild@1
     displayName: 'Build solution'
     inputs:
-      solution: '**/*.sln'
+      solution: 'src/SFA.DAS.Payments.EarningEvents.ServiceFabric/SFA.DAS.Payments.EarningEvents.ServiceFabric.sfproj'
       msbuildArchitecture: x64
       configuration: '$(BuildConfiguration)'
       msbuildArguments: '/p:version=$(Build.BuildNumber) /p:FileVersion=$(Build.BuildNumber)'
