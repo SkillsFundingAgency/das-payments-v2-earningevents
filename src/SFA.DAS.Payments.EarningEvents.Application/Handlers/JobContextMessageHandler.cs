@@ -28,6 +28,7 @@ using SFA.DAS.Payments.Monitoring.Jobs.Client;
 using SFA.DAS.Payments.Monitoring.Jobs.Messages.Commands;
 using SFA.DAS.Payments.ServiceFabric.Core.Infrastructure.Configuration;
 using SFA.DAS.Payments.Core.Configuration;
+using SFA.DAS.Payments.EarningEvents.Application.Infrastructure.Serialization;
 
 namespace SFA.DAS.Payments.EarningEvents.Application.Handlers
 {
@@ -35,7 +36,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Handlers
     {
         private readonly IPaymentLogger logger;
         private readonly IFileService azureFileService;
-        private readonly IJsonSerializationService serializationService;
+        private readonly IFm36JsonSerializationService serializationService;
         private readonly IEndpointInstanceFactory factory;
         private readonly IEarningsJobClientFactory jobClientFactory;
         private readonly ITelemetry telemetry;
@@ -47,7 +48,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Handlers
 
         public JobContextMessageHandler(IPaymentLogger logger,
             IFileService azureFileService,
-            IJsonSerializationService serializationService,
+            IFm36JsonSerializationService serializationService,
             IEndpointInstanceFactory factory,
             IEarningsJobClientFactory jobClientFactory,
             ITelemetry telemetry,

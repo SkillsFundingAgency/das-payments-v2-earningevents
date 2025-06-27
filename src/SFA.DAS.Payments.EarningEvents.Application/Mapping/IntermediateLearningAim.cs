@@ -71,7 +71,9 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                 if (!episodeStartDate.HasValue)
                     throw new ApplicationException($"Price episode {episode.PriceEpisodeIdentifier} has no EpisodeStartDate");
 
-                if (episodeStartDate.Value >= yearStartDate && episodeStartDate.Value < yearEndDate) 
+                var priceEpisodeStartDate = episodeStartDate.Value.ToDateTime(TimeOnly.MaxValue);
+
+                if (priceEpisodeStartDate >= yearStartDate && priceEpisodeStartDate < yearEndDate) 
                     currentYearPriceEpisodes.Add(episode);
             }
 

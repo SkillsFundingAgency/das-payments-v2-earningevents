@@ -118,7 +118,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             {
                                 PriceEpisodeAimSeqNumber = 1,
                                 PriceEpisodeContractType = "Levy Contract",
-                                EpisodeStartDate = new DateTime(2020, 8, 1),
+                                EpisodeStartDate = new DateOnly(2020, 8, 1),
                             },
                             PriceEpisodePeriodisedValues = new List<PriceEpisodePeriodisedValues>
                             {
@@ -185,8 +185,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "25-17-01/01/2019",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2019-01-01T00:00:00+00:00"),
-                                PriceEpisodeActualEndDate = DateTime.Parse("2019-07-31T00:00:00+00:00"),
+                                EpisodeStartDate = DateOnly.Parse("2019-01-01"),
+                                PriceEpisodeActualEndDate = DateOnly.Parse("2019-07-31"),
                                 PriceEpisodeAimSeqNumber = 1,
                                 PriceEpisodeContractType = "Contract for services with the ESFA"
                             }
@@ -200,7 +200,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             LearningDeliveryValues = new LearningDeliveryValues
                             {
                                 LearnAimRef = "ZPROG001",
-                                LearnStartDate = DateTime.Parse("2019-01-01T00:00:00+00:00")
+                                LearnStartDate = DateTime.Parse("2019-01-01")
                             }
                         }
                     }
@@ -233,7 +233,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             PriceEpisodeIdentifier = "25-17-06/08/2019",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Parse("2019-08-06T00:00:00+00:00"),
+                                EpisodeStartDate = DateOnly.Parse("2019-08-06"),
                                 PriceEpisodeAimSeqNumber = 1,
                                 PriceEpisodeContractType = "Contract for services with the ESFA"
                             }
@@ -247,7 +247,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             LearningDeliveryValues = new LearningDeliveryValues
                             {
                                 LearnAimRef = "ZPROG001",
-                                LearnStartDate = DateTime.Parse("2019-08-06T00:00:00+00:00")
+                                LearnStartDate = DateTime.Parse("2019-08-06")
                             }
                         }
                     }

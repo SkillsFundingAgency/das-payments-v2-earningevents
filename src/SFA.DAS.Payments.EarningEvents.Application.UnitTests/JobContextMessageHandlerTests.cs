@@ -15,6 +15,7 @@ using NUnit.Framework;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.EarningEvents.Application.Handlers;
+using SFA.DAS.Payments.EarningEvents.Application.Infrastructure.Serialization;
 using SFA.DAS.Payments.EarningEvents.Domain.Mapping;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.Internal.Commands;
@@ -72,7 +73,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                         It.Is<string>(containerName => containerName.Equals("container")),
                         It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new MemoryStream());
-            mocker.Mock<IJsonSerializationService>()
+            mocker.Mock<IFm36JsonSerializationService>()
                 .Setup(svc => svc.Deserialize<FM36Global>(It.IsAny<Stream>()))
                 .Returns(fm36Global);
             mocker.Mock<IEarningsJobClientFactory>()

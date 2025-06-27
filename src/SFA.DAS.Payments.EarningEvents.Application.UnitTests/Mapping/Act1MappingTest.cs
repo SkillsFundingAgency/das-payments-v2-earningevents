@@ -36,7 +36,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
                         PriceEpisodeValues = new PriceEpisodeValues
                         {
                             PriceEpisodeContractType = "Non-Levy Contract",
-                            EpisodeStartDate = new DateTime(2018,8,6),
+                            EpisodeStartDate = new DateOnly(2018,8,6),
                             PriceEpisodeAimSeqNumber = 4
                         },
                         PriceEpisodePeriodisedValues = new List<PriceEpisodePeriodisedValues>()

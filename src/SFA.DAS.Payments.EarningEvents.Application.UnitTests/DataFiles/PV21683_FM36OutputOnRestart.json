@@ -11,12 +11,12 @@
         {
           "PriceEpisodeIdentifier": "3-502-9-06/12/2019",
           "PriceEpisodeValues": {
-            "EpisodeStartDate": "2019-12-06T00:00:00+00:00",
+            "EpisodeStartDate": "2019-12-06",
             "TNP1": 15000.0,
             "TNP2": 0.0,
             "TNP3": 0.0,
             "TNP4": 0.0,
-            "PriceEpisodeActualEndDateIncEPA": "2020-07-31T00:00:00+00:00",
+            "PriceEpisodeActualEndDateIncEPA": "2020-07-31",
             "PriceEpisode1618FUBalValue": 0.0,
             "PriceEpisodeApplic1618FrameworkUpliftCompElement": 0.0,
             "PriceEpisode1618FrameworkUpliftTotPrevEarnings": 0.0,
@@ -24,8 +24,8 @@
             "PriceEpisode1618FUMonthInstValue": 0.0,
             "PriceEpisode1618FUTotEarnings": 0.0,
             "PriceEpisodeUpperBandLimit": 3000.0,
-            "PriceEpisodePlannedEndDate": "2020-10-17T00:00:00+00:00",
-            "PriceEpisodeActualEndDate": "2020-07-31T00:00:00+00:00",
+            "PriceEpisodePlannedEndDate": "2020-10-17",
+            "PriceEpisodeActualEndDate": "2020-07-31",
             "PriceEpisodeTotalTNPPrice": 15000.0,
             "PriceEpisodeUpperLimitAdjustment": 12000.0,
             "PriceEpisodePlannedInstalments": 10,
@@ -58,8 +58,8 @@
             "PriceEpisodeFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "PriceEpisodeSFAContribPct": 0.0,
             "PriceEpisodeLevyNonPayInd": 0,
-            "EpisodeEffectiveTNPStartDate": "2019-12-06T00:00:00+00:00",
-            "PriceEpisodeFirstAdditionalPaymentThresholdDate": "2020-01-01T00:00:00+00:00",
+            "EpisodeEffectiveTNPStartDate": "2019-12-06",
+            "PriceEpisodeFirstAdditionalPaymentThresholdDate": "2020-01-01",
             "PriceEpisodeSecondAdditionalPaymentThresholdDate": null,
             "PriceEpisodeContractType": "Contract for services with the ESFA",
             "PriceEpisodePreviousEarningsSameProvider": 400.0,
@@ -71,7 +71,7 @@
             "PriceEpisodeCompExemCode": 0,
             "PriceEpisodeLearnerAdditionalPaymentThresholdDate": null,
             "PriceEpisodeAgreeId": "None",
-            "PriceEpisodeRedStartDate": "9999-09-09T00:00:00+00:00",
+            "PriceEpisodeRedStartDate": "9999-09-09",
             "PriceEpisodeRedStatusCode": 0
           },
           "PriceEpisodePeriodisedValues": [
@@ -395,12 +395,12 @@
         {
           "PriceEpisodeIdentifier": "3-502-9-06/08/2019",
           "PriceEpisodeValues": {
-            "EpisodeStartDate": "2019-08-06T00:00:00+00:00",
+            "EpisodeStartDate": "2019-08-06",
             "TNP1": 15000.0,
             "TNP2": 0.0,
             "TNP3": 0.0,
             "TNP4": 0.0,
-            "PriceEpisodeActualEndDateIncEPA": "2019-10-07T00:00:00+00:00",
+            "PriceEpisodeActualEndDateIncEPA": "2019-10-07",
             "PriceEpisode1618FUBalValue": 0.0,
             "PriceEpisodeApplic1618FrameworkUpliftCompElement": 0.0,
             "PriceEpisode1618FrameworkUpliftTotPrevEarnings": 0.0,
@@ -408,8 +408,8 @@
             "PriceEpisode1618FUMonthInstValue": 0.0,
             "PriceEpisode1618FUTotEarnings": 0.0,
             "PriceEpisodeUpperBandLimit": 3000.0,
-            "PriceEpisodePlannedEndDate": "2020-08-17T00:00:00+00:00",
-            "PriceEpisodeActualEndDate": "2019-10-07T00:00:00+00:00",
+            "PriceEpisodePlannedEndDate": "2020-08-17",
+            "PriceEpisodeActualEndDate": "2019-10-07",
             "PriceEpisodeTotalTNPPrice": 15000.0,
             "PriceEpisodeUpperLimitAdjustment": 12000.0,
             "PriceEpisodePlannedInstalments": 12,
@@ -442,7 +442,7 @@
             "PriceEpisodeFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "PriceEpisodeSFAContribPct": 0.0,
             "PriceEpisodeLevyNonPayInd": 0,
-            "EpisodeEffectiveTNPStartDate": "2019-08-06T00:00:00+00:00",
+            "EpisodeEffectiveTNPStartDate": "2019-08-06",
             "PriceEpisodeFirstAdditionalPaymentThresholdDate": null,
             "PriceEpisodeSecondAdditionalPaymentThresholdDate": null,
             "PriceEpisodeContractType": "Contract for services with the ESFA",
@@ -455,7 +455,7 @@
             "PriceEpisodeCompExemCode": 0,
             "PriceEpisodeLearnerAdditionalPaymentThresholdDate": null,
             "PriceEpisodeAgreeId": "None",
-            "PriceEpisodeRedStartDate": "9999-09-09T00:00:00+00:00",
+            "PriceEpisodeRedStartDate": "9999-09-09",
             "PriceEpisodeRedStatusCode": 0
           },
           "PriceEpisodePeriodisedValues": [
@@ -779,7 +779,7 @@
         {
           "PriceEpisodeIdentifier": "3-502-9-01/08/2020",
           "PriceEpisodeValues": {
-            "EpisodeStartDate": "2020-08-01T00:00:00+00:00",
+            "EpisodeStartDate": "2020-08-01",
             "TNP1": 15000.0,
             "TNP2": 0.0,
             "TNP3": 0.0,
@@ -792,7 +792,7 @@
             "PriceEpisode1618FUMonthInstValue": 0.0,
             "PriceEpisode1618FUTotEarnings": 0.0,
             "PriceEpisodeUpperBandLimit": 3000.0,
-            "PriceEpisodePlannedEndDate": "2020-10-17T00:00:00+00:00",
+            "PriceEpisodePlannedEndDate": "2020-10-17",
             "PriceEpisodeActualEndDate": null,
             "PriceEpisodeTotalTNPPrice": 15000.0,
             "PriceEpisodeUpperLimitAdjustment": 12000.0,
@@ -826,8 +826,8 @@
             "PriceEpisodeFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "PriceEpisodeSFAContribPct": 0.0,
             "PriceEpisodeLevyNonPayInd": null,
-            "EpisodeEffectiveTNPStartDate": "2019-12-06T00:00:00+00:00",
-            "PriceEpisodeFirstAdditionalPaymentThresholdDate": "2020-01-01T00:00:00+00:00",
+            "EpisodeEffectiveTNPStartDate": "2019-12-06",
+            "PriceEpisodeFirstAdditionalPaymentThresholdDate": "2020-01-01",
             "PriceEpisodeSecondAdditionalPaymentThresholdDate": null,
             "PriceEpisodeContractType": "Contract for services with the ESFA",
             "PriceEpisodePreviousEarningsSameProvider": 2400.0,
@@ -839,7 +839,7 @@
             "PriceEpisodeCompExemCode": 0,
             "PriceEpisodeLearnerAdditionalPaymentThresholdDate": null,
             "PriceEpisodeAgreeId": "None",
-            "PriceEpisodeRedStartDate": "9999-09-09T00:00:00+00:00",
+            "PriceEpisodeRedStartDate": "9999-09-09",
             "PriceEpisodeRedStatusCode": 0
           },
           "PriceEpisodePeriodisedValues": [
@@ -1167,11 +1167,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 0,
             "ActualNumInstalm": null,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 0.38,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -1184,7 +1184,7 @@
             "LearnDelAppAccDaysIL": 302,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 63,
@@ -1197,7 +1197,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "None",
             "LearnDelMathEng": false,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 0.0,
             "OutstandNumOnProgInstalm": null,
@@ -1214,7 +1214,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 63,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -1646,11 +1646,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 0,
             "ActualNumInstalm": null,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 0.38,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -1663,7 +1663,7 @@
             "LearnDelAppAccDaysIL": 302,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 63,
@@ -1676,7 +1676,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "None",
             "LearnDelMathEng": false,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 0.0,
             "OutstandNumOnProgInstalm": null,
@@ -1693,7 +1693,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 63,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -2125,11 +2125,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 0,
             "ActualNumInstalm": null,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 0.38,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -2142,7 +2142,7 @@
             "LearnDelAppAccDaysIL": 302,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 63,
@@ -2155,7 +2155,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "LearnDelMathEng": true,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 471.0,
             "OutstandNumOnProgInstalm": null,
@@ -2172,7 +2172,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 63,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -2604,11 +2604,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 0,
             "ActualNumInstalm": null,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 0.38,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -2621,7 +2621,7 @@
             "LearnDelAppAccDaysIL": 302,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 63,
@@ -2634,7 +2634,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "LearnDelMathEng": true,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 471.0,
             "OutstandNumOnProgInstalm": null,
@@ -2651,7 +2651,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 63,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -3083,14 +3083,14 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 0,
             "ActualNumInstalm": null,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 0.38,
             "Completed": false,
-            "FirstIncentiveThresholdDate": "2020-01-01T00:00:00+00:00",
+            "FirstIncentiveThresholdDate": "2020-01-01",
             "FundStart": true,
             "FworkCode": 502,
             "LDApplic1618FrameworkUpliftTotalActEarnings": 0.0,
@@ -3100,7 +3100,7 @@
             "LearnDelAppAccDaysIL": 302,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 63,
@@ -3113,7 +3113,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "LearnDelMathEng": false,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 0.0,
             "OutstandNumOnProgInstalm": null,
@@ -3130,7 +3130,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 63,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -3562,11 +3562,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 63,
             "ActualNumInstalm": 2,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 1.0,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -3579,7 +3579,7 @@
             "LearnDelAppAccDaysIL": 63,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 0,
@@ -3592,7 +3592,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "None",
             "LearnDelMathEng": false,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 0.0,
             "OutstandNumOnProgInstalm": 10,
@@ -3609,7 +3609,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 0,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -4041,11 +4041,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 63,
             "ActualNumInstalm": 2,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 1.0,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -4058,7 +4058,7 @@
             "LearnDelAppAccDaysIL": 63,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 0,
@@ -4071,7 +4071,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "None",
             "LearnDelMathEng": false,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 0.0,
             "OutstandNumOnProgInstalm": 10,
@@ -4088,7 +4088,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 0,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -4520,11 +4520,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 2,
             "ActualNumInstalm": 1,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 1.0,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -4537,7 +4537,7 @@
             "LearnDelAppAccDaysIL": 2,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 0,
@@ -4550,7 +4550,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "LearnDelMathEng": true,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 471.0,
             "OutstandNumOnProgInstalm": 11,
@@ -4567,7 +4567,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 0,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -4999,11 +4999,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 63,
             "ActualNumInstalm": 2,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 1.0,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -5016,7 +5016,7 @@
             "LearnDelAppAccDaysIL": 63,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 0,
@@ -5029,7 +5029,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "LearnDelMathEng": true,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 471.0,
             "OutstandNumOnProgInstalm": 10,
@@ -5046,7 +5046,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 0,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -5478,11 +5478,11 @@
           "LearningDeliveryValues": {
             "ActualDaysIL": 63,
             "ActualNumInstalm": 2,
-            "AdjStartDate": "2019-08-06T00:00:00+00:00",
+            "AdjStartDate": "2019-08-06",
             "AgeAtProgStart": 32,
-            "AppAdjLearnStartDate": "2019-08-06T00:00:00+00:00",
-            "AppAdjLearnStartDateMatchPathway": "2019-08-06T00:00:00+00:00",
-            "ApplicCompDate": "9999-09-09T00:00:00+00:00",
+            "AppAdjLearnStartDate": "2019-08-06",
+            "AppAdjLearnStartDateMatchPathway": "2019-08-06",
+            "ApplicCompDate": "9999-09-09",
             "CombinedAdjProp": 1.0,
             "Completed": false,
             "FirstIncentiveThresholdDate": null,
@@ -5495,7 +5495,7 @@
             "LearnDelAppAccDaysIL": 63,
             "LearnDelApplicDisadvAmount": 0.0,
             "LearnDelApplicEmp1618Incentive": 0.0,
-            "LearnDelApplicEmpDate": "2018-10-17T00:00:00+00:00",
+            "LearnDelApplicEmpDate": "2018-10-17",
             "LearnDelApplicProv1618FrameworkUplift": 0.0,
             "LearnDelApplicProv1618Incentive": 0.0,
             "LearnDelAppPrevAccDaysIL": 0,
@@ -5508,7 +5508,7 @@
             "LearnDelHistProgEarnings": 0.0,
             "LearnDelInitialFundLineType": "19+ Apprenticeship Non-Levy Contract (procured)",
             "LearnDelMathEng": false,
-            "LearnDelProgEarliestACT2Date": "2019-08-06T00:00:00+00:00",
+            "LearnDelProgEarliestACT2Date": "2019-08-06",
             "LearnDelNonLevyProcured": true,
             "MathEngAimValue": 0.0,
             "OutstandNumOnProgInstalm": 10,
@@ -5525,7 +5525,7 @@
             "LearnDelPrevAccDaysILCareLeavers": 0,
             "LearnDelLearnerAddPayThresholdDate": null,
             "LearnDelRedCode": 0,
-            "LearnDelRedStartDate": "9999-09-09T00:00:00+00:00"
+            "LearnDelRedStartDate": "9999-09-09"
           },
           "LearningDeliveryPeriodisedValues": [
             {
@@ -5958,14 +5958,14 @@
           "AppIdentifierOutput": "3-502-9",
           "AppProgCompletedInTheYearOutput": false,
           "HistoricDaysInYearOutput": 302,
-          "HistoricEffectiveTNPStartDateOutput": "2019-12-06T00:00:00+00:00",
+          "HistoricEffectiveTNPStartDateOutput": "2019-12-06",
           "HistoricEmpIdEndWithinYearOutput": 203887034,
           "HistoricEmpIdStartWithinYearOutput": 203887034,
           "HistoricFworkCodeOutput": 502,
           "HistoricLearner1618AtStartOutput": false,
           "HistoricPMRAmountOutput": 50.0,
-          "HistoricProgrammeStartDateIgnorePathwayOutput": "2019-08-06T00:00:00+00:00",
-          "HistoricProgrammeStartDateMatchPathwayOutput": "2019-08-06T00:00:00+00:00",
+          "HistoricProgrammeStartDateIgnorePathwayOutput": "2019-08-06",
+          "HistoricProgrammeStartDateMatchPathwayOutput": "2019-08-06",
           "HistoricProgTypeOutput": 3,
           "HistoricPwayCodeOutput": 9,
           "HistoricSTDCodeOutput": null,
@@ -5976,10 +5976,10 @@
           "HistoricTotal1618UpliftPaymentsInTheYear": 0.0,
           "HistoricTotalProgAimPaymentsInTheYear": 2000.0,
           "HistoricULNOutput": 9900098705,
-          "HistoricUptoEndDateOutput": "2020-07-31T00:00:00+00:00",
+          "HistoricUptoEndDateOutput": "2020-07-31",
           "HistoricVirtualTNP3EndofThisYearOutput": 0.0,
           "HistoricVirtualTNP4EndofThisYearOutput": 0.0,
-          "HistoricLearnDelProgEarliestACT2DateOutput": "2019-08-06T00:00:00+00:00"
+          "HistoricLearnDelProgEarliestACT2DateOutput": "2019-08-06"
         }
       ]
     }

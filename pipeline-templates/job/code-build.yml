@@ -4,13 +4,27 @@ parameters:
 jobs:
 - job: CodeBuild
   pool:
-    name: SLD Build pool
+    name: SLD BUILD Pool - CD
+    workspace: 
+      clean: all
   variables:
   - group: BUILD Management Resources
   - name: SolutionBaseName
     value: SFA.DAS.Payments.EarningEvents
   steps:
   - template: /azure-pipelines-templates/build/step/gitversion.yml
+
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk 8.0.x'
+    inputs:
+      version: 8.0.x
+      performMultiLevelLookup: true
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET SDK'
+    inputs:
+      packageType: 'sdk'
+      version: 8.0.x
 
   - task: NuGetCommand@2
     displayName: Nuget Restore
@@ -35,7 +49,7 @@ jobs:
   - task: MSBuild@1
     displayName: 'Build solution'
     inputs:
-      solution: '**/*.sln'
+      solution: 'src/SFA.DAS.Payments.EarningEvents.ServiceFabric/SFA.DAS.Payments.EarningEvents.ServiceFabric.sfproj'
       msbuildArchitecture: x64
       configuration: '$(BuildConfiguration)'
       msbuildArguments: '/p:version=$(Build.BuildNumber) /p:FileVersion=$(Build.BuildNumber)'

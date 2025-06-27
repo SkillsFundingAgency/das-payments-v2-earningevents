@@ -307,7 +307,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                         {
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Today,
+                                EpisodeStartDate = DateOnly.FromDateTime(DateTime.Today),
                                 PriceEpisodeAimSeqNumber = 3,
                                 PriceEpisodeContractType = "Levy Contract",
                                 TNP1 = 2500,
@@ -402,7 +402,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                         {
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Today,
+                                EpisodeStartDate = DateOnly.FromDateTime(DateTime.Today),
                                 PriceEpisodeAimSeqNumber = 1,
                                 PriceEpisodeContractType = "Levy Contract",
                             },
@@ -734,7 +734,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                         {
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = DateTime.Today,
+                                EpisodeStartDate = DateOnly.FromDateTime(DateTime.Today),
                                 PriceEpisodeAimSeqNumber = 1,
                                 PriceEpisodeContractType = "Levy Contract",
                             },

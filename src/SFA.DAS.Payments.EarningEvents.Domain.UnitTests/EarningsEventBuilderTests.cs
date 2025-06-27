@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.Application.Mapping;
@@ -48,7 +49,7 @@ namespace SFA.DAS.Payments.EarningEvents.Domain.UnitTests
             // Assert
             var expectedEarnings = cmd.Learner.PriceEpisodes.Skip(1).Select(x => new ApprenticeshipContractType1EarningEvent
             {
-                StartDate = x.PriceEpisodeValues.EpisodeStartDate.GetValueOrDefault()
+                StartDate = x.PriceEpisodeValues.EpisodeStartDate.GetValueOrDefault().ToDateTime(TimeOnly.MinValue)
             });
             
             earningsEvents.Should().BeEquivalentTo(expectedEarnings);

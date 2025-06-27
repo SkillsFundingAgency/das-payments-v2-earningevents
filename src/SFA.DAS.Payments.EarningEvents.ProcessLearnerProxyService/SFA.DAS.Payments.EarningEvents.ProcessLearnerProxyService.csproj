@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-	  <TargetFramework>net6.0</TargetFramework>
+	  <TargetFramework>net8.0</TargetFramework>
     <IsServiceFabricServiceProject>True</IsServiceFabricServiceProject>
     <ServerGarbageCollection>True</ServerGarbageCollection>
-    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <TargetLatestRuntimePatch>False</TargetLatestRuntimePatch>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="7.0.1" />
     <PackageReference Include="Autofac.ServiceFabric" Version="4.0.0" />
+    <PackageReference Include="ESFA.DC.ILR.2526.FundingService.FM36.FundingOutput.Model" Version="0.4.5" />
     <PackageReference Include="ESFA.DC.Logging.Interfaces" Version="0.1.4-beta0001" />
     <PackageReference Include="Microsoft.ServiceFabric" Version="10.0.1010" />
     <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.0.1001" />

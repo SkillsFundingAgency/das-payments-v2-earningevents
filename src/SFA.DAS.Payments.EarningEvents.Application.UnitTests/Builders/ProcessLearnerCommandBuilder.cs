@@ -30,8 +30,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Builders
                             PriceEpisodeIdentifier = "PE-1",
                             PriceEpisodeValues = new PriceEpisodeValues
                             {
-                                EpisodeStartDate = new DateTime(2019,8,1),
-                                PriceEpisodeActualEndDate = new DateTime(2020,7,31),
+                                EpisodeStartDate = new DateOnly(2019,8,1),
+                                PriceEpisodeActualEndDate = new DateOnly(2020,7,31),
                                 PriceEpisodeAimSeqNumber = 1,
                                 PriceEpisodeContractType = "Contract for services with the employer"
                             },
