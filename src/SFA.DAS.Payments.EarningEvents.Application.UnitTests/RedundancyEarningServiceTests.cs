@@ -4,7 +4,6 @@ using System.Linq;
 using AutoMapper;
 using FluentAssertions;
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
 using SFA.DAS.Payments.Core;
 using SFA.DAS.Payments.EarningEvents.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Application.Services;
@@ -59,7 +58,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             originalEvent.Earnings.ToList().ForEach(ope =>
             {
                 ope.Periods.Should().HaveCount(expectedOriginalCount);
-                ClassicAssert.IsTrue(ope.Periods.ToList().All(p => p.Period < redundancyPeriod));
+                Assert.IsTrue(ope.Periods.ToList().All(p => p.Period < redundancyPeriod));
             });
 
             var redundancyEvent = events[1];
@@ -69,8 +68,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             redundancyEvent.Earnings.ToList().ForEach(ope =>
             {
                 ope.Periods.Should().HaveCount(expectedRedundancyPeriod);
-                ClassicAssert.IsTrue(ope.Periods.ToList().All(p => p.Period >= redundancyPeriod));
-                ClassicAssert.IsTrue(ope.Periods.ToList().All(p => p.SfaContributionPercentage == 1m));
+                Assert.IsTrue(ope.Periods.ToList().All(p => p.Period >= redundancyPeriod));
+                Assert.IsTrue(ope.Periods.ToList().All(p => p.SfaContributionPercentage == 1m));
             });
         }
 
@@ -121,12 +120,12 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             originalEarningEvent.OnProgrammeEarnings.ForEach(ope =>
             {
                 ope.Periods.Should().HaveCount(expectedOriginalCount);
-                ClassicAssert.IsTrue(ope.Periods.ToList().All(p => p.Period < redundancyPeriod));
+                Assert.IsTrue(ope.Periods.ToList().All(p => p.Period < redundancyPeriod));
             });
             originalEarningEvent.IncentiveEarnings.ForEach(ie =>
             {
                 ie.Periods.Should().HaveCount(expectedOriginalCount);
-                ClassicAssert.IsTrue(ie.Periods.ToList().All(p => p.Period < redundancyPeriod));
+                Assert.IsTrue(ie.Periods.ToList().All(p => p.Period < redundancyPeriod));
             });
 
             var expectedRedundancyPeriod = 12 - redundancyPeriod + 1;
@@ -137,13 +136,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             redundancyEvent.OnProgrammeEarnings.ForEach(ope =>
             {
                 ope.Periods.Should().HaveCount(expectedRedundancyPeriod);
-                ClassicAssert.IsTrue(ope.Periods.ToList().All(p => p.Period >= redundancyPeriod));
-                ClassicAssert.IsTrue(ope.Periods.ToList().All(p => p.SfaContributionPercentage == 1m));
+                Assert.IsTrue(ope.Periods.ToList().All(p => p.Period >= redundancyPeriod));
+                Assert.IsTrue(ope.Periods.ToList().All(p => p.SfaContributionPercentage == 1m));
             });
             redundancyEvent.IncentiveEarnings.ForEach(ie =>
             {
                 ie.Periods.Should().HaveCount(expectedRedundancyPeriod);
-                ClassicAssert.IsTrue(ie.Periods.ToList().All(p => p.Period >= redundancyPeriod));
+                Assert.IsTrue(ie.Periods.ToList().All(p => p.Period >= redundancyPeriod));
             });
         }
     }

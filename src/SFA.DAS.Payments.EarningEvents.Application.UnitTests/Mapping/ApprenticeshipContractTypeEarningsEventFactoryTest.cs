@@ -1,6 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
 using SFA.DAS.Payments.EarningEvents.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 
@@ -37,7 +36,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Mapping
             }
 
             // assert
-            ClassicAssert.AreEqual(expectedType, earningEvent.GetType());
+            Assert.AreEqual(expectedType, earningEvent.GetType());
         }
     }
 }
