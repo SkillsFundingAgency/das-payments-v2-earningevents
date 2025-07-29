@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Internal;
 using ESFA.DC.ILR.FundingService.FM36.FundingOutput.Model.Output;
 using SFA.DAS.Payments.Core;
 using SFA.DAS.Payments.EarningEvents.Messages.Internal.Commands;
@@ -22,13 +23,22 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                     ld.LearningDeliveryValues.StdCode
                 });
 
+            // learner removed within 42 days - no price episodes
+            if (learnerSubmission.Learner.PriceEpisodes.IsNullOrEmpty())
+            {
+                results.Add(new IntermediateLearningAim(learnerSubmission, learnerSubmission.Learner.PriceEpisodes, learnerSubmission.Learner.LearningDeliveries));
+
+                return results;
+            }
+
             foreach (var groupedLearningDelivery in groupedLearningDeliveries)
             {
-                var orderedGroupedLearningDelivery = groupedLearningDelivery.OrderByDescending(x => x.LearningDeliveryValues.LearnStartDate).ToList();
+                var orderedGroupedLearningDelivery = groupedLearningDelivery
+                    .OrderByDescending(x => x.LearningDeliveryValues.LearnStartDate).ToList();
+
                 var learningDelivery = orderedGroupedLearningDelivery.First();
                 if (mainAim.HasValue && mainAim.Value != learningDelivery.IsMainAim())
                     continue;
-
 
                 var priceEpisodes = learnerSubmission.Learner.PriceEpisodes
                     .Where(x => orderedGroupedLearningDelivery.Any(g => g.AimSeqNumber == x.PriceEpisodeValues.PriceEpisodeAimSeqNumber))
