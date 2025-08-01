@@ -46,7 +46,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                     mapper.Map(intermediateLearningAim, ineligibleEarningEvent);
                     results.Add(ineligibleEarningEvent);
 
-                    return results;
+                    continue;
                 }
 
                 var redundancyPeriods = CalculateRedundancyPeriods(intermediateLearningAim.PriceEpisodes);

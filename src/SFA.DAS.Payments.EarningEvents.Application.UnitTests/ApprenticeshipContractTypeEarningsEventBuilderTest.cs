@@ -1271,7 +1271,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
         }
 
         /// <summary>
-        /// Where there are no price episodes, the event type should be ApprenticeshipIneligibleForFundingEarningEvent.
+        /// Where there are no price episodes, the event type should be ApprenticeshipIneligibleForFundingEarningEvent
         /// </summary>
         [Test]
         public void WhenNoPricePeriodsIdentified_ThenTheEventTypeIs_ApprenticeshipIneligibleForFundingEarningEvent()
@@ -1294,7 +1294,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             AimSeqNumber = 1,
                             LearningDeliveryValues = new LearningDeliveryValues
                             {
-                                LearnAimRef = "50088026",
+                                LearnAimRef = "ZPROG001",
                                 StdCode = 100,
                                 FworkCode = 200,
                                 ProgType = 300,
@@ -1302,7 +1302,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                                 LearnDelInitialFundLineType = "Funding Line Type 1",
                                 LearnStartDate = DateTime.Today.AddDays(-5)
                             }
-                        }
+                        },
                     },
                     PriceEpisodes = new List<PriceEpisode>()
                 }
@@ -1319,7 +1319,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
         }
 
         /// <summary>
-        /// When there are no price episodes and multiple learning aims, the event type should be ApprenticeshipIneligibleForFundingEarningEvent, and only one event should be created.
+        /// When there are no price episodes and multiple learning aims, the event types should be ApprenticeshipIneligibleForFundingEarningEvent
         /// </summary>
         [Test]
         public void WhenNoPriceEpisodesAndMultipleLearningAims_ThenTheEventTypeIs_ApprenticeshipIneligibleForFundingEarningEvent()
@@ -1356,210 +1356,15 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             AimSeqNumber = 2,
                             LearningDeliveryValues = new LearningDeliveryValues
                             {
-                                LearnAimRef = "M&E2",
-                                StdCode = 100,
-                                FworkCode = 200,
-                                ProgType = 300,
-                                PwayCode = 400,
-                                LearnDelInitialFundLineType = "Funding Line Type 2",
-                                LearnStartDate = DateTime.Today.AddDays(-10)
-                            },
-                            LearningDeliveryPeriodisedValues = new List<LearningDeliveryPeriodisedValues>
-                            {
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "MathEngOnProgPayment",
-                                    Period1 = 100,
-                                    Period2 = 100,
-                                    Period3 = 100,
-                                    Period4 = 0,
-                                    Period5 = 0,
-                                    Period6 = 0,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 0,
-                                    Period11 = 0,
-                                    Period12 = 0,
-                                },
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "MathEngBalPayment",
-                                    Period1 = 0,
-                                    Period2 = 0,
-                                    Period3 = 0,
-                                    Period4 = 0,
-                                    Period5 = 0,
-                                    Period6 = 0,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 0,
-                                    Period11 = 0,
-                                    Period12 = 0,
-                                },
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "LearnSuppFundCash",
-                                    Period1 = 0,
-                                    Period2 = 0,
-                                    Period3 = 0,
-                                    Period4 = 0,
-                                    Period5 = 0,
-                                    Period6 = 0,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 0,
-                                    Period11 = 0,
-                                    Period12 = 0,
-                                },
-                            },
-                        },
-                        new LearningDelivery
-                        {
-                            AimSeqNumber = 3,
-                            LearningDeliveryValues = new LearningDeliveryValues
-                            {
-                                LearnAimRef = "M&E3",
-                                StdCode = 100,
-                                FworkCode = 200,
-                                ProgType = 300,
-                                PwayCode = 400,
-                                LearnDelInitialFundLineType = "Funding Line Type 2",
-                                LearnStartDate = DateTime.Today.AddDays(-10)
-                            },
-                            LearningDeliveryPeriodisedValues = new List<LearningDeliveryPeriodisedValues>
-                            {
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "MathEngOnProgPayment",
-                                    Period1 = 0,
-                                    Period2 = 0,
-                                    Period3 = 0,
-                                    Period4 = 100,
-                                    Period5 = 100,
-                                    Period6 = 100,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 0,
-                                    Period11 = 0,
-                                    Period12 = 0,
-                                },
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "MathEngBalPayment",
-                                    Period1 = 0,
-                                    Period2 = 0,
-                                    Period3 = 0,
-                                    Period4 = 0,
-                                    Period5 = 0,
-                                    Period6 = 0,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 0,
-                                    Period11 = 0,
-                                    Period12 = 0,
-                                },
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "LearnSuppFundCash",
-                                    Period1 = 0,
-                                    Period2 = 0,
-                                    Period3 = 0,
-                                    Period4 = 0,
-                                    Period5 = 0,
-                                    Period6 = 0,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 0,
-                                    Period11 = 0,
-                                    Period12 = 0,
-                                },
-                            },
-                        },
-                        new LearningDelivery
-                        {
-                            AimSeqNumber = 4,
-                            LearningDeliveryValues = new LearningDeliveryValues
-                            {
-                                LearnAimRef = "M&E4",
-                                StdCode = 100,
-                                FworkCode = 200,
-                                ProgType = 300,
-                                PwayCode = 400,
-                                LearnDelInitialFundLineType = "Funding Line Type 2",
-                                LearnStartDate = DateTime.Today.AddDays(-10)
-                            },
-                            LearningDeliveryPeriodisedValues = new List<LearningDeliveryPeriodisedValues>
-                            {
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "MathEngOnProgPayment",
-                                    Period1 = 0,
-                                    Period2 = 0,
-                                    Period3 = 0,
-                                    Period4 = 0,
-                                    Period5 = 0,
-                                    Period6 = 0,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 100,
-                                    Period11 = 100,
-                                    Period12 = 100,
-                                },
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "MathEngBalPayment",
-                                    Period1 = 0,
-                                    Period2 = 0,
-                                    Period3 = 0,
-                                    Period4 = 0,
-                                    Period5 = 0,
-                                    Period6 = 0,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 0,
-                                    Period11 = 0,
-                                    Period12 = 0,
-                                },
-                                new LearningDeliveryPeriodisedValues
-                                {
-                                    AttributeName = "LearnSuppFundCash",
-                                    Period1 = 0,
-                                    Period2 = 0,
-                                    Period3 = 0,
-                                    Period4 = 0,
-                                    Period5 = 0,
-                                    Period6 = 0,
-                                    Period7 = 0,
-                                    Period8 = 0,
-                                    Period9 = 0,
-                                    Period10 = 0,
-                                    Period11 = 0,
-                                    Period12 = 0,
-                                },
-                            },
-                        },
-                        new LearningDelivery
-                        {
-                            AimSeqNumber = 5,
-                            LearningDeliveryValues = new LearningDeliveryValues
-                            {
                                 LearnAimRef = "ZPROG001",
                                 StdCode = 100,
                                 FworkCode = 200,
-                                ProgType = 500,
-                                PwayCode = 400,
+                                ProgType = 300,
+                                PwayCode = 500,
                                 LearnDelInitialFundLineType = "Funding Line Type 2",
-                                LearnStartDate = DateTime.Today.AddDays(-5)
-                            }
-                        },
+                                LearnStartDate = DateTime.Today.AddDays(-6)
+                            },
+                        }
                     },
                     PriceEpisodes = new List<PriceEpisode>()
                 }
@@ -1572,8 +1377,12 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             var events = builder.Build(processLearnerCommand);
 
             events.Should().NotBeNull();
-            events.Should().HaveCount(1);
-            events[0].Should().BeOfType<ApprenticeshipIneligibleForFundingEarningEvent>();
+            events.Should().HaveCount(2);
+
+            foreach (var @event in events)
+            {
+                @event.Should().BeOfType<ApprenticeshipIneligibleForFundingEarningEvent>();
+            }
         }
 
         private static ProcessLearnerCommand CreateLearnerSubmissionWithLearningSupport()

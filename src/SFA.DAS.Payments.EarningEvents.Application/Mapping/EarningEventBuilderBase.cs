@@ -22,15 +22,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                     ld.LearningDeliveryValues.PwayCode,
                     ld.LearningDeliveryValues.StdCode
                 });
-
-            // learner removed within 42 days - no price episodes
-            if (learnerSubmission.Learner.PriceEpisodes.IsNullOrEmpty())
-            {
-                results.Add(new IntermediateLearningAim(learnerSubmission, learnerSubmission.Learner.PriceEpisodes, learnerSubmission.Learner.LearningDeliveries));
-
-                return results;
-            }
-
+            
             foreach (var groupedLearningDelivery in groupedLearningDeliveries)
             {
                 var orderedGroupedLearningDelivery = groupedLearningDelivery
@@ -53,6 +45,12 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                     continue;
                 }
 
+                if (priceEpisodes.IsNullOrEmpty())
+                {
+                    results.Add(new IntermediateLearningAim(learnerSubmission, priceEpisodes, orderedGroupedLearningDelivery));
+                    continue;
+                }
+
                 var group = priceEpisodes.Where(pe => IsCurrentAcademicYear(pe.PriceEpisodeValues, learnerSubmission.CollectionYear))
                     .GroupBy(p => p.PriceEpisodeValues.PriceEpisodeContractType);
 
@@ -64,7 +62,6 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                     };
                     results.Add(intermediateAim);
                 }
-
             }
 
             return results;
