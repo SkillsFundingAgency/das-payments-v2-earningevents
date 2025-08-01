@@ -1319,7 +1319,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
         }
 
         /// <summary>
-        /// When there are no price episodes and multiple learning aims, the event types should be ApprenticeshipIneligibleForFundingEarningEvent
+        /// When there are multiple learning aims and some learning aims have price episodes, the event types should be ApprenticeshipIneligibleForFundingEarningEvent for the no price episodes, and not for the ones with price episodes
         /// </summary>
         [Test]
         public void WhenNoPriceEpisodesAndMultipleLearningAims_ThenTheEventTypeIs_ApprenticeshipIneligibleForFundingEarningEvent()
@@ -1366,11 +1366,102 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
                             },
                         }
                     },
-                    PriceEpisodes = new List<PriceEpisode>()
+                    PriceEpisodes = new List<PriceEpisode>
+                    {
+                        new PriceEpisode
+                        {
+                            PriceEpisodeIdentifier = "20-593-1-06/08/2019",
+                            PriceEpisodeValues = new PriceEpisodeValues
+                            {
+                                EpisodeStartDate = DateTime.Parse("2019-08-06T00:00:00+00:00"),
+                                PriceEpisodeActualEndDate = DateTime.Parse("2019-10-05T00:00:00+00:00"),
+                                PriceEpisodeFundLineType = "19+ Apprenticeship (Employer on App Service)",
+                                EpisodeEffectiveTNPStartDate = DateTime.Parse("2017-05-08T00:00:00+00:00"),
+                                PriceEpisodeContractType = "Contract for services with the employer",
+                                PriceEpisodeAimSeqNumber = 1,
+                                PriceEpisodePlannedEndDate = DateTime.Parse("2020-08-06T00:00:00+00:00"),
+                                PriceEpisodePlannedInstalments = 12,
+                                PriceEpisodeCompletionElement = 3000,
+                                PriceEpisodeInstalmentValue = 1000,
+                                TNP1 = 15000,
+                                TNP2 = 15000,
+                                PriceEpisodeCompleted = false,
+                                PriceEpisodeCumulativePMRs = 13,
+                                PriceEpisodeCompExemCode = 14,
+                                PriceEpisodeTotalTNPPrice = 30000
+                            },
+                            PriceEpisodePeriodisedValues = new List<PriceEpisodePeriodisedValues>
+                            {
+                                new PriceEpisodePeriodisedValues
+                                {
+                                    AttributeName = "PriceEpisodeOnProgPayment",
+                                    Period1 = 750,
+                                    Period2 = 750,
+                                    Period3 = 0,
+                                    Period4 = 0,
+                                    Period5 = 0,
+                                    Period6 = 0,
+                                    Period7 = 0,
+                                    Period8 = 0,
+                                    Period9 = 0,
+                                    Period10 = 0,
+                                    Period11 = 0,
+                                    Period12 = 0,
+                                },
+                                new PriceEpisodePeriodisedValues
+                                {
+                                    AttributeName = "PriceEpisodeCompletionPayment",
+                                    Period1 = 0,
+                                    Period2 = 0,
+                                    Period3 = 0,
+                                    Period4 = 0,
+                                    Period5 = 0,
+                                    Period6 = 0,
+                                    Period7 = 0,
+                                    Period8 = 0,
+                                    Period9 = 0,
+                                    Period10 = 0,
+                                    Period11 = 0,
+                                    Period12 = 0,
+                                },
+                                new PriceEpisodePeriodisedValues
+                                {
+                                    AttributeName = "PriceEpisodeBalancePayment",
+                                    Period1 = 0,
+                                    Period2 = 0,
+                                    Period3 = 0,
+                                    Period4 = 0,
+                                    Period5 = 0,
+                                    Period6 = 0,
+                                    Period7 = 0,
+                                    Period8 = 0,
+                                    Period9 = 0,
+                                    Period10 = 0,
+                                    Period11 = 0,
+                                    Period12 = 0,
+                                },
+                                new PriceEpisodePeriodisedValues
+                                {
+                                    AttributeName = "PriceEpisodeLSFCash",
+                                    Period1 = 150,
+                                    Period2 = 150,
+                                    Period3 = 0,
+                                    Period4 = 0,
+                                    Period5 = 0,
+                                    Period6 = 0,
+                                    Period7 = 0,
+                                    Period8 = 0,
+                                    Period9 = 0,
+                                    Period10 = 0,
+                                    Period11 = 0,
+                                    Period12 = 0,
+                                }
+                            }
+                        }
+                    }
                 }
             };
-
-
+            
             var builder = new ApprenticeshipContractTypeEarningsEventBuilder(
                 new ApprenticeshipContractTypeEarningsEventFactory(), redundancyEarningService.Object, mapper);
 
@@ -1379,10 +1470,12 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             events.Should().NotBeNull();
             events.Should().HaveCount(2);
 
-            foreach (var @event in events)
-            {
-                @event.Should().BeOfType<ApprenticeshipIneligibleForFundingEarningEvent>();
-            }
+            var normalEvent = events.First(e => e.LearningAim.SequenceNumber == 1);
+            normalEvent.Should().NotBeOfType<ApprenticeshipIneligibleForFundingEarningEvent>();
+
+            // The event for the learning aim with sequence no 2 should be ineligible as there are no price episodes for this aim
+            var inEligibleEvent = events.First(e => e.LearningAim.SequenceNumber == 2);
+            inEligibleEvent.Should().BeOfType<ApprenticeshipIneligibleForFundingEarningEvent>();
         }
 
         private static ProcessLearnerCommand CreateLearnerSubmissionWithLearningSupport()
