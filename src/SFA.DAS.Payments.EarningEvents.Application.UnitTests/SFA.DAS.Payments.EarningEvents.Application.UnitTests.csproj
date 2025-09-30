@@ -30,13 +30,13 @@
     <PackageReference Include="Moq" Version="4.10.0" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.0.6-prerelease-31" />
+    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.2.2" />
     <PackageReference Include="Microsoft.ServiceFabric.Data.Interfaces" Version="7.0.1010" />
-    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.4-prerelease-8" />
-    <PackageReference Include="SFA.DAS.Payments.JobContextMessageHandling" Version="2.0.2-prerelease-4" />
+    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.5" />
+    <PackageReference Include="SFA.DAS.Payments.JobContextMessageHandling" Version="2.0.3" />
   </ItemGroup>
 
   <ItemGroup>

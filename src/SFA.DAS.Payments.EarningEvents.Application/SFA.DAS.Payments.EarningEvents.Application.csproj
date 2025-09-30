@@ -30,17 +30,17 @@
     <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.0.3" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.8" />
     <PackageReference Include="NServiceBus" Version="8.1.1" />
-    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.0.6-prerelease-31" />
+    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.2.2" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
     <PackageReference Include="Microsoft.ServiceFabric.Data.Interfaces" Version="7.0.1010" />
 
-    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.6-prerelease-31" />
-    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.4-prerelease-8" />
-    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Client" Version="0.2.0-prerelease-960" />
-    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="0.2.0-prerelease-960" />
-    <PackageReference Include="SFA.DAS.Payments.JobContextMessageHandling" Version="2.0.2-prerelease-4" />
+    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.ServiceFabric.Core" Version="2.0.5" />
+    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Client" Version="0.5.8" />
+    <PackageReference Include="SFA.DAS.Payments.Monitoring.Jobs.Messages" Version="0.5.8" />
+    <PackageReference Include="SFA.DAS.Payments.JobContextMessageHandling" Version="2.0.3" />
   </ItemGroup>
 
   <ItemGroup>
