@@ -12,7 +12,6 @@
 	  <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.0.1001" />
 	  <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.2.2" />
 	  <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.2.2" />
-	  <!--<PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.4.664" />-->
   </ItemGroup>
 
   <ItemGroup>

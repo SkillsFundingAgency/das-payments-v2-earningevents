@@ -53,13 +53,4 @@
     <Folder Include="Repositories\" />
   </ItemGroup>
 
-  <!--<ItemGroup>
-    <Reference Include="ESFA.DC.FileService">
-      <HintPath>..\packages\ESFA.DC.FileService.0.1.15-beta0001\lib\netstandard2.0\ESFA.DC.FileService.dll</HintPath>
-    </Reference>
-    <Reference Include="ESFA.DC.Queueing">
-      <HintPath>..\packages\ESFA.DC.Queueing.0.1.14-beta0001\lib\netstandard2.0\ESFA.DC.Queueing.dll</HintPath>
-    </Reference>
-  </ItemGroup>-->
-
 </Project>
