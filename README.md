@@ -22,11 +22,7 @@ More information here:
 
 * An Azure DevBox configured for Payments V2 development
 
-Setup instructions: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/950927878/Development+Environment+-+Payments+V2+DAS+Space
-
-### Config
-
-As detailed in: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/644972941/Developer+Configuration+Settings
+Setup instructions: [https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/950927878/Development+Environment+-+Payments+V2+DAS+Space](https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/4948754681/DAS+Payments+-+Developer+Onboarding+2025)
 
 Select the configuration for the Earning Events application
 
