@@ -34,7 +34,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
 
                 if (intermediateLearningAim.Aims.All(x => x.IsMainAim()))
                 {
-                    continue; 
+                    continue;
                 }
 
                 var contractTypes = intermediateLearningAim.Aims.GetContractTypesForLearningDeliveries();
