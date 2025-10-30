@@ -8,11 +8,16 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
     {
         public const string Act1 = "Levy Contract";
         public const string Act2 = "Non-Levy Contract";
+        public const string RemovedLearnerWithin42Days = "Removed Learner Within 42 Days";
         public const string ContractForServicesWithEmployer = "Contract for services with the employer";
         public const string ContractForServicesWithSfa = "Contract for services with the ESFA";
 
         public ApprenticeshipContractTypeEarningsEvent Create(string contractTypeAsString)
         {
+            if (string.Equals(contractTypeAsString, RemovedLearnerWithin42Days))
+            {
+                return new ApprenticeshipIneligibleForFundingEarningEvent();
+            }
 
             var contractType = MappingExtensions.GetContractType(contractTypeAsString);
 
