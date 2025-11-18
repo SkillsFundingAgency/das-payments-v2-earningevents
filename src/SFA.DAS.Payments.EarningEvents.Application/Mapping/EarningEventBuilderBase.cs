@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Internal;
 using ESFA.DC.ILR.FundingService.FM36.FundingOutput.Model.Output;
 using SFA.DAS.Payments.Core;
 using SFA.DAS.Payments.EarningEvents.Messages.Internal.Commands;
@@ -21,14 +22,15 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                     ld.LearningDeliveryValues.PwayCode,
                     ld.LearningDeliveryValues.StdCode
                 });
-
+            
             foreach (var groupedLearningDelivery in groupedLearningDeliveries)
             {
-                var orderedGroupedLearningDelivery = groupedLearningDelivery.OrderByDescending(x => x.LearningDeliveryValues.LearnStartDate).ToList();
+                var orderedGroupedLearningDelivery = groupedLearningDelivery
+                    .OrderByDescending(x => x.LearningDeliveryValues.LearnStartDate).ToList();
+
                 var learningDelivery = orderedGroupedLearningDelivery.First();
                 if (mainAim.HasValue && mainAim.Value != learningDelivery.IsMainAim())
                     continue;
-
 
                 var priceEpisodes = learnerSubmission.Learner.PriceEpisodes
                     .Where(x => orderedGroupedLearningDelivery.Any(g => g.AimSeqNumber == x.PriceEpisodeValues.PriceEpisodeAimSeqNumber))
@@ -43,6 +45,12 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                     continue;
                 }
 
+                if (priceEpisodes.IsNullOrEmpty())
+                {
+                    results.Add(new IntermediateLearningAim(learnerSubmission, priceEpisodes, orderedGroupedLearningDelivery));
+                    continue;
+                }
+
                 var group = priceEpisodes.Where(pe => IsCurrentAcademicYear(pe.PriceEpisodeValues, learnerSubmission.CollectionYear))
                     .GroupBy(p => p.PriceEpisodeValues.PriceEpisodeContractType);
 
@@ -54,7 +62,6 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                     };
                     results.Add(intermediateAim);
                 }
-
             }
 
             return results;
