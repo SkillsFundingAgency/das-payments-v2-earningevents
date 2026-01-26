@@ -1,7 +1,7 @@
 ﻿
 namespace SFA.DAS.Payments.EarningEvents.Model
 {
-    public enum TrainingType
+    public enum LearningType
     {
         Apprenticeship = 1,
         FoundationApprenticeship = 2,

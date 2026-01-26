@@ -16,7 +16,7 @@ namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
             builder.Property(x => x.LearnerId).HasColumnName("LearnerId").IsRequired();
             builder.Property(x => x.LearnerUln).HasColumnName("LearnerUln").IsRequired();
             builder.Property(x => x.LearnerReference).HasColumnName("LearnerReference").IsRequired();
-            builder.Property(x => x.TrainingType).HasColumnName("TrainingType").IsRequired();
+            builder.Property(x => x.LearningType).HasColumnName("LearningType").IsRequired();
             builder.Property(x => x.CourseCode).HasColumnName("CourseCode").IsRequired();
             builder.Property(x => x.StartDate).HasColumnName("StartDate").IsRequired();
             builder.Property(x => x.AgeAtStartOfTraining).HasColumnName("AgeAtStartOfTraining").IsRequired();

@@ -8,7 +8,7 @@
         public long LearnerId { get; set; }
         public long LearnerUln { get; set; }
         public string LearnerReference { get; set; }
-        public TrainingType TrainingType { get; set; }
+        public LearningType LearningType { get; set; }
         public int CourseCode { get; set; }
         public DateTime StartDate { get; set; }
         public byte AgeAtStartOfTraining { get; set; }
