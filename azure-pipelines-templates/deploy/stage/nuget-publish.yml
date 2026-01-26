@@ -12,7 +12,7 @@ stages:
       eq(variables['Build.SourceBranch'], 'refs/heads/master'),
       eq(variables['Build.SourceBranch'], 'refs/heads/main')
     )
-  )
+  
 
   pool:
     name: SLD Build Pool
