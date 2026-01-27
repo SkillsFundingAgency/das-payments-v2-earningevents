@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SFA.DAS.Payments.EarningEvents.DASEarningsSubscriber.Models
+﻿namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages.Models
 {
-    internal class PricePeriods
+    public class PricePeriods
     {
         public decimal Price { get; set; }
         public DateTime StartDate { get; set; }

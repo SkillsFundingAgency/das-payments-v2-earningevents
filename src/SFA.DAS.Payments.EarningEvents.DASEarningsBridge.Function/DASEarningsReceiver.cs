@@ -1,8 +1,9 @@
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages.Events;
 
-namespace SFA.DAS.Payments.EarningEvents.DASEarningsSubscriber;
+namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
 
 //Theory behind queue system
 // https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview
@@ -14,27 +15,38 @@ namespace SFA.DAS.Payments.EarningEvents.DASEarningsSubscriber;
 //https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-to-event-grid-integration-function
 
 
-//Function 1 name could be ServiceBusDASEarnings[Message?]Subscriber
-public class Function1
-{
-    private readonly ILogger<Function1> _logger;
+//https://andrewlock.net/using-azure-storage-queues-with-azure-functions-and-queuetrigger/
 
-    public Function1(ILogger<Function1> logger)
+//Function 1 name could be ServiceBusDASEarnings[Message?]Subscriber
+public class DASEarningsReceiver
+{
+    private readonly ILogger<DASEarningsReceiver> _logger;
+
+    public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger)
     {
         _logger = logger;
     }
 
-    [Function(nameof(Function1))]
+    [Function(nameof(DASEarningsReceiver))]
     public async Task Run(
-        [ServiceBusTrigger("myqueue", Connection = "")]
-        ServiceBusReceivedMessage message,
+        [ServiceBusTrigger("myqueue", Connection = "placeholder")]
+
+ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {
         _logger.LogInformation("Message ID: {id}", message.MessageId);
         _logger.LogInformation("Message Body: {body}", message.Body);
         _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
 
-        // Complete the message
+
+        //Deserialize into GSL calculate payments model, object
+        CalculateGSLPayments content = message.Body.ToObjectFromJson<CalculateGSLPayments>();
+        _logger.LogInformation("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+        Console.WriteLine(content);
+        // Handler called - pass in the message, in the handler call the object a message or command
+        // Within handler calculateGSLPayments 
+        Console.WriteLine("Content has been made");
+
         await messageActions.CompleteMessageAsync(message);
         //tells Azure Service Bus "I've successfully processed this message — remove it from the queue so it won't be delivered again."
     }
