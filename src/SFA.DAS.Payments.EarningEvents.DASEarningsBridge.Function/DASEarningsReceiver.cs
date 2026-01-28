@@ -29,7 +29,7 @@ public class DASEarningsReceiver
 
     [Function(nameof(DASEarningsReceiver))]
     public async Task Run(
-        [ServiceBusTrigger("myqueue", Connection = "placeholder")]
+        [ServiceBusTrigger("DASServiceBusQueueName", Connection = "DASServiceBusConnectionString")]
 
 ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
@@ -41,12 +41,6 @@ ServiceBusReceivedMessage message,
 
         //Deserialize into GSL calculate payments model, object
         CalculateGSLPayments content = message.Body.ToObjectFromJson<CalculateGSLPayments>();
-        _logger.LogInformation("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-        Console.WriteLine(content);
-        // Handler called - pass in the message, in the handler call the object a message or command
-        // Within handler calculateGSLPayments 
-        Console.WriteLine("Content has been made");
-
         await messageActions.CompleteMessageAsync(message);
         //tells Azure Service Bus "I've successfully processed this message — remove it from the queue so it won't be delivered again."
     }
