@@ -4,7 +4,7 @@ parameters:
 jobs:
 - job: CodeBuild
   pool:
-    name: SLD Build pool
+    name: SLD BUILD Pool - CD
   variables:
   - group: BUILD Management Resources
   - name: SolutionBaseName
@@ -141,4 +141,5 @@ jobs:
       DotNetStandardPackagesToPack: |
         src/SFA.DAS.Payments.EarningEvents.Messages/SFA.DAS.Payments.EarningEvents.Messages.csproj;
         src/SFA.DAS.Payments.EarningEvents.Messages.Internal/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj;
+        src/SFA.DAS.Payments.EarningEvents.Messages.External/SFA.DAS.Payments.EarningEvents.Messages.External.csproj;
         
