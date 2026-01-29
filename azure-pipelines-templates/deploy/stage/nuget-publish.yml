@@ -12,8 +12,12 @@ stages:
       eq(variables['Build.SourceBranch'], 'refs/heads/master'),
       eq(variables['Build.SourceBranch'], 'refs/heads/main')
     )
+<<<<<<< HEAD
+   )
+=======
     )
   
+>>>>>>> PV2-3822_process_incoming_das_earnings
 
   pool:
     name: SLD Build Pool

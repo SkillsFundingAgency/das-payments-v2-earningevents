@@ -70,6 +70,27 @@ jobs:
       createLogFile: true
       continueOnError: true
 
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build-Earnings Bridge'
+    inputs:
+      projects: src/SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages/SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages.csproj
+      arguments: '--configuration $(BuildConfiguration)'
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet publish'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: src/SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages/SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages.csproj
+      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\EarningBridge'
+      modifyOutputPath: false
+  
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Pipeline Artifact'
+    inputs:
+      targetPath: '$(build.artifactstagingdirectory)\EarningBridge'
+      artifact: EarningBridge
+
   - task: DeleteFiles@1
     displayName: 'Delete Symbols files from Artifact Folder '
     inputs:
