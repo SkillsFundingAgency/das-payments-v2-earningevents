@@ -1,13 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages.Events;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.Handlers
 {
-    internal class GSLCalculatePaymentsHandler
+    public interface IGslCalculatePaymentsHandler
+    {
+        public void HandleGslCalculatePaymentsMessage(CalculateGSLPayments message);
+
+
+
+    }
+
+    public class GSLCalculatePaymentsHandler : IGslCalculatePaymentsHandler
     {
         //takes in message object
         public GSLCalculatePaymentsHandler() { }
+
+        public void HandleGslCalculatePaymentsMessage(CalculateGSLPayments message)
+        {
+            throw new NotImplementedException();
+        }
 
         //pings API collection 
 

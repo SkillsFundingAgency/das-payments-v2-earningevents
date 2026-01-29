@@ -20,7 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages\SFA.DAS.Payments.EarningEvents.EarningsBridge.Messages.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Application\SFA.DAS.Payments.EarningEvents.Application.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
   </ItemGroup>
 
 </Project>
