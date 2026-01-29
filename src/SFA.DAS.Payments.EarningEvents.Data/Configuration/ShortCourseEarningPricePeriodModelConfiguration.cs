@@ -1,0 +1,27 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SFA.DAS.Payments.EarningEvents.Model;
+
+namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
+{
+    public class ShortCourseEarningPricePeriodModelConfiguration : IEntityTypeConfiguration<ShortCourseEarningPricePeriodModel>
+    {
+        public void Configure(EntityTypeBuilder<ShortCourseEarningPricePeriodModel> builder)
+        {
+            builder.ToTable("ShortCourseEarningPricePeriod", "Payments2");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("Id").IsRequired();
+            builder.Property(x => x.ShortCourseEarningsId).HasColumnName("ShortCourseEarningsId").IsRequired();
+            builder.Property(x => x.Price).HasColumnName("Price").IsRequired().HasColumnType("decimal(15,5)");
+            builder.Property(x => x.StartDate).HasColumnName("StartDate").IsRequired();
+            builder.Property(x => x.EndDate).HasColumnName("EndDate").IsRequired();
+            builder.Property(x => x.DeliveryPeriod).HasColumnName("DeliveryPeriod").IsRequired();
+            builder.Property(x => x.AcademicYear).HasColumnName("AcademicYear").IsRequired();
+            builder.Property(x => x.EarningType).HasColumnName("EarningType").IsRequired();
+            builder.Property(x => x.Amount).HasColumnName("Amount").IsRequired().HasColumnType("decimal(15,5)");
+            builder.Property(x => x.EmployerAccountId).HasColumnName("EmployerAccountId").IsRequired();
+            builder.Property(x => x.EmployerType).HasColumnName("EmployerType").IsRequired();
+            builder.Property(x => x.FundingAccountId).HasColumnName("FundingAccountId").IsRequired();
+        }
+    }
+}
