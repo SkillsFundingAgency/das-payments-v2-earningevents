@@ -73,7 +73,7 @@ jobs:
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build-Earnings Bridge'
     inputs:
-      projects: src/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function.csproj
+      projects: src/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function/SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.csproj
       arguments: '--configuration $(BuildConfiguration)'
   
   - task: DotNetCoreCLI@2
@@ -81,7 +81,7 @@ jobs:
     inputs:
       command: publish
       publishWebProjects: false
-      projects: src/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function.csproj
+      projects: src/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function/SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.csproj
       arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\EarningBridge'
       modifyOutputPath: false
   
