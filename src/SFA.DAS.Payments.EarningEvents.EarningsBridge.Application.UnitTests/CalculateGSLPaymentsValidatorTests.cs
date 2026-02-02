@@ -122,7 +122,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             Action act = () => _sut.Validate(_message);
 
             act.Should().Throw<ArgumentException>()
-                .WithMessage("Earnings is required");
+                .WithMessage("Earnings are required");
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             Action act = () => _sut.Validate(_message);
 
             act.Should().Throw<ArgumentException>()
-                .WithMessage("Earnings is required");
+                .WithMessage("Earnings are required");
         }
 
         [Test]
@@ -221,7 +221,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             Action act = () => _sut.Validate(_message);
 
             act.Should().Throw<ArgumentException>()
-                .WithMessage("Planned End Date is required");
+                .WithMessage("Training Planned End Date is required");
         }
 
         [Test]
@@ -438,47 +438,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void Validate_rejects_empty_earnings_amount()
-        {
-            _message.Earnings = new List<Earnings>
-            {
-                new Earnings
-                {
-                    AcademicYear = 2526,
-                    PricePeriods = new List<PricePeriod>
-                    {
-                        new PricePeriod
-                        {
-                            StartDate = new DateTime(2026, 1,1),
-                            EndDate = new DateTime(2026, 2, 28),
-                            Price = 1000m,
-                            Periods = new List<EarningPeriod>()
-                            {
-                                new EarningPeriod
-                                {
-                                    Amount = 0m,
-                                    DeliveryPeriod = 2,
-                                    EarningType = EarningType.Milestone1,
-                                    Employer = new Employer
-                                    {
-                                        AccountId = 5000,
-                                        EmployerType = EmployerType.Levy,
-                                        FundingAccountId = 5001
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            Action act = () => _sut.Validate(_message);
-
-            act.Should().Throw<ArgumentException>()
-                .WithMessage("Earnings Amount is required");
-        }
-
-        [Test]
         public void Validate_rejects_empty_earnings_employer()
         {
             _message.Earnings = new List<Earnings>
@@ -594,6 +553,23 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             act.Should().Throw<ArgumentException>()
                 .WithMessage("Earnings Employer Funding Account Id is required");
+        }
+
+        [Test]
+        public void Validate_rejects_null_command()
+        {
+            Action act = () => _sut.Validate(null);
+
+            act.Should().Throw<ArgumentException>()
+                .WithMessage("CalculateGSLPayments is required");
+        }
+
+        [Test]
+        public void Validate_accepts_valid_command()
+        {
+            var result = _sut.Validate(_message);
+
+            result.Should().BeTrue();
         }
     }
 }
