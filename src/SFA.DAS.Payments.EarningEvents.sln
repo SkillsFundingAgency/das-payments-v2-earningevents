@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Payments.EarningEve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.EarningEvents.EarningsBridge.Function", "SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function\SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.csproj", "{2486738E-1C2B-A1BB-FC48-5B531D3C44C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests", "SFA.DAS.Payments.EarningEvents.EarningsBridge.UnitTests\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.csproj", "{C6E220C5-0C59-4E55-8254-729519522843}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests", "SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.csproj", "{C6E220C5-0C59-4E55-8254-729519522843}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.EarningEvents.Data", "SFA.DAS.Payments.EarningEvents.Data\SFA.DAS.Payments.EarningEvents.Data.csproj", "{AE2D1EF0-C897-4409-914D-D47002E1DBB7}"
 EndProject
