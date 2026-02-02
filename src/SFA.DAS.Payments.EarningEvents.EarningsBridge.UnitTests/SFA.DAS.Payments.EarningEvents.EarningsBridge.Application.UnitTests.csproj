@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function\SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
