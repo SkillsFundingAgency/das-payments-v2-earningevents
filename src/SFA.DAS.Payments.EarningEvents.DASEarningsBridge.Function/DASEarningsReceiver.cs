@@ -1,8 +1,9 @@
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.Handlers;
-using SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.Repositories;
+using SFA.DAS.Payments.EarningEvents.Data;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
@@ -23,12 +24,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
 public class DASEarningsReceiver
 {
     private readonly ILogger<DASEarningsReceiver> _logger;
-    private readonly PaymentsRepository _paymentsRepository;
+    private readonly IgSLCalculatePaymentsHandler _gSLCalculatePaymentsHandler;
+    //private readonly IEarningsDataContext;
 
-    public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, PaymentsRepository paymentsRepository)
+    public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IgSLCalculatePaymentsHandler gSLCalculatePaymentsHandler)
     {
         _logger = logger;
-        _paymentsRepository = paymentsRepository; 
+        _gSLCalculatePaymentsHandler = gSLCalculatePaymentsHandler;
+        //_earningsRepository = earningsRepository; 
     }
 
     [Function(nameof(DASEarningsReceiver))]
@@ -47,18 +50,24 @@ ServiceBusReceivedMessage message,
         
         //Deserialize into GSL calculate payments model, object
         CalculateGSLPayments gSLPaymentMessage = message.Body.ToObjectFromJson<CalculateGSLPayments>();
-        // Handover to Handler
-        // Handler to GSLEarningsProcessor - Handler pass in GSLEarningsEvents (test check success) 
-            // Check ProviderPayments mapper - easiest to check with UnitTest
-        // GSLEarningsProcessor IEarningEvent Creation  
+        _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(gSLPaymentMessage);
+
+
+        
+        
+        // Handler to GSLEarningsProcessor - Handler pass in GSLEarningsEvents (test check success) - later check, not sure why this is needed
+        // Check ProviderPayments mapper(for the processor) - easiest to check with UnitTest
+        // GSLEarningsProcessor IEarningEvent Creation
+            //Inject Dave's short course earning model for IEarning event
+            //Put in the Earning event message
         // IEarningEarningEvent
         //IoC, Dependency Injection
-        
+
         //(Would be in Handler file, not called here) Handler to handle incoming calculate GSL payments message
-            //Another service (called within) GSLEarningProcessor - Code that is going to do conversion/mapping of the command
-                //Mapping class
-            //Another service (called within) CollectionPeriodAPI- collection period API check
-        
+        //Another service (called within) GSLEarningProcessor - Code that is going to do conversion/mapping of the command
+        //Mapping class
+        //Another service (called within) CollectionPeriodAPI- collection period API check
+
 
 
 
