@@ -8,5 +8,7 @@ namespace SFA.DAS.Payments.EarningEvents.Data
     {
         DbSet<ShortCourseEarningModel> ShortCourseEarnings { get; set; }
         DbSet<ShortCourseEarningPricePeriodModel> ShortCourseEarningPricePeriods { get; set; }
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        int SaveChanges();
     }
 }
