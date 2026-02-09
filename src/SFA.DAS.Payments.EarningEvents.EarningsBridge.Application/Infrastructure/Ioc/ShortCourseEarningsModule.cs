@@ -20,11 +20,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructu
                 .As<IEarningsDataContext>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<GSLEarningsProcessor>()
-                .As<IgSLEarningsProcessor>()
+            builder.RegisterType<GSLEarningsMapper>()
+                .As<IGSLEarningsMapper>()
                 .InstancePerLifetimeScope();
             builder.RegisterType<GSLCalculatePaymentsHandler>()
-                .As<IgSLCalculatePaymentsHandler>()
+                .As<IGSLCalculatePaymentsHandler>()
                 .InstancePerLifetimeScope();
             builder.RegisterType<CalculateGSLPaymentsValidator>()
                 .As<ICalculateGSLPaymentsValidator>()

@@ -24,10 +24,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
 public class DASEarningsReceiver
 {
     private readonly ILogger<DASEarningsReceiver> _logger;
-    private readonly IgSLCalculatePaymentsHandler _gSLCalculatePaymentsHandler;
+    private readonly IGSLCalculatePaymentsHandler _gSLCalculatePaymentsHandler;
     //private readonly IEarningsDataContext;
 
-    public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IgSLCalculatePaymentsHandler gSLCalculatePaymentsHandler)
+    public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGSLCalculatePaymentsHandler gSLCalculatePaymentsHandler)
     {
         _logger = logger;
         _gSLCalculatePaymentsHandler = gSLCalculatePaymentsHandler;
@@ -52,12 +52,10 @@ ServiceBusReceivedMessage message,
         CalculateGSLPayments gSLPaymentMessage = message.Body.ToObjectFromJson<CalculateGSLPayments>();
         _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(gSLPaymentMessage);
 
-
         
-        
-        // Handler to GSLEarningsProcessor - Handler pass in GSLEarningsEvents (test check success) - later check, not sure why this is needed
+        // Handler to GSLEarningsMapper - Handler pass in GSLEarningsEvents (test check success) - later check, not sure why this is needed
         // Check ProviderPayments mapper(for the processor) - easiest to check with UnitTest
-        // GSLEarningsProcessor IEarningEvent Creation
+        // GSLEarningsMapper IEarningEvent Creation
             //Inject Dave's short course earning model for IEarning event
             //Put in the Earning event message
         // IEarningEarningEvent

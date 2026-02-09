@@ -1,47 +1,56 @@
-﻿using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
-    public interface IgSLCalculatePaymentsHandler
-    {
-        public void HandleGslCalculatePaymentsMessage(CalculateGSLPayments message);
 
-    }
 
-    public class GSLCalculatePaymentsHandler : IgSLCalculatePaymentsHandler
+    public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
-        private IgSLEarningsProcessor _processor;
+        private IGSLEarningsMapper mapper;
+        private IEarningsRepository _repository;
+        //Need to double check if the Ilogger needs to be handled differently / using a different class
+        private ILogger<GSLCalculatePaymentsHandler> _logger;
 
-        //takes in message object
-        public GSLCalculatePaymentsHandler(ICalculateGSLPaymentsValidator validator,IgSLEarningsProcessor processor)
+        public GSLCalculatePaymentsHandler(
+            ICalculateGSLPaymentsValidator validator,
+            IGSLEarningsMapper mapper,
+            IEarningsRepository repository,
+            ILogger<GSLCalculatePaymentsHandler> logger)
         {
             _validator = validator;
-            _processor = processor;
+            this.mapper = mapper;
+            _repository = repository;
+            _logger = logger;
         }
 
 
-        // construction injection, route through interface, within module DI needs to happen for handler and processor
         public void HandleGslCalculatePaymentsMessage(CalculateGSLPayments message)
         {
-            _validator.Validate(message);
-                //error handling + logger needs to be done here
-                //throw an exception if message invalid, log message + dead-letter queue the message by re-throwing
+            try
+            {
+                _validator.Validate(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to validate GSL calculate payments message");
+                throw;
+            }
+
+            //throw an exception if message invalid, log message + dead-letter queue the message by re-throwing
             //pings collection period API to do the collection period check
-            _processor.MapToShortCourseEarningModel(message);
-            //mapped object gets sent to SQL DB
+
+            //mapped object gets sent to SQL DB - DI
+            var mappedValues = mapper.MapToShortCourseEarningModel(message);
+            _repository.SaveEarnings(mappedValues);
+
             //mapped object gets converted into an event - could use mapper to map message to event model 
                 //Double check if current collection period is stored in here
             //Sends off requiredpayments and earning audit message                
-
-
-
-
-
-
-
         }
 
     }
