@@ -49,15 +49,15 @@ ServiceBusReceivedMessage message,
         //_paymentsRepository.getcurrentcollectionperiod
         
         //Deserialize into GSL calculate payments model, object
-        CalculateGSLPayments gSLPaymentMessage = message.Body.ToObjectFromJson<CalculateGSLPayments>();
-        _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(gSLPaymentMessage);
+        CalculateGrowthAndSkillsPayments growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
+        _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
 
 
         
         
-        // Handler to GSLEarningsProcessor - Handler pass in GSLEarningsEvents (test check success) - later check, not sure why this is needed
-        // Check ProviderPayments mapper(for the processor) - easiest to check with UnitTest
-        // GSLEarningsProcessor IEarningEvent Creation
+        // Handler to GSLEarningsMapper - Handler pass in GSLEarningsEvents (test check success) - later check, not sure why this is needed
+        // Check ProviderPayments mapper(for the mapper) - easiest to check with UnitTest
+        // GSLEarningsMapper IEarningEvent Creation
             //Inject Dave's short course earning model for IEarning event
             //Put in the Earning event message
         // IEarningEarningEvent

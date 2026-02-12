@@ -9,11 +9,14 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="7.0.1" />
     <PackageReference Include="SFA.DAS.Payments.Core" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Data\SFA.DAS.Payments.EarningEvents.Data.csproj" />
     <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
   </ItemGroup>
 
 </Project>
