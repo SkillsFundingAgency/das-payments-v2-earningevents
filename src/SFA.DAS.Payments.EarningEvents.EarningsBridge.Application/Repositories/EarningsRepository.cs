@@ -3,22 +3,20 @@ using SFA.DAS.Payments.EarningEvents.Model;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
 {
-    public class EarningsRepository
+    public class EarningsRepository : IEarningsRepository
     {
         private readonly IEarningsDataContext earningsDataContext;
         
-        //needs to add shortcoursearningsmodule
-
         public EarningsRepository(IEarningsDataContext earningsDataContext)
         {
             this.earningsDataContext = earningsDataContext; 
         }
 
-        public void SaveEarningsToDatabase(ShortCourseEarningModel shortCourseEarningModel)
+        public void SaveEarnings(ShortCourseEarningModel shortCourseEarningModel)
         {
-            //responsible for 
-
+            //null check?
             earningsDataContext.ShortCourseEarnings.Add(shortCourseEarningModel);
+            earningsDataContext.SaveChanges(); 
 
             //var collectionPeriods = paymentsDataContext.CollectionPeriod.ToList();//.Select(cp=>new{cp.AcademicYear,cp.Period});
             //gets current collection period from database

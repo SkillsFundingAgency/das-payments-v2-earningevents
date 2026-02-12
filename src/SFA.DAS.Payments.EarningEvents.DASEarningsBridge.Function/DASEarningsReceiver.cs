@@ -24,10 +24,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
 public class DASEarningsReceiver
 {
     private readonly ILogger<DASEarningsReceiver> _logger;
-    private readonly IgSLCalculatePaymentsHandler _gSLCalculatePaymentsHandler;
+    private readonly IGSLCalculatePaymentsHandler _gSLCalculatePaymentsHandler;
     //private readonly IEarningsDataContext;
 
-    public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IgSLCalculatePaymentsHandler gSLCalculatePaymentsHandler)
+    public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGSLCalculatePaymentsHandler gSLCalculatePaymentsHandler)
     {
         _logger = logger;
         _gSLCalculatePaymentsHandler = gSLCalculatePaymentsHandler;
@@ -52,11 +52,9 @@ ServiceBusReceivedMessage message,
         CalculateGrowthAndSkillsPayments growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
         _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
 
-
-        
         
         // Handler to GSLEarningsMapper - Handler pass in GSLEarningsEvents (test check success) - later check, not sure why this is needed
-        // Check ProviderPayments mapper(for the mapper) - easiest to check with UnitTest
+        // Check ProviderPayments mapper(for the processor) - easiest to check with UnitTest
         // GSLEarningsMapper IEarningEvent Creation
             //Inject Dave's short course earning model for IEarning event
             //Put in the Earning event message
@@ -72,6 +70,6 @@ ServiceBusReceivedMessage message,
 
 
         await messageActions.CompleteMessageAsync(message);
-        //tells Azure Service Bus "I've successfully processed this message — remove it from the queue so it won't be delivered again."
+        //tells Azure Service Bus "I've successfully processed this message ï¿½ remove it from the queue so it won't be delivered again."
     }
 }

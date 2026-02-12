@@ -12,12 +12,6 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
-    public interface IGSLEarningsMapper
-    {
-        ShortCourseEarningModel MapToShortCourseEarningModel(CalculateGrowthAndSkillsPayments source);
-        GSLShortCourseEarningsEvent MapToShortCourseEarningEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
-    }
-
     public class GSLEarningsMapper : IGSLEarningsMapper
     {
         public ShortCourseEarningModel MapToShortCourseEarningModel(CalculateGrowthAndSkillsPayments source)
