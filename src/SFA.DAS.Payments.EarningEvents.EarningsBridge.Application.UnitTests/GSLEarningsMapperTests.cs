@@ -143,7 +143,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.Ukprn.Should().Be(_message.UKPRN);
             earningEvent.Learner.ReferenceNumber.Should().Be(_message.Learner.Reference);
             earningEvent.Learner.Uln.Should().Be(_message.Learner.ULN);
-            earningEvent.LearningAim.FundingLineType.Should().Be(expectedFundingLineType);
             earningEvent.LearningAim.StartDate.Should().Be(_message.Training.StartDate);
             earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
             earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);

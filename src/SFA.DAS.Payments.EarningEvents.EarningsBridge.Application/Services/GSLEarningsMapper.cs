@@ -61,9 +61,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 },
                 LearningAim = new Common.LearningAim
                 {
-                    FundingLineType = fundingLineType,
                     StartDate = source.Training.StartDate
-                    // any other fields to be populated? LearningAim Reference etc valid for GSL?
                 },
                 CollectionPeriod = new Common.CollectionPeriod
                 {
