@@ -193,5 +193,77 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 }
             }
         }
+
+        [Test]
+        public void TrainingStatus_is_mapped_correctly_for_completed_courses()
+        {
+            // Arrange
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+            _message.Training.TrainingStatus = TrainingStatus.Completed;
+
+            // Act
+            var earningEvent = _sut.MapToShortCourseEarningEvent(_message, academicYear, collectionPeriod);
+
+            // Assert
+            earningEvent.PriceEpisodes[0].Completed.Should().BeTrue();
+        }
+
+        [Test]
+        public void FundingLineType_is_mapped_correctly_for_non_levy_employers()
+        {
+            // Arrange
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    foreach (var earningPeriod in pricePeriod.Periods)
+                    {
+                        earningPeriod.Employer.EmployerType = EmployerType.NonLevy;
+                    }
+                }
+            }
+
+            // Act
+            var earningEvent = _sut.MapToShortCourseEarningEvent(_message, academicYear, collectionPeriod);
+
+            // Assert
+            var expectedFundingLineType = "GSO Short Courses (Apprenticeship Units) Non-Levy";
+            foreach (var priceEpisode in earningEvent.PriceEpisodes)
+            {
+                priceEpisode.FundingLineType.Should().Be(expectedFundingLineType);
+            }
+        }
+
+        [Test]
+        public void SfaContributionPercentage_is_mapped_correctly_for_non_levy_employers()
+        {
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    foreach (var earningPeriod in pricePeriod.Periods)
+                    {
+                        earningPeriod.Employer.EmployerType = EmployerType.NonLevy;
+                    }
+                }
+            }
+
+            // Act
+            var earningEvent = _sut.MapToShortCourseEarningEvent(_message, academicYear, collectionPeriod);
+
+            // Assert
+            foreach (var earning in earningEvent.Earnings)
+            {
+                foreach (var earningPeriod in earning.Periods)
+                {
+                    earningPeriod.SfaContributionPercentage.Should().Be(1m);    // 100%
+                }
+            }
+        }
     }
 }
