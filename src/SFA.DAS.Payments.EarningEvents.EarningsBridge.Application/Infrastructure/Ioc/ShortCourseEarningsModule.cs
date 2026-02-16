@@ -19,7 +19,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructu
                 })
                 .As<IEarningsDataContext>()
                 .InstancePerLifetimeScope();
-
+            // TODO: move to Microsoft DI in Earning Bridge Azure function project
             builder.RegisterType<GSLEarningsMapper>()
                 .As<IGSLEarningsMapper>()
                 .InstancePerLifetimeScope();

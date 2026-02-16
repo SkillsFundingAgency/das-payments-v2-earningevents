@@ -1,94 +1,44 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using FluentAssertions;
-using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
-using Model = SFA.DAS.Payments.EarningEvents.Model;
-
-//Generated test
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     [TestFixture]
+
+    // ReSharper disable once InconsistentNaming
     public class GSLEarningsMapperTests
     {
+        private CalculateGrowthAndSkillsPayments _message;
         private GSLEarningsMapper _sut;
 
         [SetUp]
         public void Setup()
         {
             _sut = new GSLEarningsMapper();
-        }
 
-        [Test]
-        public void MapToShortCourseEarningModel_Maps_TopLevel_Fields()
-        {
-            var source = CreateSource();
-
-            var result = _sut.MapToGrowthAndSkillsEarningModel(source);
-
-            result.EarningsId.Should().Be(source.EarningsId);
-            result.UKPRN.Should().Be(source.UKPRN);
-            result.LearnerId.Should().Be(source.Learner.LearnerId);
-            result.LearnerUln.Should().Be(source.Learner.ULN);
-            result.LearnerReference.Should().Be(source.Learner.Reference);
-            result.LearningType.Should().Be((Model.LearningType)source.Training.LearningType);
-            result.CourseCode.Should().Be(source.Training.CourseCode);
-            result.StartDate.Should().Be(source.Training.StartDate);
-            result.AgeAtStartOfTraining.Should().Be(source.Training.AgeAtStartOfTraining);
-            result.PlannedEndDate.Should().Be(source.Training.PlannedEndDate);
-            result.ActualEndDate.Should().Be(source.Training.ActualEndDate);
-            result.TrainingStatus.Should().Be((Model.TrainingStatus)source.Training.TrainingStatus);
-            result.EmployerContribution.Should().Be(source.EmployerContribution);
-        }
-
-        [Test]
-        public void MapToShortCourseEarningModel_Flattens_PricePeriods()
-        {
-            var source = CreateSource();
-
-            var result = _sut.MapToGrowthAndSkillsEarningModel(source);
-
-            result.PricePeriods.Should().HaveCount(4);
-
-            var mapped = result.PricePeriods.Single(pp => pp.AcademicYear == 2526 && pp.DeliveryPeriod == 2);
-
-            mapped.Price.Should().Be(1000m);
-            mapped.StartDate.Should().Be(new DateTime(2026, 1, 1));
-            mapped.EndDate.Should().Be(new DateTime(2026, 2, 28));
-            mapped.EarningType.Should().Be(Model.EarningType.Milestone1);
-            mapped.Amount.Should().Be(500m);
-            mapped.EmployerAccountId.Should().Be(5000);
-            mapped.EmployerType.Should().Be(Model.EmployerType.Levy);
-            mapped.FundingAccountId.Should().Be(5001);
-            mapped.GrowthAndSkillsEarningsId.Should().Be(source.EarningsId);
-        }
-
-        private static CalculateGSLPayments CreateSource()
-        {
-            return new CalculateGSLPayments
+            _message = new CalculateGrowthAndSkillsPayments
             {
-                EmployerContribution = 123.45m,
                 EarningsId = Guid.NewGuid(),
-                UKPRN = 10001234,
-                Learner = new Learner
-                {
-                    LearnerId = Guid.NewGuid(),
-                    Reference = "ref-1",
-                    ULN = 1234567890
-                },
+                EmployerContribution = 1000m,
+                UKPRN = 10002233,
                 Training = new Training
                 {
-                    StartDate = new DateTime(2026, 1, 1),
-                    AgeAtStartOfTraining = 25,
                     CourseCode = "ABC123",
                     LearningType = LearningType.ApprenticeshipUnit,
-                    PlannedEndDate = new DateTime(2026, 3, 31),
-                    ActualEndDate = new DateTime(2026, 4, 30),
-                    TrainingStatus = TrainingStatus.Continuing
+                    StartDate = new DateTime(2026, 1, 1),
+                    TrainingStatus = TrainingStatus.Continuing,
+                    AgeAtStartOfTraining = 25,
+                    PlannedEndDate = new DateTime(2026, 1, 15),
+                    ActualEndDate = new DateTime(2026, 1, 31)
+                },
+                Learner = new Learner
+                {
+                    ULN = 12345678,
+                    Reference = "LEARNREF001",
+                    LearnerId = Guid.NewGuid()
                 },
                 Earnings = new List<Earnings>
                 {
@@ -100,73 +50,24 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                             new PricePeriod
                             {
                                 StartDate = new DateTime(2026, 1, 1),
-                                EndDate = new DateTime(2026, 2, 28),
-                                Price = 1000m,
+                                Price = 5000m,
+                                EndDate = new DateTime(2026, 1, 31),
+                                CompletionAmount = 1000m,
+                                InstalmentAmount = 2000m,
+                                NumberOfInstalments = 2,
                                 Periods = new List<EarningPeriod>
                                 {
                                     new EarningPeriod
                                     {
-                                        Amount = 250m,
+                                        Employer = new Employer
+                                        {
+                                            EmployerType = EmployerType.Levy,
+                                            AccountId = 10000,
+                                            FundingAccountId = 10000
+                                        },
+                                        Amount = 2000m,
                                         DeliveryPeriod = 1,
-                                        EarningType = EarningType.Learning,
-                                        Employer = new Employer
-                                        {
-                                            AccountId = 5000,
-                                            EmployerType = EmployerType.Levy,
-                                            FundingAccountId = 5001
-                                        }
-                                    },
-                                    new EarningPeriod
-                                    {
-                                        Amount = 500m,
-                                        DeliveryPeriod = 2,
-                                        EarningType = EarningType.Milestone1,
-                                        Employer = new Employer
-                                        {
-                                            AccountId = 5000,
-                                            EmployerType = EmployerType.Levy,
-                                            FundingAccountId = 5001
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    new Earnings
-                    {
-                        AcademicYear = 2627,
-                        PricePeriods = new List<PricePeriod>
-                        {
-                            new PricePeriod
-                            {
-                                StartDate = new DateTime(2027, 1, 1),
-                                EndDate = new DateTime(2027, 2, 28),
-                                Price = 2000m,
-                                Periods = new List<EarningPeriod>
-                                {
-                                    new EarningPeriod
-                                    {
-                                        Amount = 750m,
-                                        DeliveryPeriod = 3,
-                                        EarningType = EarningType.Completion,
-                                        Employer = new Employer
-                                        {
-                                            AccountId = 6000,
-                                            EmployerType = EmployerType.NonLevy,
-                                            FundingAccountId = 6001
-                                        }
-                                    },
-                                    new EarningPeriod
-                                    {
-                                        Amount = 900m,
-                                        DeliveryPeriod = 4,
-                                        EarningType = EarningType.Balancing,
-                                        Employer = new Employer
-                                        {
-                                            AccountId = 6000,
-                                            EmployerType = EmployerType.NonLevy,
-                                            FundingAccountId = 6001
-                                        }
+                                        EarningType = EarningType.Milestone1
                                     }
                                 }
                             }
@@ -174,6 +75,194 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     }
                 }
             };
+        }
+
+        [Test]
+        public void Properties_are_mapping_from_inbound_message_to_database_model()
+        {
+            // Act
+            var model = _sut.MapToGrowthAndSkillsEarningModel(_message);
+
+            // Assert
+            model.EarningsId.Should().Be(_message.EarningsId);
+            model.UKPRN.Should().Be(_message.UKPRN);
+            model.LearnerId.Should().Be(_message.Learner.LearnerId);
+            model.LearnerReference.Should().Be(_message.Learner.Reference);
+            model.LearnerUln.Should().Be(_message.Learner.ULN);
+            var learningTypeValue = (int)model.LearningType;
+            learningTypeValue.Should().Be((int)_message.Training.LearningType);
+            model.CourseCode.Should().Be(_message.Training.CourseCode);
+            model.StartDate.Should().Be(_message.Training.StartDate);
+            model.AgeAtStartOfTraining.Should().Be(_message.Training.AgeAtStartOfTraining);
+            model.PlannedEndDate.Should().Be(_message.Training.PlannedEndDate);
+            model.ActualEndDate.Should().Be(_message.Training.ActualEndDate);
+            var trainingStatusValue = model.TrainingStatus;
+            trainingStatusValue.Should().Be((int)_message.Training.TrainingStatus);
+            model.EmployerContribution.Should().Be(_message.EmployerContribution);
+            var pricePeriodModels = model.PricePeriods.ToArray();
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    var pricePeriods = pricePeriod.Periods.ToArray();
+                    for (var i = 0; i < pricePeriods.Length; i++)
+                    {
+                        pricePeriodModels[i].AcademicYear.Should().Be(earning.AcademicYear);
+                        pricePeriodModels[i].Price.Should().Be(pricePeriod.Price);
+                        pricePeriodModels[i].StartDate.Should().Be(pricePeriod.StartDate);
+                        pricePeriodModels[i].EndDate.Should().Be(pricePeriod.EndDate);
+                        var earningTypeValue = (int)pricePeriodModels[i].EarningType;
+                        earningTypeValue.Should().Be((int)pricePeriods[i].EarningType);
+                        pricePeriodModels[i].Amount.Should().Be(pricePeriods[i].Amount);
+                        pricePeriodModels[i].EmployerAccountId.Should().Be(pricePeriods[i].Employer.AccountId);
+                        var employerTypeValue = (int)pricePeriodModels[i].EmployerType;
+                        employerTypeValue.Should().Be((int)pricePeriods[i].Employer.EmployerType);
+                        pricePeriodModels[i].FundingAccountId.Should().Be(pricePeriods[i].Employer.FundingAccountId);
+                        pricePeriodModels[i].GrowthAndSkillsEarningsId.Should().Be(_message.EarningsId);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Properties_are_mapped_from_inbound_message_to_short_course_earning_event()
+        {
+            // Arrange
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+
+            // Act
+            var earningEvent = _sut.MapToShortCourseEarningEvent(_message, academicYear, collectionPeriod);
+
+            // Assert
+            var expectedFundingLineType = "GSO Short Courses (Apprenticeship Units) Levy";
+            earningEvent.JobId.Should().Be(0);
+            earningEvent.EventTime.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1));
+            earningEvent.EventId.Should().NotBe(Guid.Empty);
+            earningEvent.ExternalEarningsId.Should().Be(_message.EarningsId);
+            earningEvent.Ukprn.Should().Be(_message.UKPRN);
+            earningEvent.Learner.ReferenceNumber.Should().Be(_message.Learner.Reference);
+            earningEvent.Learner.Uln.Should().Be(_message.Learner.ULN);
+            earningEvent.LearningAim.StartDate.Should().Be(_message.Training.StartDate);
+            earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
+            earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
+            var eventPriceEpisodes = earningEvent.PriceEpisodes.ToArray();
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    var pricePeriods = pricePeriod.Periods.ToArray();
+                    for (var i = 0; i < pricePeriods.Length; i++)
+                    {
+                        var expectedPriceEpisodeIdentifier = $"{_message.Training.CourseCode}-{pricePeriod.StartDate}";
+                        eventPriceEpisodes[i].Identifier.Should().Be(expectedPriceEpisodeIdentifier);
+                        eventPriceEpisodes[i].AgreedPrice.Should().Be(pricePeriod.Price);
+                        eventPriceEpisodes[i].CourseStartDate.Should().Be(_message.Training.StartDate);
+                        eventPriceEpisodes[i].EffectiveTotalNegotiatedPriceStartDate.Should().Be(_message.Training.StartDate);
+                        eventPriceEpisodes[i].PlannedEndDate.Should().Be(_message.Training.PlannedEndDate);
+                        eventPriceEpisodes[i].ActualEndDate.Should().Be(_message.Training.ActualEndDate);
+                        eventPriceEpisodes[i].NumberOfInstalments.Should().Be(pricePeriod.NumberOfInstalments);
+                        eventPriceEpisodes[i].InstalmentAmount.Should().Be(pricePeriod.InstalmentAmount);
+                        eventPriceEpisodes[i].CompletionAmount.Should().Be(pricePeriod.CompletionAmount);
+                        eventPriceEpisodes[i].Completed.Should().BeFalse();
+                        eventPriceEpisodes[i].FundingLineType.Should().Be(expectedFundingLineType);
+                    }
+                }
+            }
+
+            var eventEarnings = earningEvent.Earnings.ToArray();
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    var pricePeriods = pricePeriod.Periods.ToArray();
+                    for (var i = 0; i < pricePeriods.Length; i++)
+                    {
+                        var earningTypeValue = (int)eventEarnings[i].Type;
+                        earningTypeValue.Should().Be((int)pricePeriods[i].EarningType);
+                        eventEarnings[i].Periods.Count().Should().Be(1);
+                        var earningPeriod = eventEarnings[i].Periods.FirstOrDefault();
+                        earningPeriod.AccountId.Should().Be(pricePeriods[i].Employer.AccountId);
+                        earningPeriod.Amount.Should().Be(pricePeriods[i].Amount);
+                        var employerTypeValue = (int)earningPeriod.ApprenticeshipEmployerType;
+                        employerTypeValue.Should().Be((int)pricePeriods[i].Employer.EmployerType);
+                        earningPeriod.Period.Should().Be(pricePeriods[i].DeliveryPeriod);
+                        earningPeriod.SfaContributionPercentage.Should().Be(0.95m); // 95% funding for Levy employers
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void TrainingStatus_is_mapped_correctly_for_completed_courses()
+        {
+            // Arrange
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+            _message.Training.TrainingStatus = TrainingStatus.Completed;
+
+            // Act
+            var earningEvent = _sut.MapToShortCourseEarningEvent(_message, academicYear, collectionPeriod);
+
+            // Assert
+            earningEvent.PriceEpisodes[0].Completed.Should().BeTrue();
+        }
+
+        [Test]
+        public void FundingLineType_is_mapped_correctly_for_non_levy_employers()
+        {
+            // Arrange
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    foreach (var earningPeriod in pricePeriod.Periods)
+                    {
+                        earningPeriod.Employer.EmployerType = EmployerType.NonLevy;
+                    }
+                }
+            }
+
+            // Act
+            var earningEvent = _sut.MapToShortCourseEarningEvent(_message, academicYear, collectionPeriod);
+
+            // Assert
+            var expectedFundingLineType = "GSO Short Courses (Apprenticeship Units) Non-Levy";
+            foreach (var priceEpisode in earningEvent.PriceEpisodes)
+            {
+                priceEpisode.FundingLineType.Should().Be(expectedFundingLineType);
+            }
+        }
+
+        [Test]
+        public void SfaContributionPercentage_is_mapped_correctly_for_non_levy_employers()
+        {
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    foreach (var earningPeriod in pricePeriod.Periods)
+                    {
+                        earningPeriod.Employer.EmployerType = EmployerType.NonLevy;
+                    }
+                }
+            }
+
+            // Act
+            var earningEvent = _sut.MapToShortCourseEarningEvent(_message, academicYear, collectionPeriod);
+
+            // Assert
+            foreach (var earning in earningEvent.Earnings)
+            {
+                foreach (var earningPeriod in earning.Periods)
+                {
+                    earningPeriod.SfaContributionPercentage.Should().Be(1m);    // 100%
+                }
+            }
         }
     }
 }

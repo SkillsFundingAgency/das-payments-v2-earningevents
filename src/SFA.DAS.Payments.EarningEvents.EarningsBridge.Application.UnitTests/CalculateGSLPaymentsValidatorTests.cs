@@ -10,13 +10,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
     public class CalculateGSLPaymentsValidatorTests
     {
         private CalculateGSLPaymentsValidator _sut;
-        private CalculateGSLPayments _message;
+        private CalculateGrowthAndSkillsPayments _message;
 
         [SetUp]
         public void Setup()
         {
             _sut = new CalculateGSLPaymentsValidator();
-            _message = new CalculateGSLPayments
+            _message = new CalculateGrowthAndSkillsPayments
             {
                 EmployerContribution = 0m,
                 EarningsId = Guid.NewGuid(),
@@ -561,7 +561,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             Action act = () => _sut.Validate(null);
 
             act.Should().Throw<ArgumentException>()
-                .WithMessage("CalculateGSLPayments is required");
+                .WithMessage("CalculateGrowthAndSkillsPayments is required");
         }
 
         [Test]

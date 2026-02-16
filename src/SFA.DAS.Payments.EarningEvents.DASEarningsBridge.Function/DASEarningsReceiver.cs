@@ -49,8 +49,8 @@ ServiceBusReceivedMessage message,
         //_paymentsRepository.getcurrentcollectionperiod
         
         //Deserialize into GSL calculate payments model, object
-        CalculateGSLPayments gSLPaymentMessage = message.Body.ToObjectFromJson<CalculateGSLPayments>();
-        _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(gSLPaymentMessage);
+        CalculateGrowthAndSkillsPayments growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
+        _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
 
         
         // Handler to GSLEarningsMapper - Handler pass in GSLEarningsEvents (test check success) - later check, not sure why this is needed
@@ -70,6 +70,6 @@ ServiceBusReceivedMessage message,
 
 
         await messageActions.CompleteMessageAsync(message);
-        //tells Azure Service Bus "I've successfully processed this message — remove it from the queue so it won't be delivered again."
+        //tells Azure Service Bus "I've successfully processed this message ï¿½ remove it from the queue so it won't be delivered again."
     }
 }
