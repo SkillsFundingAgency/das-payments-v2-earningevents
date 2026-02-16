@@ -3,6 +3,7 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.External
 {
     public class Training
     {
+        public CourseType CourseType { get; set; }
         public LearningType LearningType { get; set; }
         public string CourseCode { get; set; }
         public DateTime StartDate { get; set; }

@@ -8,8 +8,8 @@ namespace SFA.DAS.Payments.EarningEvents.Data
     {
         private readonly string connectionString;
 
-        public DbSet<ShortCourseEarningModel> ShortCourseEarnings { get; set; }
-        public DbSet<ShortCourseEarningPricePeriodModel> ShortCourseEarningPricePeriods { get; set; }
+        public DbSet<GrowthAndSkillsEarningModel> ShortCourseEarnings { get; set; }
+        public DbSet<GrowthAndSkillsEarningPricePeriodModel> ShortCourseEarningPricePeriods { get; set; }
 
         public EarningsDataContext(string connectionString)
         {
@@ -29,8 +29,8 @@ namespace SFA.DAS.Payments.EarningEvents.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.HasDefaultSchema("Payments2");
-            modelBuilder.ApplyConfiguration(new ShortCourseEarningModelConfiguration());
-            modelBuilder.ApplyConfiguration(new ShortCourseEarningPricePeriodModelConfiguration());
+            modelBuilder.ApplyConfiguration(new GrowthAndSkillsEarningModelConfiguration());
+            modelBuilder.ApplyConfiguration(new GrowthAndSkillsEarningPricePeriodModelConfiguration());
         }
 
     }

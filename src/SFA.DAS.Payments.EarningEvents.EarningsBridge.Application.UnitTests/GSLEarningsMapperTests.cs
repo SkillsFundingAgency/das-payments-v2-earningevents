@@ -81,7 +81,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         public void Properties_are_mapping_from_inbound_message_to_database_model()
         {
             // Act
-            var model = _sut.MapToShortCourseEarningModel(_message);
+            var model = _sut.MapToGrowthAndSkillsEarningModel(_message);
 
             // Assert
             model.EarningsId.Should().Be(_message.EarningsId);
@@ -99,6 +99,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var trainingStatusValue = model.TrainingStatus;
             trainingStatusValue.Should().Be((int)_message.Training.TrainingStatus);
             model.EmployerContribution.Should().Be(_message.EmployerContribution);
+            var courseTypeValue = (int)model.CourseType;
+            courseTypeValue.Should().Be((int)_message.Training.CourseType);
             var pricePeriodModels = model.PricePeriods.ToArray();
             foreach (var earning in _message.Earnings)
             {
@@ -118,7 +120,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                         var employerTypeValue = (int)pricePeriodModels[i].EmployerType;
                         employerTypeValue.Should().Be((int)pricePeriods[i].Employer.EmployerType);
                         pricePeriodModels[i].FundingAccountId.Should().Be(pricePeriods[i].Employer.FundingAccountId);
-                        pricePeriodModels[i].ShortCourseEarningsId.Should().Be(_message.EarningsId);
+                        pricePeriodModels[i].GrowthAndSkillsEarningsId.Should().Be(_message.EarningsId);
                     }
                 }
             }

@@ -45,7 +45,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             //pings collection period API to do the collection period check
 
             //mapped object gets sent to SQL DB - DI
-            var mappedValues = mapper.MapToShortCourseEarningModel(message);
+            var mappedValues = mapper.MapToGrowthAndSkillsEarningModel(message);
             _repository.SaveEarnings(mappedValues);
 
             //mapped object gets converted into an event - could use mapper to map message to event model 

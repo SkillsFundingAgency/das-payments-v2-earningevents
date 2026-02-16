@@ -6,6 +6,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 
 public interface IGSLEarningsMapper
 {
-    ShortCourseEarningModel MapToShortCourseEarningModel(CalculateGrowthAndSkillsPayments source);
+    GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source);    
     GSLShortCourseEarningsEvent MapToShortCourseEarningEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
 }

@@ -14,9 +14,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
     public class GSLEarningsMapper : IGSLEarningsMapper
     {
-        public ShortCourseEarningModel MapToShortCourseEarningModel(CalculateGrowthAndSkillsPayments source)
+        public GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source)
         {
-            return new ShortCourseEarningModel
+            return new GrowthAndSkillsEarningModel
             {
                 EarningsId = source.EarningsId,
                 UKPRN = source.UKPRN,
@@ -31,22 +31,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 ActualEndDate = source.Training.ActualEndDate,
                 TrainingStatus = (Model.TrainingStatus)source.Training.TrainingStatus,
                 EmployerContribution = source.EmployerContribution,
+                CourseType = (Model.CourseType)source.Training.CourseType,
                 PricePeriods = MapToPricePeriodModels(source)
             };
         }
 
         public GSLShortCourseEarningsEvent MapToShortCourseEarningEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod)
         {
-            var fundingLineType = string.Empty; 
-            // Assuming that for a short course, the learner will remain with the same employer for all earnings
-            var earning = source.Earnings.FirstOrDefault();
-            var pricePeriod = earning?.PricePeriods.FirstOrDefault();
-            var earningPeriod = pricePeriod?.Periods.FirstOrDefault();
-            if (earningPeriod != null)
-            {
-                fundingLineType = BuildFundingLineType(earningPeriod.Employer.EmployerType);
-            }
-
             var earningsEvent = new GSLShortCourseEarningsEvent
             {
                 JobId = 0,
@@ -77,30 +68,30 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             return earningsEvent;
         }
 
-        private List<ShortCourseEarningPricePeriodModel> MapToPricePeriodModels(CalculateGrowthAndSkillsPayments source)
+        private List<GrowthAndSkillsEarningPricePeriodModel> MapToPricePeriodModels(CalculateGrowthAndSkillsPayments source)
         {
-            var output = new List<ShortCourseEarningPricePeriodModel>();
-            
+            var output = new List<GrowthAndSkillsEarningPricePeriodModel>();
+
             foreach (var earning in source.Earnings)
             {
                 foreach (var pricePeriod in earning.PricePeriods)
                 {
                     foreach (var earningPeriod in pricePeriod.Periods)
                     {
-                        var shortCourseEarningPricePeriodRecord = new ShortCourseEarningPricePeriodModel
-                            {
-                                AcademicYear = earning.AcademicYear,
-                                Price = pricePeriod.Price,
-                                StartDate = pricePeriod.StartDate,
-                                EndDate = pricePeriod.EndDate,
-                                DeliveryPeriod = earningPeriod.DeliveryPeriod,
-                                EarningType = (Model.EarningType)earningPeriod.EarningType,
-                                Amount = earningPeriod.Amount,
-                                EmployerAccountId = earningPeriod.Employer.AccountId,
-                                EmployerType = (Model.EmployerType)earningPeriod.Employer.EmployerType,
-                                FundingAccountId = earningPeriod.Employer.FundingAccountId,
-                                ShortCourseEarningsId = source.EarningsId
-                            };
+                        var shortCourseEarningPricePeriodRecord = new GrowthAndSkillsEarningPricePeriodModel
+                        {
+                            AcademicYear = earning.AcademicYear,
+                            Price = pricePeriod.Price,
+                            StartDate = pricePeriod.StartDate,
+                            EndDate = pricePeriod.EndDate,
+                            DeliveryPeriod = earningPeriod.DeliveryPeriod,
+                            EarningType = (Model.EarningType)earningPeriod.EarningType,
+                            Amount = earningPeriod.Amount,
+                            EmployerAccountId = earningPeriod.Employer.AccountId,
+                            EmployerType = (Model.EmployerType)earningPeriod.Employer.EmployerType,
+                            FundingAccountId = earningPeriod.Employer.FundingAccountId,
+                            GrowthAndSkillsEarningsId = source.EarningsId
+                        };
 
                         output.Add(shortCourseEarningPricePeriodRecord);
                     }
@@ -169,9 +160,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                     foreach (var period in pricePeriod.Periods)
                     {
                         shortCourseEarnings.Add(new ShortCourseEarning
-                            {
-                                Type = (ShortCourseEarningType)period.EarningType,
-                                Periods = new List<Common.EarningPeriod>
+                        {
+                            Type = (ShortCourseEarningType)period.EarningType,
+                            Periods = new List<Common.EarningPeriod>
                                 {
                                     new Common.EarningPeriod
                                     {
@@ -182,13 +173,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                                         SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType)
                                     }
                                 }
-                            }
+                        }
 
                         );
                     }
                 }
             }
-            
+
             return shortCourseEarnings;
         }
 
@@ -203,4 +194,3 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
         }
     }
 }
-

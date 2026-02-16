@@ -4,11 +4,11 @@ using SFA.DAS.Payments.EarningEvents.Model;
 
 namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
 {
-    internal class ShortCourseEarningModelConfiguration : IEntityTypeConfiguration<ShortCourseEarningModel>
+    internal class GrowthAndSkillsEarningModelConfiguration : IEntityTypeConfiguration<GrowthAndSkillsEarningModel>
     {
-        public void Configure(EntityTypeBuilder<ShortCourseEarningModel> builder)
+        public void Configure(EntityTypeBuilder<GrowthAndSkillsEarningModel> builder)
         {
-            builder.ToTable("ShortCourseEarning", "Payments2");
+            builder.ToTable("GrowthAndSkillsEarning", "Payments2");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("Id").IsRequired();
             builder.Property(x => x.EarningsId).HasColumnName("EarningsId").IsRequired();
@@ -24,6 +24,7 @@ namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
             builder.Property(x => x.ActualEndDate).HasColumnName("ActualEndDate");
             builder.Property(x => x.TrainingStatus).HasColumnName("TrainingStatus").IsRequired();
             builder.Property(x => x.EmployerContribution).HasColumnName("EmployerContribution").IsRequired().HasColumnType("decimal(15,5)");
+            builder.Property(x => x.CourseType).HasColumnName("CourseType").IsRequired();
         }
     }
 }
