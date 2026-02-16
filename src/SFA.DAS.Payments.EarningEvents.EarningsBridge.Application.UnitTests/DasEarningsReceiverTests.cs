@@ -16,7 +16,7 @@
     //public class DasEarningsReceiverTests
     //{
     //    // When the subscriber gets a message it should write some logs with message details
-    //    // It should turn the message body (JSON) into a CalculateGSLPayments object
+    //    // It should turn the message body (JSON) into a CalculateGrowthAndSkillsPayments object
     //    // It should tell the service bus that the message was handled (CompleteMessageAsync).
 
     //    [Fact]
@@ -24,7 +24,7 @@
     //    {
     //        // Initial setup
     //        // Creates a small payload to be read
-    //        var payload = new CalculateGSLPayments
+    //        var payload = new CalculateGrowthAndSkillsPayments
     //        {
     //            EarningsId = 1,
     //            UKPRN = 12345

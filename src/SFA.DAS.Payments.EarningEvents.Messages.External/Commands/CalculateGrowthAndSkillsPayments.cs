@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Payments.EarningEvents.Messages.External.Commands
 {
-    public class CalculateGSLPayments
+    public class CalculateGrowthAndSkillsPayments
     {
         public decimal EmployerContribution { get; set; }
         public Guid EarningsId { get; set; } // Will be generated as UUID Version 7

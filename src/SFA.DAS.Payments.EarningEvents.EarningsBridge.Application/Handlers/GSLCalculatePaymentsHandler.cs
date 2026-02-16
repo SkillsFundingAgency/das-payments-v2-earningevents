@@ -29,7 +29,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
         }
 
 
-        public void HandleGslCalculatePaymentsMessage(CalculateGSLPayments message)
+        public void HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
         {
             try
             {

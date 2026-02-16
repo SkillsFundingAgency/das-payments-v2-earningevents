@@ -4,5 +4,5 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
 
 public interface IGSLCalculatePaymentsHandler
 {
-    public void HandleGslCalculatePaymentsMessage(CalculateGSLPayments message);
+    public void HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message);
 }
