@@ -3,6 +3,8 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.Model;
+using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
@@ -11,21 +13,24 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
     public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
-        private IGSLEarningsMapper mapper;
+        private IGSLearningsMapper _mapper;
         private IEarningsRepository _repository;
-        //Need to double check if the Ilogger needs to be handled differently / using a different class
+        private ICollectionPeriodApi _collectionPeriodAPI;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
 
         public GSLCalculatePaymentsHandler(
             ICalculateGSLPaymentsValidator validator,
-            IGSLEarningsMapper mapper,
+            IGSLearningsMapper mapper,
             IEarningsRepository repository,
+            ICollectionPeriodApi collectionPeriodAPI,
             ILogger<GSLCalculatePaymentsHandler> logger)
         {
             _validator = validator;
-            this.mapper = mapper;
+            _mapper = mapper;
             _repository = repository;
+            _collectionPeriodAPI = collectionPeriodAPI;
             _logger = logger;
+            
         }
 
 
@@ -41,17 +46,33 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 throw;
             }
 
-            //throw an exception if message invalid, log message + dead-letter queue the message by re-throwing
-            //pings collection period API to do the collection period check
+            GrowthAndSkillsEarningModel mappedValues = _mapper.MapToGrowthAndSkillsEarningModel(message);
 
-            //mapped object gets sent to SQL DB - DI
-            var mappedValues = mapper.MapToGrowthAndSkillsEarningModel(message);
+
+
+            List<CollectionPeriodModel> imaginaryListFromCollectionPeriodAPI = new List<CollectionPeriodModel>(); //dictionary of academic years
+
+            foreach (var mappedValue in mappedValues.PricePeriods)
+            {
+                
+                if (imaginaryListFromCollectionPeriodAPI.Any(x =>
+                        x.AcademicYear = 2425 && x.Status == CollectionPeriodStatus.Open))
+                {
+                    //using mapped values within here
+                    //set processed on a datetime , IEarningEvents + send required messages events out
+                    _mapper.MapToReceivedDASEarningsMessageModel(
+                        message); //won't be sent out if there wasn't an open collection period
+                }
+            }
+
+            //saved to the cache at the end 
             _repository.SaveEarnings(mappedValues);
 
-            //mapped object gets converted into an event - could use mapper to map message to event model 
-                //Double check if current collection period is stored in here
-            //Sends off requiredpayments and earning audit message                
         }
 
     }
 }
+//NotStarted = 1,
+//Open = 2,
+//Closed = 3,
+//Completed = 4,

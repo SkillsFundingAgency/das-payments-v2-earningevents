@@ -12,8 +12,15 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
-    public class GSLEarningsMapper : IGSLEarningsMapper
+    public class GSLEarningsMapper : IGSLearningsMapper
     {
+        private ICollectionPeriodApi _collectionPeriodApi;
+        
+        public GSLEarningsMapper(ICollectionPeriodApi collectionPeriodApi)
+        {
+            _collectionPeriodApi = collectionPeriodApi;
+        }
+
         public GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source)
         {
             return new GrowthAndSkillsEarningModel
@@ -192,5 +199,30 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 
             return 0.95m; // 95% for Levy employers
         }
+
+        public List<ReceivedDASEarningsMessageModel> MapToReceivedDASEarningsMessageModel(CalculateGrowthAndSkillsPayments source)
+        {
+            var output = new List<ReceivedDASEarningsMessageModel>();
+
+            foreach (var earning in source.Earnings)
+            {
+                var collectionPeriod = _collectionPeriodApi.GetCollectionPeriod(earning.AcademicYear);
+
+                var receivedDasEarningsMessage = new ReceivedDASEarningsMessageModel
+                {
+                    EarningsId = source.EarningsId,
+                    CourseCode = source.Training.CourseCode,
+                    CollectionPeriod = collectionPeriod.Period, //verify the logic here
+                    AcademicYear = earning.AcademicYear
+                };
+                output.Add(receivedDasEarningsMessage);
+            }
+
+            return output;
+
+        }
     }
+
+
 }
+
