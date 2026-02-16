@@ -28,7 +28,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         {
             var source = CreateSource();
 
-            var result = _sut.MapToShortCourseEarningModel(source);
+            var result = _sut.MapToGrowthAndSkillsEarningModel(source);
 
             result.EarningsId.Should().Be(source.EarningsId);
             result.UKPRN.Should().Be(source.UKPRN);
@@ -50,7 +50,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         {
             var source = CreateSource();
 
-            var result = _sut.MapToShortCourseEarningModel(source);
+            var result = _sut.MapToGrowthAndSkillsEarningModel(source);
 
             result.PricePeriods.Should().HaveCount(4);
 
@@ -64,7 +64,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             mapped.EmployerAccountId.Should().Be(5000);
             mapped.EmployerType.Should().Be(Model.EmployerType.Levy);
             mapped.FundingAccountId.Should().Be(5001);
-            mapped.ShortCourseEarningsId.Should().Be(source.EarningsId);
+            mapped.GrowthAndSkillsEarningsId.Should().Be(source.EarningsId);
         }
 
         private static CalculateGSLPayments CreateSource()

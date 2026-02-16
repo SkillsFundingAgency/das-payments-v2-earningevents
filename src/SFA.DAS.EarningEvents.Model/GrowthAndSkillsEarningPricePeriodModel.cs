@@ -1,10 +1,10 @@
 ﻿
 namespace SFA.DAS.Payments.EarningEvents.Model
 {
-    public class ShortCourseEarningPricePeriodModel
+    public class GrowthAndSkillsEarningPricePeriodModel
     {
         public long Id { get; set; }
-        public Guid ShortCourseEarningsId { get; set; }
+        public Guid GrowthAndSkillsEarningsId { get; set; }
         public decimal Price { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }

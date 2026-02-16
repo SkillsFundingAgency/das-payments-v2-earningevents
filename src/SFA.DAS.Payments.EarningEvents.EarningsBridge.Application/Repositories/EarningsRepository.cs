@@ -12,10 +12,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
             this.earningsDataContext = earningsDataContext; 
         }
 
-        public void SaveEarnings(ShortCourseEarningModel shortCourseEarningModel)
+        public void SaveEarnings(GrowthAndSkillsEarningModel growthAndSkillsEarningModel)
         {
             //null check?
-            earningsDataContext.ShortCourseEarnings.Add(shortCourseEarningModel);
+            earningsDataContext.ShortCourseEarnings.Add(growthAndSkillsEarningModel);
             earningsDataContext.SaveChanges(); 
 
             //var collectionPeriods = paymentsDataContext.CollectionPeriod.ToList();//.Select(cp=>new{cp.AcademicYear,cp.Period});

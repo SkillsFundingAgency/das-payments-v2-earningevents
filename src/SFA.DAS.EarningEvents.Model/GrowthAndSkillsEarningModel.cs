@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Payments.EarningEvents.Model
 {
-    public class ShortCourseEarningModel
+    public class GrowthAndSkillsEarningModel
     {
         public long Id { get; set; }
         public Guid EarningsId { get; set; }
@@ -17,6 +17,6 @@
         public TrainingStatus TrainingStatus { get; set; }
         public decimal EmployerContribution { get; set; }
 
-        public List<ShortCourseEarningPricePeriodModel> PricePeriods { get; set; } = new List<ShortCourseEarningPricePeriodModel>();
+        public List<GrowthAndSkillsEarningPricePeriodModel> PricePeriods { get; set; } = new List<GrowthAndSkillsEarningPricePeriodModel>();
     }
 }

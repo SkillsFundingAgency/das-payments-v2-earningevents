@@ -9,9 +9,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
     //Rename to mapper /
     public class GSLEarningsMapper : IGSLEarningsMapper
     {
-        public ShortCourseEarningModel MapToShortCourseEarningModel(CalculateGSLPayments source)
+        public GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGSLPayments source)
         {
-            return new ShortCourseEarningModel
+            return new GrowthAndSkillsEarningModel
             {
                 EarningsId = source.EarningsId,
                 UKPRN = source.UKPRN,
@@ -30,9 +30,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             };
         }
 
-        private List<ShortCourseEarningPricePeriodModel> MapToPricePeriodModels(CalculateGSLPayments source )
+        private List<GrowthAndSkillsEarningPricePeriodModel> MapToPricePeriodModels(CalculateGSLPayments source )
             {
-                    var output = new List<ShortCourseEarningPricePeriodModel>();
+                    var output = new List<GrowthAndSkillsEarningPricePeriodModel>();
 
                     foreach (var earning in source.Earnings)
                     {
@@ -40,7 +40,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                         {
                             foreach (var earningPeriod in pricePeriod.Periods)
                             {
-                                output.Add(new ShortCourseEarningPricePeriodModel
+                                output.Add(new GrowthAndSkillsEarningPricePeriodModel
                                 {
                                     AcademicYear = earning.AcademicYear,
                                     Price = pricePeriod.Price,
@@ -52,7 +52,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                                     EmployerAccountId = earningPeriod.Employer.AccountId,
                                     EmployerType = (Model.EmployerType)earningPeriod.Employer.EmployerType,
                                     FundingAccountId = earningPeriod.Employer.FundingAccountId,
-                                    ShortCourseEarningsId = source.EarningsId
+                                    GrowthAndSkillsEarningsId = source.EarningsId
                                 });
                             }
                         }

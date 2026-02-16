@@ -4,11 +4,11 @@ using SFA.DAS.Payments.EarningEvents.Model;
 
 namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
 {
-    internal class ShortCourseEarningModelConfiguration : IEntityTypeConfiguration<ShortCourseEarningModel>
+    internal class GrowthAndSkillsEarningModelConfiguration : IEntityTypeConfiguration<GrowthAndSkillsEarningModel>
     {
-        public void Configure(EntityTypeBuilder<ShortCourseEarningModel> builder)
+        public void Configure(EntityTypeBuilder<GrowthAndSkillsEarningModel> builder)
         {
-            builder.ToTable("ShortCourseEarning", "Payments2");
+            builder.ToTable("GrowthAndSkillsEarning", "Payments2");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("Id").IsRequired();
             builder.Property(x => x.EarningsId).HasColumnName("EarningsId").IsRequired();
