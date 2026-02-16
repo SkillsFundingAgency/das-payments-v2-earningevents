@@ -99,6 +99,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var trainingStatusValue = model.TrainingStatus;
             trainingStatusValue.Should().Be((int)_message.Training.TrainingStatus);
             model.EmployerContribution.Should().Be(_message.EmployerContribution);
+            var courseTypeValue = (int)model.CourseType;
+            courseTypeValue.Should().Be((int)_message.Training.CourseType);
             var pricePeriodModels = model.PricePeriods.ToArray();
             foreach (var earning in _message.Earnings)
             {
