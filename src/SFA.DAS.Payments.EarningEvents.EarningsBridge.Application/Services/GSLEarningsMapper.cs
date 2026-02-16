@@ -31,22 +31,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 ActualEndDate = source.Training.ActualEndDate,
                 TrainingStatus = (Model.TrainingStatus)source.Training.TrainingStatus,
                 EmployerContribution = source.EmployerContribution,
+                CourseType = (Model.CourseType)source.Training.CourseType,
                 PricePeriods = MapToPricePeriodModels(source)
             };
         }
 
         public GSLShortCourseEarningsEvent MapToShortCourseEarningEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod)
         {
-            var fundingLineType = string.Empty;
-            // Assuming that for a short course, the learner will remain with the same employer for all earnings
-            var earning = source.Earnings.FirstOrDefault();
-            var pricePeriod = earning?.PricePeriods.FirstOrDefault();
-            var earningPeriod = pricePeriod?.Periods.FirstOrDefault();
-            if (earningPeriod != null)
-            {
-                fundingLineType = BuildFundingLineType(earningPeriod.Employer.EmployerType);
-            }
-
             var earningsEvent = new GSLShortCourseEarningsEvent
             {
                 JobId = 0,
