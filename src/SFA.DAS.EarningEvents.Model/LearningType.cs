@@ -5,7 +5,7 @@ namespace SFA.DAS.Payments.EarningEvents.Model
     {
         Apprenticeship = 1,
         FoundationApprenticeship = 2,
-        FunctionalSkill = 3,
+        MathsAndEnglish = 3,
         ApprenticeshipUnit = 4
     }
 }
