@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Payments.EarningEvents.Messages.External;
+﻿using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
+using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 
@@ -9,6 +10,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
     //Rename to mapper /
     public class GSLEarningsMapper : IGSLEarningsMapper
     {
+        private ICollectionPeriodApi _collectionPeriodApi;
+        public GSLEarningsMapper(ICollectionPeriodApi collectionPeriodApi)
+        {
+            _collectionPeriodApi = collectionPeriodApi;
+        }
         public ShortCourseEarningModel MapToShortCourseEarningModel(CalculateGSLPayments source)
         {
             return new ShortCourseEarningModel
@@ -60,6 +66,28 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 
                     return output;
                 }
+
+        public List<ReceivedDASEarningsMessageModel> MapToReceivedDASEarningsMessageModel(CalculateGSLPayments source)
+        {
+            var output = new List<ReceivedDASEarningsMessageModel>();
+
+            foreach (var earning in source.Earnings)
+            {
+                var collectionPeriod = _collectionPeriodApi.GetCollectionPeriod(earning.AcademicYear);
+
+                var receivedDasEarningsMessage = new ReceivedDASEarningsMessageModel
+                {
+                    EarningsId = source.EarningsId,
+                    CourseCode = source.Training.CourseCode,
+                    CollectionPeriod = collectionPeriod.Period, //verify the logic here
+                    AcademicYear = earning.AcademicYear
+                };
+                output.Add(receivedDasEarningsMessage);
+            }
+
+            return output;
+
+        }
     }
 
 

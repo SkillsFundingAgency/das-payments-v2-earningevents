@@ -8,30 +8,16 @@ using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
 
-//Theory behind queue system
-// https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview
-
-// Explains the file contents
-// https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-service-bus-trigger?tabs=python-v2%2Cisolated-process%2Cnodejs-v4%2Cqueue%2Cextensionv5&pivots=programming-language-csharp
-
-// Explains how to test it locally via azure set up
-//https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-to-event-grid-integration-function
-
-
-//https://andrewlock.net/using-azure-storage-queues-with-azure-functions-and-queuetrigger/
-
 //Function 1 name could be ServiceBusDASEarnings[Message?]Subscriber
 public class DASEarningsReceiver
 {
     private readonly ILogger<DASEarningsReceiver> _logger;
     private readonly IGSLCalculatePaymentsHandler _gSLCalculatePaymentsHandler;
-    //private readonly IEarningsDataContext;
 
     public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGSLCalculatePaymentsHandler gSLCalculatePaymentsHandler)
     {
         _logger = logger;
         _gSLCalculatePaymentsHandler = gSLCalculatePaymentsHandler;
-        //_earningsRepository = earningsRepository; 
     }
 
     [Function(nameof(DASEarningsReceiver))]
@@ -59,17 +45,6 @@ ServiceBusReceivedMessage message,
             //Inject Dave's short course earning model for IEarning event
             //Put in the Earning event message
         // IEarningEarningEvent
-        //IoC, Dependency Injection
-
-        //(Would be in Handler file, not called here) Handler to handle incoming calculate GSL payments message
-        //Another service (called within) GSLEarningProcessor - Code that is going to do conversion/mapping of the command
-        //Mapping class
-        //Another service (called within) CollectionPeriodAPI- collection period API check
-
-
-
-
         await messageActions.CompleteMessageAsync(message);
-        //tells Azure Service Bus "I've successfully processed this message — remove it from the queue so it won't be delivered again."
     }
 }
