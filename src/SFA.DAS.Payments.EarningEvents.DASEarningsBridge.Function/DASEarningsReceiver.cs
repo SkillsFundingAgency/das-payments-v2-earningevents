@@ -22,7 +22,7 @@ public class DASEarningsReceiver
 
     [Function(nameof(DASEarningsReceiver))]
     public async Task Run(
-        [ServiceBusTrigger("DASServiceBusQueueName", Connection = "DASServiceBusConnectionString")]
+        [ServiceBusTrigger("%DASServiceBusQueueName%", Connection = "DASServiceBusConnectionString")]
 
 ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
