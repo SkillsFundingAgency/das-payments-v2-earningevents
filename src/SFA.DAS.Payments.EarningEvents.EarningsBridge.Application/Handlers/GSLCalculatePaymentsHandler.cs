@@ -13,22 +13,22 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
     public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
-        private IGSLearningsMapper _mapper;
+        private IGSLEarningsMapper _mapper;
         private IEarningsRepository _repository;
-        private ICollectionPeriodApi _collectionPeriodAPI;
+        private ICollectionPeriodApiClient collectionPeriodApiClient;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
 
         public GSLCalculatePaymentsHandler(
             ICalculateGSLPaymentsValidator validator,
-            IGSLearningsMapper mapper,
+            IGSLEarningsMapper mapper,
             IEarningsRepository repository,
-            ICollectionPeriodApi collectionPeriodAPI,
+            ICollectionPeriodApiClient collectionPeriodApiClient,
             ILogger<GSLCalculatePaymentsHandler> logger)
         {
             _validator = validator;
             _mapper = mapper;
             _repository = repository;
-            _collectionPeriodAPI = collectionPeriodAPI;
+            this.collectionPeriodApiClient = collectionPeriodApiClient;
             _logger = logger;
             
         }

@@ -12,7 +12,7 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
-    public class GSLEarningsMapper : IGSLearningsMapper
+    public class GSLEarningsMapper : IGSLEarningsMapper
     {
         public GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source)
         {
