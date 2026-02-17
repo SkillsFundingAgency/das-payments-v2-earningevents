@@ -23,7 +23,7 @@ builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>(options
     options.UseSqlServer(Environment.GetEnvironmentVariable("PaymentsConnectionString"));
 });
 
-builder.Services.AddScoped<IGSLearningsMapper, GSLEarningsMapper>();
+builder.Services.AddScoped<IGSLEarningsMapper, GSLEarningsMapper>();
 builder.Services.AddScoped<IGSLCalculatePaymentsHandler, GSLCalculatePaymentsHandler>();
 builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsValidator>();
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
