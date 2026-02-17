@@ -28,8 +28,7 @@ Populate as follows:
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-        "AzureWebJobs.HttpExample.Disabled": "true",
-        "Settings:PaymentsConnectionString": "",
+        "AzureWebJobs.HttpExample.Disabled": "true",        
         "DASServiceBusConnectionString": "<< connection string for DAS service bus namespace >>",
         "DASServiceBusQueueName": "<< name of queue to listen on in DAS service bus namespace >>",
         "PaymentsConnectionString": "<< SQL connection string for your local DASPayments database instance >>",
