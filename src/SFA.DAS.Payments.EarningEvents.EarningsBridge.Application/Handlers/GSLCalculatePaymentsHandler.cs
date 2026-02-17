@@ -4,7 +4,6 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
-using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
@@ -15,7 +14,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
         private ICalculateGSLPaymentsValidator _validator;
         private IGSLEarningsMapper _mapper;
         private IEarningsRepository _repository;
-        private ICollectionPeriodApiClient collectionPeriodApiClient;
+        private ICollectionPeriodApiClient _collectionPeriodApiClient;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
 
         public GSLCalculatePaymentsHandler(
@@ -28,9 +27,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _validator = validator;
             _mapper = mapper;
             _repository = repository;
-            this.collectionPeriodApiClient = collectionPeriodApiClient;
+            _collectionPeriodApiClient = collectionPeriodApiClient;
             _logger = logger;
-            
         }
 
 
