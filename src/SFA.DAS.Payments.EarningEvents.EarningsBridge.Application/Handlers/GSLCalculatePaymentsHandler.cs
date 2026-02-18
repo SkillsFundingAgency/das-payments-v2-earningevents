@@ -4,7 +4,6 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
-using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
@@ -13,24 +12,23 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
     public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
-        private IGSLearningsMapper _mapper;
+        private IGSLEarningsMapper _mapper;
         private IEarningsRepository _repository;
-        private ICollectionPeriodApi _collectionPeriodAPI;
+        private ICollectionPeriodApiClient _collectionPeriodApiClient;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
 
         public GSLCalculatePaymentsHandler(
             ICalculateGSLPaymentsValidator validator,
-            IGSLearningsMapper mapper,
+            IGSLEarningsMapper mapper,
             IEarningsRepository repository,
-            ICollectionPeriodApi collectionPeriodAPI,
+            ICollectionPeriodApiClient collectionPeriodApiClient,
             ILogger<GSLCalculatePaymentsHandler> logger)
         {
             _validator = validator;
             _mapper = mapper;
             _repository = repository;
-            _collectionPeriodAPI = collectionPeriodAPI;
+            _collectionPeriodApiClient = collectionPeriodApiClient;
             _logger = logger;
-            
         }
 
 
@@ -49,21 +47,21 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             GrowthAndSkillsEarningModel mappedValues = _mapper.MapToGrowthAndSkillsEarningModel(message);
 
 
+            // comment out temporary code
+            //List<CollectionPeriodModel> imaginaryListFromCollectionPeriodAPI = new List<CollectionPeriodModel>(); //dictionary of academic years
 
-            List<CollectionPeriodModel> imaginaryListFromCollectionPeriodAPI = new List<CollectionPeriodModel>(); //dictionary of academic years
-
-            foreach (var mappedValue in mappedValues.PricePeriods)
-            {
+            //foreach (var mappedValue in mappedValues.PricePeriods)
+            //{
                 
-                if (imaginaryListFromCollectionPeriodAPI.Any(x =>
-                        x.AcademicYear = 2425 && x.Status == CollectionPeriodStatus.Open))
-                {
-                    //using mapped values within here
-                    //set processed on a datetime , IEarningEvents + send required messages events out
-                    _mapper.MapToReceivedDASEarningsMessageModel(
-                        message); //won't be sent out if there wasn't an open collection period
-                }
-            }
+            //    if (imaginaryListFromCollectionPeriodAPI.Any(x =>
+            //            x.AcademicYear = 2425 && x.Status == CollectionPeriodStatus.Open))
+            //    {
+            //        //using mapped values within here
+            //        //set processed on a datetime , IEarningEvents + send required messages events out
+            //        _mapper.MapToReceivedDASEarningsMessageModel(
+            //            message); //won't be sent out if there wasn't an open collection period
+            //    }
+            //}
 
             //saved to the cache at the end 
             _repository.SaveEarnings(mappedValues);

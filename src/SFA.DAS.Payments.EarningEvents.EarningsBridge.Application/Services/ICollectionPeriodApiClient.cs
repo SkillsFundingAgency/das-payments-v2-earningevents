@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 
-public interface ICollectionPeriodApi
+public interface ICollectionPeriodApiClient
 {
-    public CollectionPeriodModel GetCollectionPeriod(int academicYear);
+    Task<CollectionPeriodModel> GetCollectionPeriod(int academicYear);
 }

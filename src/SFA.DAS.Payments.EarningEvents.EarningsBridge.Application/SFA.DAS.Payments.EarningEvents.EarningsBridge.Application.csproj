@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-4" />
     <PackageReference Include="Autofac" Version="7.0.1" />
