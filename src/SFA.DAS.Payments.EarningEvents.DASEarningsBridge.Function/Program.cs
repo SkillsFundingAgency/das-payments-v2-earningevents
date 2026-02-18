@@ -11,6 +11,7 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructure.C
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -56,5 +57,7 @@ builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPubli
     var config = sp.GetService<IEarningsBridgeConfiguration>();
     return new PaymentsServiceBusPublisher(config.PaymentsServiceBusConnectionString);
 });
+
+builder.Services.AddHostedService<ServiceBusQueueManager>();
 
 builder.Build().Run();
