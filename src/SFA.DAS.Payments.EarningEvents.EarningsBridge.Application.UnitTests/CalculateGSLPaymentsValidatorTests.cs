@@ -32,6 +32,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     StartDate = new DateTime(2026, 1, 1),
                     AgeAtStartOfTraining = 25,
                     CourseCode = "ABC123",
+                    CourseReference = "ZSC00123",
                     LearningType = LearningType.ApprenticeshipUnit,
                     PlannedEndDate = new DateTime(2026, 03, 31),
                     TrainingStatus = TrainingStatus.Continuing
@@ -60,7 +61,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                              AccountId = 5000,
                                              EmployerType = EmployerType.Levy,
                                              FundingAccountId = 5001
-                                         }
+                                         },
+                                         LearningId = 123456
                                     }
                                 }
                             }
@@ -192,6 +194,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
+        public void Validate_rejects_empty_course_reference()
+        {
+            _message.Training.CourseReference = string.Empty;
+
+            Action act = () => _sut.Validate(_message);
+
+            act.Should().Throw<ArgumentException>()
+                .WithMessage("Course Reference is required");
+        }
+
+        [Test]
         public void Validate_rejects_empty_start_date()
         {
             _message.Training.StartDate = DateTime.MinValue;
@@ -251,7 +264,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                         AccountId = 5000,
                                         EmployerType = EmployerType.Levy,
                                         FundingAccountId = 5001
-                                    }
+                                    },
+                                    LearningId = 123456
                                 }
                             }
                         }
@@ -328,7 +342,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                         AccountId = 5000,
                                         EmployerType = EmployerType.Levy,
                                         FundingAccountId = 5001
-                                    }
+                                    },
+                                    LearningId = 123456
                                 }
                             }
                         }
@@ -423,7 +438,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                         AccountId = 5000,
                                         EmployerType = EmployerType.Levy,
                                         FundingAccountId = 5001
-                                    }
+                                    },
+                                    LearningId = 123456
                                 }
                             }
                         }
@@ -459,8 +475,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                     Amount = 0m,
                                     DeliveryPeriod = 2,
                                     EarningType = EarningType.Milestone1,
-                                    Employer = null
-                                }
+                                    Employer = null,
+                                    LearningId = 123456
+                                },
                             }
                         }
                     }
@@ -500,7 +517,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                         AccountId = 0,
                                         EmployerType = EmployerType.NonLevy,
                                         FundingAccountId = 1000
-                                    }
+                                    },
+                                    LearningId = 123456
                                 }
                             }
                         }
@@ -541,7 +559,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                         AccountId = 30000,
                                         EmployerType = EmployerType.NonLevy,
                                         FundingAccountId = 0
-                                    }
+                                    },
+                                    LearningId = 123456
                                 }
                             }
                         }
@@ -553,6 +572,48 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             act.Should().Throw<ArgumentException>()
                 .WithMessage("Earnings Employer Funding Account Id is required");
+        }
+
+        [Test]
+        public void Validate_rejects_empty_earnings_learning_id()
+        {
+            _message.Earnings = new List<Earnings>
+            {
+                new Earnings
+                {
+                    AcademicYear = 2526,
+                    PricePeriods = new List<PricePeriod>
+                    {
+                        new PricePeriod
+                        {
+                            StartDate = new DateTime(2026, 1,1),
+                            EndDate = new DateTime(2026, 2, 28),
+                            Price = 1000m,
+                            Periods = new List<EarningPeriod>()
+                            {
+                                new EarningPeriod
+                                {
+                                    Amount = 0m,
+                                    DeliveryPeriod = 2,
+                                    EarningType = EarningType.Milestone1,
+                                    Employer = new Employer
+                                    {
+                                        AccountId = 30000,
+                                        EmployerType = EmployerType.NonLevy,
+                                        FundingAccountId = 10000
+                                    },
+                                    LearningId = 0
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            Action act = () => _sut.Validate(_message);
+
+            act.Should().Throw<ArgumentException>()
+                .WithMessage("Earnings Learning Id is required");
         }
 
         [Test]

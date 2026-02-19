@@ -23,6 +23,7 @@ namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
             builder.Property(x => x.EmployerType).HasColumnName("EmployerType").IsRequired();
             builder.Property(x => x.FundingAccountId).HasColumnName("FundingAccountId").IsRequired();
             builder.Property(x => x.ProcessedOn).HasColumnName("ProcessedOn");
+            builder.Property(x => x.ApprenticeshipId).HasColumnName("ApprenticeshipId");
         }
     }
 }
