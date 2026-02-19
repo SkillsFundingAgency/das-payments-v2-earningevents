@@ -66,6 +66,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
                 throw new ArgumentException("Course Code is required");
             }
 
+            if (String.IsNullOrWhiteSpace(training.CourseReference))
+            {
+                throw new ArgumentException("Course Reference is required");
+            }
+
             if (training.StartDate == DateTime.MinValue)
             {
                 throw new ArgumentException("Training Start Date is required");
@@ -134,6 +139,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
                         if (earningPeriod.Employer.FundingAccountId == 0)
                         {
                             throw new ArgumentException("Earnings Employer Funding Account Id is required");
+                        }
+
+                        if (earningPeriod.LearningId == 0)
+                        {
+                            throw new ArgumentException("Earnings Learning Id is required");
                         }
                     }
                 }

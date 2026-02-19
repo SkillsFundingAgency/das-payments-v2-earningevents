@@ -27,6 +27,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Training = new Training
                 {
                     CourseCode = "ABC123",
+                    CourseReference = "ZSC00123",
                     LearningType = LearningType.ApprenticeshipUnit,
                     StartDate = new DateTime(2026, 1, 1),
                     TrainingStatus = TrainingStatus.Continuing,
@@ -67,7 +68,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                         },
                                         Amount = 2000m,
                                         DeliveryPeriod = 1,
-                                        EarningType = EarningType.Milestone1
+                                        EarningType = EarningType.Milestone1,
+                                        LearningId = 123456
                                     }
                                 }
                             }
@@ -92,6 +94,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var learningTypeValue = (int)model.LearningType;
             learningTypeValue.Should().Be((int)_message.Training.LearningType);
             model.CourseCode.Should().Be(_message.Training.CourseCode);
+            model.CourseReference.Should().Be(_message.Training.CourseReference);
             model.StartDate.Should().Be(_message.Training.StartDate);
             model.AgeAtStartOfTraining.Should().Be(_message.Training.AgeAtStartOfTraining);
             model.PlannedEndDate.Should().Be(_message.Training.PlannedEndDate);
@@ -121,6 +124,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                         employerTypeValue.Should().Be((int)pricePeriods[i].Employer.EmployerType);
                         pricePeriodModels[i].FundingAccountId.Should().Be(pricePeriods[i].Employer.FundingAccountId);
                         pricePeriodModels[i].GrowthAndSkillsEarningsId.Should().Be(_message.EarningsId);
+                        pricePeriodModels[i].ApprenticeshipId.Should().Be(pricePeriods[i].LearningId);
                     }
                 }
             }
@@ -146,6 +150,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.Learner.ReferenceNumber.Should().Be(_message.Learner.Reference);
             earningEvent.Learner.Uln.Should().Be(_message.Learner.ULN);
             earningEvent.LearningAim.StartDate.Should().Be(_message.Training.StartDate);
+            earningEvent.LearningAim.Reference.Should().Be(_message.Training.CourseReference);
             earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
             earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
             var eventPriceEpisodes = earningEvent.PriceEpisodes.ToArray();
@@ -190,6 +195,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                         employerTypeValue.Should().Be((int)pricePeriods[i].Employer.EmployerType);
                         earningPeriod.Period.Should().Be(pricePeriods[i].DeliveryPeriod);
                         earningPeriod.SfaContributionPercentage.Should().Be(0.95m); // 95% funding for Levy employers
+                        earningPeriod.ApprenticeshipId.Should().Be(pricePeriods[i].LearningId);
                     }
                 }
             }

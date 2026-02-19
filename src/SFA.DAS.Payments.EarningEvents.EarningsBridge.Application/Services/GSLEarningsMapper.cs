@@ -25,6 +25,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 LearnerReference = source.Learner.Reference,
                 LearningType = (Model.LearningType)source.Training.LearningType,
                 CourseCode = source.Training.CourseCode,
+                CourseReference = source.Training.CourseReference,
                 StartDate = source.Training.StartDate,
                 AgeAtStartOfTraining = source.Training.AgeAtStartOfTraining,
                 PlannedEndDate = source.Training.PlannedEndDate,
@@ -52,7 +53,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 },
                 LearningAim = new Common.LearningAim
                 {
-                    StartDate = source.Training.StartDate
+                    StartDate = source.Training.StartDate,
+                    Reference = source.Training.CourseReference
                 },
                 CollectionPeriod = new Common.CollectionPeriod
                 {
@@ -90,7 +92,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                             EmployerAccountId = earningPeriod.Employer.AccountId,
                             EmployerType = (Model.EmployerType)earningPeriod.Employer.EmployerType,
                             FundingAccountId = earningPeriod.Employer.FundingAccountId,
-                            GrowthAndSkillsEarningsId = source.EarningsId
+                            GrowthAndSkillsEarningsId = source.EarningsId,
+                            ApprenticeshipId = earningPeriod.LearningId
                         };
 
                         output.Add(shortCourseEarningPricePeriodRecord);
@@ -170,7 +173,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                                         Amount = period.Amount,
                                         ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
                                         Period = period.DeliveryPeriod,
-                                        SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType)
+                                        SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType),
+                                        ApprenticeshipId = period.LearningId
                                     }
                                 }
                         }

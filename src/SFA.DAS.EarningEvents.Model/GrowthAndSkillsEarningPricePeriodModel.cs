@@ -16,5 +16,6 @@ namespace SFA.DAS.Payments.EarningEvents.Model
         public EmployerType EmployerType { get; set; }
         public long FundingAccountId { get; set; }
         public DateTime? ProcessedOn { get; set; }
+        public long? ApprenticeshipId { get; set; }
     }
 }
