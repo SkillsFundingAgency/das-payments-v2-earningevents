@@ -1,17 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
-using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.Model.Core.Entities;
 
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
-    public class CollectionPeriodAPI
+    public class CollectionPeriodApiClient : ICollectionPeriodApiClient
     {
         private readonly HttpClient _httpClient;
-        private readonly ILogger<CollectionPeriodAPI> _logger;
+        private readonly ILogger<CollectionPeriodApiClient> _logger;
 
-        public CollectionPeriodAPI(HttpClient httpClient, ILogger<CollectionPeriodAPI> logger)
+        public CollectionPeriodApiClient(HttpClient httpClient, ILogger<CollectionPeriodApiClient> logger)
         {
             _httpClient = httpClient;
             _logger = logger;

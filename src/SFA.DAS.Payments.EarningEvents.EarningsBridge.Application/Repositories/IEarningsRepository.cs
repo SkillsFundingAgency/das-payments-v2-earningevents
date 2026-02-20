@@ -4,5 +4,5 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
 
 public interface IEarningsRepository
 {
-    public void SaveEarnings(ShortCourseEarningModel shortCourseEarningModel);
+    public void SaveEarnings(GrowthAndSkillsEarningModel growthAndSkillsEarningModel);
 }

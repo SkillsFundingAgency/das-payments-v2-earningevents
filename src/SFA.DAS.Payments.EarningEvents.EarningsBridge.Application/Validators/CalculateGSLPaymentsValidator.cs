@@ -5,11 +5,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
     // ReSharper disable once InconsistentNaming
     public class CalculateGSLPaymentsValidator: ICalculateGSLPaymentsValidator
     {
-        public bool Validate(CalculateGSLPayments command)
+        public bool Validate(CalculateGrowthAndSkillsPayments command)
         {
             if (command == null)
             {
-                throw new ArgumentException("CalculateGSLPayments is required");
+                throw new ArgumentException("CalculateGrowthAndSkillsPayments is required");
             }
 
             if (command.EarningsId == Guid.Empty)
@@ -29,7 +29,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
             return true;
         }
 
-        private void ValidateLearner(CalculateGSLPayments command)
+        private void ValidateLearner(CalculateGrowthAndSkillsPayments command)
         {
             var learner = command.Learner;
             if (learner == null)
@@ -53,7 +53,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
             }
         }
 
-        private void ValidateTraining(CalculateGSLPayments command)
+        private void ValidateTraining(CalculateGrowthAndSkillsPayments command)
         {
             var training = command.Training;
             if (training == null)
@@ -64,6 +64,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
             if (String.IsNullOrWhiteSpace(training.CourseCode))
             {
                 throw new ArgumentException("Course Code is required");
+            }
+
+            if (String.IsNullOrWhiteSpace(training.CourseReference))
+            {
+                throw new ArgumentException("Course Reference is required");
             }
 
             if (training.StartDate == DateTime.MinValue)
@@ -82,7 +87,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
             }
         }
 
-        private void ValidateEarnings(CalculateGSLPayments command)
+        private void ValidateEarnings(CalculateGrowthAndSkillsPayments command)
         {
             var earnings = command.Earnings;
             if ((earnings == null) || !earnings.Any())
@@ -134,6 +139,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
                         if (earningPeriod.Employer.FundingAccountId == 0)
                         {
                             throw new ArgumentException("Earnings Employer Funding Account Id is required");
+                        }
+
+                        if (earningPeriod.LearningId == 0)
+                        {
+                            throw new ArgumentException("Earnings Learning Id is required");
                         }
                     }
                 }

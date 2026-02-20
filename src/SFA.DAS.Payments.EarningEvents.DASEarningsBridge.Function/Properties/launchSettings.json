@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "SFA.DAS.Payments.EarningEvents.DASEarningsSubscriber": {
+    "SFA.DAS.Payments.EarningEvents.EarningsBridge.Function": {
       "commandName": "Project",
       "commandLineArgs": "--port 7274",
       "launchBrowser": false

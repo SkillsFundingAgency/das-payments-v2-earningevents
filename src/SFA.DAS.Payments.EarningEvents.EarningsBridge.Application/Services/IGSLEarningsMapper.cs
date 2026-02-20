@@ -1,11 +1,13 @@
-﻿using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+﻿using SFA.DAS.Payments.EarningEvents.Messages.Events;
+using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 
 public interface IGSLEarningsMapper
 {
-    ShortCourseEarningModel MapToShortCourseEarningModel(CalculateGSLPayments source);
-    List<ReceivedDASEarningsMessageModel> MapToReceivedDASEarningsMessageModel(CalculateGSLPayments source);
+    GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source);    
+    GSLShortCourseEarningsEvent MapToShortCourseEarningEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
+
+    List<ReceivedDASEarningsMessageModel> MapToReceivedDASEarningsMessageModel(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
 }
