@@ -39,8 +39,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 if (!_validator.Validate(message))
                 {
                     return;
-                }
-                ;
+                };
             }
             catch (Exception ex)
             {
