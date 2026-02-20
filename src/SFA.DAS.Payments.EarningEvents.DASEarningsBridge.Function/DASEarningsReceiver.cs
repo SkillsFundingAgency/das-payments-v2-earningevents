@@ -11,12 +11,12 @@ using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
 {
-    
+
     public class DASEarningsReceiver
     {
         private readonly ILogger<DASEarningsReceiver> _logger;
         private readonly IGSLCalculatePaymentsHandler _gSLCalculatePaymentsHandler;
-        
+
         public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGSLCalculatePaymentsHandler gSLCalculatePaymentsHandler)
         {
             _logger = logger;
@@ -39,7 +39,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
             await messageActions.CompleteMessageAsync(message);
         }
 
-        
+
     }
 }
-

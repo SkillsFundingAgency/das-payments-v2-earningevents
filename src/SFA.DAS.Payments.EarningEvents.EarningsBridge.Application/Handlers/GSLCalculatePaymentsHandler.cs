@@ -39,7 +39,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 if (!_validator.Validate(message))
                 {
                     return;
-                }; 
+                }
+                ;
             }
             catch (Exception ex)
             {
@@ -55,7 +56,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             //foreach (var mappedValue in mappedValues.PricePeriods)
             //{
-                
+
             //    if (imaginaryListFromCollectionPeriodAPI.Any(x =>
             //            x.AcademicYear = 2425 && x.Status == CollectionPeriodStatus.Open))
             //    {
