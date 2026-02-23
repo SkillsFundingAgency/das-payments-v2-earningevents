@@ -272,5 +272,27 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 }
             }
         }
+
+        [Test]
+        public void Properties_are_mapped_from_inbound_message_to_das_earnings_received_event()
+        {
+            // Arrange
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+
+            // Act
+            var earningEvent = _sut.MapToDasEarningsReceivedEvent(_message, academicYear, collectionPeriod);
+
+            //  Assert
+            earningEvent.EarningsId.Should().Be(_message.EarningsId);
+            earningEvent.CourseCode.Should().Be(_message.Training.CourseCode);
+            earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
+            earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
+            earningEvent.AcademicYear.Should().Be(academicYear);
+            earningEvent.ULN.Should().Be(_message.Learner.ULN);
+            earningEvent.UKPRN.Should().Be(_message.UKPRN);
+            earningEvent.LearningAimReference.Should().Be(_message.Training.CourseReference);
+        }
+
     }
 }

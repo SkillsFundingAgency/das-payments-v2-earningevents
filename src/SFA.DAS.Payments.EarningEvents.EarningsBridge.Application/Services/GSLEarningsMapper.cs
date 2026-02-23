@@ -197,27 +197,25 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             return 0.95m; // 95% for Levy employers
         }
 
-        public List<ReceivedDASEarningsMessageModel> MapToReceivedDASEarningsMessageModel(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod)
+        public DasEarningsReceivedEvent MapToDasEarningsReceivedEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod)
         {
-            var output = new List<ReceivedDASEarningsMessageModel>();
-
-            foreach (var earning in source.Earnings)
+            var earningsEvent = new DasEarningsReceivedEvent
             {
-                var receivedDasEarningsMessage = new ReceivedDASEarningsMessageModel
+                EarningsId = source.EarningsId,
+                CourseCode = source.Training.CourseCode,
+                CollectionPeriod = new Common.CollectionPeriod
                 {
-                    EarningsId = source.EarningsId,
-                    CourseCode = source.Training.CourseCode,
-                    CollectionPeriod = collectionPeriod,
-                    AcademicYear = academicYear
-                };
-                output.Add(receivedDasEarningsMessage);
-            }
+                    AcademicYear = academicYear,
+                    Period = collectionPeriod
+                },
+                AcademicYear = academicYear,
+                ULN = source.Learner.ULN,
+                UKPRN = source.UKPRN,
+                LearningAimReference = source.Training.CourseReference,
+            };
 
-            return output;
-
+            return earningsEvent;
         }
     }
-
-
 }
 
