@@ -208,7 +208,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                     AcademicYear = academicYear,
                     Period = collectionPeriod
                 },
-                AcademicYear = academicYear,
                 ULN = source.Learner.ULN,
                 UKPRN = source.UKPRN,
                 LearningAimReference = source.Training.CourseReference,
