@@ -9,5 +9,5 @@ public interface IGSLEarningsMapper
     GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source);    
     GSLShortCourseEarningsEvent MapToShortCourseEarningEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
 
-    List<ReceivedDASEarningsMessageModel> MapToReceivedDASEarningsMessageModel(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
+    DasEarningsReceivedEvent MapToDasEarningsReceivedEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
 }
