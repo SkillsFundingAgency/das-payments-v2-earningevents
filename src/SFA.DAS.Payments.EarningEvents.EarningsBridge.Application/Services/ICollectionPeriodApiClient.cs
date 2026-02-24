@@ -1,8 +1,10 @@
-﻿using SFA.DAS.Payments.Model.Core.Entities;
+﻿using SFA.DAS.Payments.EarningEvents.Model;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 
 public interface ICollectionPeriodApiClient
 {
-    Task<CollectionPeriodModel> GetCollectionPeriod(int academicYear);
+    Task<IEnumerable<CollectionYear>> GetOpenCollectionYears();
+    Task<CollectionYear> GetOpenCollectionPeriods(string academicYear);
+    Task<CollectionPeriod> GetCollectionPeriod(string academicYear, string period);
 }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Microsoft.Azure.Amqp.Encoding;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
@@ -20,7 +13,6 @@ using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerTy
 using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
 
-
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     public class GSLCalculatePaymentsHandlerTests
@@ -29,7 +21,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
         //DI should realistically only be used for things that I'm planning on using entirely rather than a mocked version
         //private Mock<ICalculateGSLPaymentsValidator> _validator;
-        //private IGSLEarningsMapper _mapper;
+        //private IGrowthAndSkillsMapper _mapper;
         //private IEarningsRepository _repository;
         //private ICollectionPeriodApiClient _collectionPeriodApiClient;
         //private ILogger<GSLCalculatePaymentsHandler> _logger;
@@ -108,16 +100,16 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             // Arrange
             _message.UKPRN = 0;
             var validator = new CalculateGSLPaymentsValidator();
-            var mapper = new GSLEarningsMapper();
+            var mapper = new GrowthAndSkillsMapper();
             var repository = new Mock<IEarningsRepository>();
-            var collectionPeriodApiClient = new Mock<ICollectionPeriodApiClient>();
+            var collectionPeriodService = new Mock<ICollectionPeriodService>();
             var logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
 
             var handler = new GSLCalculatePaymentsHandler(
                 validator,
                 mapper,
                 repository.Object,
-                collectionPeriodApiClient.Object,
+                collectionPeriodService.Object,
                 logger.Object);
 
 
@@ -145,9 +137,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         {
             // Arrange
             var validator = new Mock<ICalculateGSLPaymentsValidator>();
-            var mapper = new GSLEarningsMapper();
+            var mapper = new GrowthAndSkillsMapper();
             var repository = new Mock<IEarningsRepository>();
-            var collectionPeriodApiClient = new Mock<ICollectionPeriodApiClient>();
+            var collectionPeriodService = new Mock<ICollectionPeriodService>();
             var logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
 
 
@@ -155,7 +147,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 validator.Object,
                 mapper,
                 repository.Object,
-                collectionPeriodApiClient.Object,
+                collectionPeriodService.Object,
                 logger.Object);
 
             validator.Setup(x => x.Validate(It.IsAny<CalculateGrowthAndSkillsPayments>()))

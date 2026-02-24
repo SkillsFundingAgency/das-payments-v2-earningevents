@@ -3,21 +3,27 @@ using FluentAssertions;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.Model;
+using SFA.DAS.Payments.Model.Core.Entities;
+using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
+using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
+using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
+using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     [TestFixture]
 
     // ReSharper disable once InconsistentNaming
-    public class GSLEarningsMapperTests
+    public class GrowthAndSkillsMapperTests
     {
         private CalculateGrowthAndSkillsPayments _message;
-        private GSLEarningsMapper _sut;
+        private GrowthAndSkillsMapper _sut;
 
         [SetUp]
         public void Setup()
         {
-            _sut = new GSLEarningsMapper();
+            _sut = new GrowthAndSkillsMapper();
 
             _message = new CalculateGrowthAndSkillsPayments
             {
@@ -293,5 +299,48 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.LearningAimReference.Should().Be(_message.Training.CourseReference);
         }
 
+        [Test]
+        public void Properties_are_mapped_from_collection_period_API_response_to_collection_period_models()
+        {
+            // Arrange
+            var collectionPeriodApiResponse = new CollectionYear
+            {
+                Status = CollectionPeriodStatus.Open,
+                Year = 2526,
+                Periods = new List<CollectionPeriod>
+                {
+                    new CollectionPeriod
+                    {
+                        CalendarMoth = 6,
+                        CalendarYear = 2026,
+                        Id = 1234,
+                        Period = 6,
+                        Status = CollectionPeriodStatus.Open
+                    },
+                    new CollectionPeriod
+                    {
+                        CalendarMoth = 7,
+                        CalendarYear = 2026,
+                        Id = 1235,
+                        Period = 7,
+                        Status = CollectionPeriodStatus.NotStarted
+                    }
+                }
+            };
+
+            // Act
+            var models = _sut.MapCollectionYearToCollectionPeriodModels(collectionPeriodApiResponse).ToArray();
+
+            // Assert
+            models.Length.Should().Be(collectionPeriodApiResponse.Periods.Count());
+            var periods = collectionPeriodApiResponse.Periods.ToArray();
+            for (var i = 0; i < models.Length; i++)
+            {
+                models[i].AcademicYear.Should().Be(collectionPeriodApiResponse.Year);
+                models[i].Status.Should().Be(periods[i].Status);
+                models[i].Period.Should().Be(periods[i].Period);
+                models[i].Id.Should().Be(periods[i].Id);
+            }
+        }
     }
 }

@@ -39,7 +39,7 @@ builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, op
     options.UseSqlServer(config.PaymentsConnectionString);
 });
 
-builder.Services.AddScoped<IGSLEarningsMapper, GSLEarningsMapper>();
+builder.Services.AddScoped<IGrowthAndSkillsMapper, GrowthAndSkillsMapper>();
 builder.Services.AddScoped<IGSLCalculatePaymentsHandler, GSLCalculatePaymentsHandler>();
 builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsValidator>();
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
@@ -57,6 +57,8 @@ builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPubli
     var config = sp.GetService<IEarningsBridgeConfiguration>();
     return new PaymentsServiceBusPublisher(config.PaymentsServiceBusConnectionString);
 });
+
+builder.Services.AddScoped<ICollectionPeriodService, CollectionPeriodService>();
 
 builder.Services.AddHostedService<ServiceBusQueueManager>();
 
