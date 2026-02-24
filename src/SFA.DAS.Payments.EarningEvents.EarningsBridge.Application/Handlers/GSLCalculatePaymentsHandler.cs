@@ -2,8 +2,10 @@
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
+using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
+using SFA.DAS.Payments.Model.Core;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
@@ -14,25 +16,24 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
         private ICalculateGSLPaymentsValidator _validator;
         private IGSLEarningsMapper _mapper;
         private IEarningsRepository _repository;
-        private ICollectionPeriodApiClient _collectionPeriodApiClient;
+        private IPaymentsServiceBusPublisher _publisher;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
 
         public GSLCalculatePaymentsHandler(
             ICalculateGSLPaymentsValidator validator,
             IGSLEarningsMapper mapper,
             IEarningsRepository repository,
-            ICollectionPeriodApiClient collectionPeriodApiClient,
+            IPaymentsServiceBusPublisher publisher,
             ILogger<GSLCalculatePaymentsHandler> logger)
         {
             _validator = validator;
             _mapper = mapper;
             _repository = repository;
-            _collectionPeriodApiClient = collectionPeriodApiClient;
+            _publisher = publisher;
             _logger = logger;
         }
-
-
-        public void HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
+        
+        public async Task HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
         {
             try
             {
@@ -47,33 +48,42 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 throw;
             }
 
-            GrowthAndSkillsEarningModel mappedValues = _mapper.MapToGrowthAndSkillsEarningModel(message);
+            var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
 
+            // TEMPORARY CODE TO ENABLE TESTING BEFORE COLLECTION PERIOD API INTEGRATION - REMOVE BEFORE MERGE TO MAIN!!!
+            
+            // use hard-coded collection period values for outbound messages
+            
+            var currentCollectionPeriod = new CollectionPeriod
+            {
+                Period = 1,
+                AcademicYear = 2526
+            };
 
-            // comment out temporary code
-            //List<CollectionPeriodModel> imaginaryListFromCollectionPeriodAPI = new List<CollectionPeriodModel>(); //dictionary of academic years
+            // assume that all inbound earnings are associated with an academic year
+            // with an open collection period so can be processed downstream
 
-            //foreach (var mappedValue in mappedValues.PricePeriods)
-            //{
+            foreach (var earning in growthAndSkillsEarningModel.PricePeriods)
+            {
+                earning.ProcessedOn = DateTime.UtcNow;
+            }
 
-            //    if (imaginaryListFromCollectionPeriodAPI.Any(x =>
-            //            x.AcademicYear = 2425 && x.Status == CollectionPeriodStatus.Open))
-            //    {
-            //        //using mapped values within here
-            //        //set processed on a datetime , IEarningEvents + send required messages events out
-            //        _mapper.MapToReceivedDASEarningsMessageModel(
-            //            message); //won't be sent out if there wasn't an open collection period
-            //    }
-            //}
+            var requiredPaymentsEvent = _mapper.MapToShortCourseEarningEvent(message, 
+                                                                             currentCollectionPeriod.AcademicYear, 
+                                                                             currentCollectionPeriod.Period);
 
-            //saved to the cache at the end 
-            _repository.SaveEarnings(mappedValues);
+            var fundingSourceEvent = _mapper.MapToDasEarningsReceivedEvent(message,
+                                                                           currentCollectionPeriod.AcademicYear, 
+                                                                           currentCollectionPeriod.Period);
 
+            // TEMPORARY CODE TO ENABLE TESTING BEFORE COLLECTION PERIOD API INTEGRATION - REMOVE BEFORE MERGE TO MAIN!!!
+
+            await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
+            await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
+
+            await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }
 
     }
 }
-//NotStarted = 1,
-//Open = 2,
-//Closed = 3,
-//Completed = 4,
+

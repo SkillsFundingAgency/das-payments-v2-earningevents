@@ -1,11 +1,7 @@
-using System.Net;
-using Azure;
 using Azure.Messaging.ServiceBus;
-using Azure.Messaging.ServiceBus.Administration;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
-using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructure.Configuration;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 // ReSharper disable InconsistentNaming
 
@@ -34,12 +30,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
             _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
 
             var growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
-            _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
+            await _gSLCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
 
             await messageActions.CompleteMessageAsync(message);
         }
-
-
     }
 }
 
