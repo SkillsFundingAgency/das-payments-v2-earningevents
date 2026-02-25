@@ -8,8 +8,8 @@ namespace SFA.DAS.Payments.EarningEvents.Data
     {
         private readonly string connectionString;
 
-        public DbSet<GrowthAndSkillsEarningModel> ShortCourseEarnings { get; set; }
-        public DbSet<GrowthAndSkillsEarningPricePeriodModel> ShortCourseEarningPricePeriods { get; set; }
+        public DbSet<GrowthAndSkillsEarningModel> GrowthAndSkillsEarnings { get; set; }
+        public DbSet<GrowthAndSkillsEarningPricePeriodModel> GrowthAndSkillsEarningPricePeriods { get; set; }
 
         public EarningsDataContext(string connectionString)
         {
