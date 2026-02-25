@@ -73,7 +73,3 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
     }
 }
-//NotStarted = 1,
-//Open = 2,
-//Closed = 3,
-//Completed = 4,

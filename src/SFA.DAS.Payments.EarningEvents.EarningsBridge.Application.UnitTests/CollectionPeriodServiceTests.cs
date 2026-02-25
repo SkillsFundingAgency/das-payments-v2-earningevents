@@ -3,12 +3,11 @@ using Moq;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
-using System.Linq;
 
-//one test checking standard process
-//one test checking for duplicate open period but different academic years and making sure both get produced
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
+    [TestFixture]
+    // ReSharper disable once InconsistentNaming
     public class CollectionPeriodServiceTests
     {
         private Mock<ICollectionPeriodApiClient> _collectionPeriodApiClient;
@@ -165,30 +164,3 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
     }
 }
-
-
-
-//var collectionYearWithPeriods = new CollectionYear
-//{
-//    Year = 2526,
-//    Status = CollectionPeriodStatus.Open,
-//    Periods = new List<CollectionPeriod>
-//    {
-//        new CollectionPeriod
-//        {
-//            CalendarMonth = 6,
-//            CalendarYear = 2026,
-//            Id = 1234,
-//            Period = 6,
-//            Status = CollectionPeriodStatus.Open
-//        },
-//        new CollectionPeriod
-//        {
-//            CalendarMonth = 7,
-//            CalendarYear = 2026,
-//            Id = 1235,
-//            Period = 7,
-//            Status = CollectionPeriodStatus.NotStarted
-//        }
-//    }
-//};

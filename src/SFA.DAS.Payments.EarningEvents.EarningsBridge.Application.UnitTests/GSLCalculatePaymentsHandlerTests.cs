@@ -19,14 +19,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
     {
         private CalculateGrowthAndSkillsPayments _message;
 
-        //DI should realistically only be used for things that I'm planning on using entirely rather than a mocked version
-        //private Mock<ICalculateGSLPaymentsValidator> _validator;
-        //private IGrowthAndSkillsMapper _mapper;
-        //private IEarningsRepository _repository;
-        //private ICollectionPeriodApiClient _collectionPeriodApiClient;
-        //private ILogger<GSLCalculatePaymentsHandler> _logger;
-
-
         [SetUp]
         public void SetUp()
         {
@@ -90,9 +82,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             };
 
         }
-        //How to mock exceptions being thrown
-        //https://docs.educationsmediagroup.com/unit-testing-csharp/moq/exceptions
-        //https://github.com/devlooped/moq/wiki/Quickstart
 
         [Test]
         public async Task Ensure_Validator_Exception_Caught_For_Incorrect_UKPRN()
