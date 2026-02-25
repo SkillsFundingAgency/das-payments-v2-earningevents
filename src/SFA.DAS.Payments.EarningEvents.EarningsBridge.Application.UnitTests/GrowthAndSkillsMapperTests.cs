@@ -311,7 +311,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 {
                     new CollectionPeriod
                     {
-                        CalendarMoth = 6,
+                        CalendarMonth = 6,
                         CalendarYear = 2026,
                         Id = 1234,
                         Period = 6,
@@ -319,7 +319,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     },
                     new CollectionPeriod
                     {
-                        CalendarMoth = 7,
+                        CalendarMonth = 7,
                         CalendarYear = 2026,
                         Id = 1235,
                         Period = 7,
