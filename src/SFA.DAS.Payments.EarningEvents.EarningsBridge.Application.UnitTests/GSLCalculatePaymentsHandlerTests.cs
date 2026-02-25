@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Microsoft.Azure.Amqp.Encoding;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
+using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
@@ -19,7 +13,7 @@ using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
-
+// ReSharper disable InconsistentNaming
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
@@ -27,14 +21,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
     {
         private CalculateGrowthAndSkillsPayments _message;
 
-        //DI should realistically only be used for things that I'm planning on using entirely rather than a mocked version
-        //private Mock<ICalculateGSLPaymentsValidator> _validator;
-        //private IGSLEarningsMapper _mapper;
-        //private IEarningsRepository _repository;
-        //private ICollectionPeriodApiClient _collectionPeriodApiClient;
-        //private ILogger<GSLCalculatePaymentsHandler> _logger;
-
-
+        private CalculateGSLPaymentsValidator _validator;
+        private GSLEarningsMapper _mapper;
+        private Mock<IEarningsRepository> _repository;
+        private Mock<IPaymentsServiceBusPublisher> _publisher;
+        private Mock<ILogger<GSLCalculatePaymentsHandler>> _logger;
+        
         [SetUp]
         public void SetUp()
         {
@@ -97,37 +89,28 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 }
             };
 
-        }
-        //How to mock exceptions being thrown
-        //https://docs.educationsmediagroup.com/unit-testing-csharp/moq/exceptions
-        //https://github.com/devlooped/moq/wiki/Quickstart
+        _validator = new CalculateGSLPaymentsValidator();
+        _mapper = new GSLEarningsMapper();
+        _repository = new Mock<IEarningsRepository>();
+        _publisher = new Mock<IPaymentsServiceBusPublisher>();
+        _logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
 
+        }
+        
         [Test]
-        public async Task Ensure_Validator_Exception_Caught_For_Incorrect_UKPRN()
+        public async Task Earnings_are_not_processed_if_validation_fails()
         {
             // Arrange
             _message.UKPRN = 0;
-            var validator = new CalculateGSLPaymentsValidator();
-            var mapper = new GSLEarningsMapper();
-            var repository = new Mock<IEarningsRepository>();
-            var collectionPeriodApiClient = new Mock<ICollectionPeriodApiClient>();
-            var logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
-
-            var handler = new GSLCalculatePaymentsHandler(
-                validator,
-                mapper,
-                repository.Object,
-                collectionPeriodApiClient.Object,
-                logger.Object);
-
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object, _logger.Object);
 
             // Act 
-            Action act = () => handler.HandleGslCalculatePaymentsMessage(_message);
+            Func<Task> act = async () => await handler.HandleGslCalculatePaymentsMessage(_message);
             act.Should().Throw<ArgumentException>()
                 .WithMessage("UKPRN is required");
 
             // Assert
-            logger.Verify(
+            _logger.Verify(
                 l => l.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
@@ -136,36 +119,28 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
 
-            repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
-
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
+                Times.Never);
+            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
+                Times.Never);
+            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
         }
 
         [Test]
-        public void Ensure_Repository_Save_Is_Called_With_Mapped_Earnings()
+        public async Task Earnings_are_sent_to_service_bus_and_stored_to_database_cache()
         {
-            // Arrange
-            var validator = new Mock<ICalculateGSLPaymentsValidator>();
-            var mapper = new GSLEarningsMapper();
-            var repository = new Mock<IEarningsRepository>();
-            var collectionPeriodApiClient = new Mock<ICollectionPeriodApiClient>();
-            var logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
-
-
-            var handler = new GSLCalculatePaymentsHandler(
-                validator.Object,
-                mapper,
-                repository.Object,
-                collectionPeriodApiClient.Object,
-                logger.Object);
-
-            validator.Setup(x => x.Validate(It.IsAny<CalculateGrowthAndSkillsPayments>()))
-                .Returns(true);
+            // Arrange          
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object, _logger.Object);
 
             // Act
-            handler.HandleGslCalculatePaymentsMessage(_message);
+            await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
-            repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Once);
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
+                Times.Once);
+            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
+                Times.Once);
+            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Once);
         }
     }
 }
