@@ -22,7 +22,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private CalculateGrowthAndSkillsPayments _message;
 
         private CalculateGSLPaymentsValidator _validator;
-        private GSLEarningsMapper _mapper;
+        private GrowthAndSkillsMapper _mapper;
         private Mock<IEarningsRepository> _repository;
         private Mock<IPaymentsServiceBusPublisher> _publisher;
         private Mock<ILogger<GSLCalculatePaymentsHandler>> _logger;
@@ -90,7 +90,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             };
 
         _validator = new CalculateGSLPaymentsValidator();
-        _mapper = new GSLEarningsMapper();
+        _mapper = new GrowthAndSkillsMapper();
         _repository = new Mock<IEarningsRepository>();
         _publisher = new Mock<IPaymentsServiceBusPublisher>();
         _logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();

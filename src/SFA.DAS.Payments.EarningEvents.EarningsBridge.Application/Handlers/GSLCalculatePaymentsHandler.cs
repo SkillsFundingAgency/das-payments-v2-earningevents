@@ -4,7 +4,6 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
-using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
@@ -14,14 +13,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
     public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
-        private IGSLEarningsMapper _mapper;
+        private IGrowthAndSkillsMapper _mapper;
         private IEarningsRepository _repository;
         private IPaymentsServiceBusPublisher _publisher;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
 
         public GSLCalculatePaymentsHandler(
             ICalculateGSLPaymentsValidator validator,
-            IGSLEarningsMapper mapper,
+            IGrowthAndSkillsMapper mapper,
             IEarningsRepository repository,
             IPaymentsServiceBusPublisher publisher,
             ILogger<GSLCalculatePaymentsHandler> logger)

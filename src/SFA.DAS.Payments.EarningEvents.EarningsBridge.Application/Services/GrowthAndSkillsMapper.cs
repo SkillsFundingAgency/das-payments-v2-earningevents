@@ -12,7 +12,7 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
-    public class GSLEarningsMapper : IGSLEarningsMapper
+    public class GrowthAndSkillsMapper : IGrowthAndSkillsMapper
     {
         public GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source)
         {
@@ -68,6 +68,23 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             };
 
             return earningsEvent;
+        }
+        
+        public IEnumerable<CollectionPeriodModel> MapCollectionYearToCollectionPeriodModels(CollectionYear collectionYear)
+        {
+            var collectionPeriodModels = new List<CollectionPeriodModel>();
+
+            foreach (var period in collectionYear.Periods)
+            {
+                collectionPeriodModels.Add(new CollectionPeriodModel
+                {
+                    AcademicYear = collectionYear.Year,
+                    Period = period.Period,
+                    Status = period.Status,
+                    Id = period.Id
+                });
+            }
+            return collectionPeriodModels;
         }
 
         private List<GrowthAndSkillsEarningPricePeriodModel> MapToPricePeriodModels(CalculateGrowthAndSkillsPayments source)
