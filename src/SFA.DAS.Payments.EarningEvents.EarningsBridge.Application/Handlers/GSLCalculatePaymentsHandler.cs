@@ -8,14 +8,13 @@ using SFA.DAS.Payments.Model.Core;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
-
-
     public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
         private IGrowthAndSkillsMapper _mapper;
         private IEarningsRepository _repository;
         private IPaymentsServiceBusPublisher _publisher;
+        private ICollectionPeriodService _collectionPeriodService;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
 
         public GSLCalculatePaymentsHandler(
@@ -23,12 +22,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             IGrowthAndSkillsMapper mapper,
             IEarningsRepository repository,
             IPaymentsServiceBusPublisher publisher,
+            ICollectionPeriodService collectionPeriodService,
             ILogger<GSLCalculatePaymentsHandler> logger)
         {
             _validator = validator;
             _mapper = mapper;
             _repository = repository;
             _publisher = publisher;
+            _collectionPeriodService = collectionPeriodService;
             _logger = logger;
         }
         
@@ -49,36 +50,32 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
 
-            // TEMPORARY CODE TO ENABLE TESTING BEFORE COLLECTION PERIOD API INTEGRATION - REMOVE BEFORE MERGE TO MAIN!!!
-            
-            // use hard-coded collection period values for outbound messages
-            
-            var currentCollectionPeriod = new CollectionPeriod
-            {
-                Period = 1,
-                AcademicYear = 2526
-            };
-
-            // assume that all inbound earnings are associated with an academic year
-            // with an open collection period so can be processed downstream
+            var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
             foreach (var earning in growthAndSkillsEarningModel.PricePeriods)
             {
-                earning.ProcessedOn = DateTime.UtcNow;
+                if (openCollectionPeriods.Any(x => x.AcademicYear == earning.AcademicYear))
+                {
+                    earning.ProcessedOn = DateTime.UtcNow; // if ProcessedOn is not set then will be cached and picked up for processing later
+                }
             }
 
-            var requiredPaymentsEvent = _mapper.MapToShortCourseEarningEvent(message, 
-                                                                             currentCollectionPeriod.AcademicYear, 
-                                                                             currentCollectionPeriod.Period);
+            var requiredPaymentsEvents = _mapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
 
-            var fundingSourceEvent = _mapper.MapToDasEarningsReceivedEvent(message,
-                                                                           currentCollectionPeriod.AcademicYear, 
-                                                                           currentCollectionPeriod.Period);
+            var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
 
-            // TEMPORARY CODE TO ENABLE TESTING BEFORE COLLECTION PERIOD API INTEGRATION - REMOVE BEFORE MERGE TO MAIN!!!
+            if (requiredPaymentsEvents.Any() && fundingSourceEvents.Any())
+            {
+                foreach (var requiredPaymentsEvent in requiredPaymentsEvents)
+                {
+                    await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
+                }
 
-            await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
-            await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
+                foreach (var fundingSourceEvent in fundingSourceEvents)
+                {
+                    await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
+                }
+            }
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }

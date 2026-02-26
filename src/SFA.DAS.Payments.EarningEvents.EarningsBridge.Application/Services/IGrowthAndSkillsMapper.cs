@@ -8,9 +8,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 public interface IGrowthAndSkillsMapper
 {
     GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source);    
-    GSLShortCourseEarningsEvent MapToShortCourseEarningEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
+    IEnumerable<GSLShortCourseEarningsEvent> MapToShortCourseEarningEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods);
 
     IEnumerable<CollectionPeriodModel> MapCollectionYearToCollectionPeriodModels(CollectionYear collectionYear);
 
-    DasEarningsReceivedEvent MapToDasEarningsReceivedEvent(CalculateGrowthAndSkillsPayments source, short academicYear, byte collectionPeriod);
+    IEnumerable<DasEarningsReceivedEvent> MapToDasEarningsReceivedEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods);
 }
