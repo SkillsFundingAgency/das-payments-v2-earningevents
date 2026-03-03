@@ -3,6 +3,7 @@ namespace SFA.DAS.Payments.EarningEvents.Model
 {
     public class GrowthAndSkillsEarningPricePeriodModel
     {
+        public virtual GrowthAndSkillsEarningModel GrowthAndSkillsEarning { get; set; }
         public long Id { get; set; }
         public Guid GrowthAndSkillsEarningsId { get; set; }
         public decimal Price { get; set; }
