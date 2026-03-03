@@ -53,8 +53,16 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 },
                 LearningAim = new Common.LearningAim
                 {
+                    Reference = source.Training.CourseReference,
+                    ProgrammeType = 0,
+                    StandardCode = Convert.ToInt32(source.Training.CourseCode),
+                    CourseCode = source.Training.CourseCode,
+                    FrameworkCode = 0,
+                    PathwayCode = 0,
+                    FundingLineType = "",
+                    SequenceNumber = 0,
                     StartDate = source.Training.StartDate,
-                    Reference = source.Training.CourseReference
+                    LearningType = (Common.TrainingType)source.Training.LearningType,
                 },
                 CollectionPeriod = new Common.CollectionPeriod
                 {

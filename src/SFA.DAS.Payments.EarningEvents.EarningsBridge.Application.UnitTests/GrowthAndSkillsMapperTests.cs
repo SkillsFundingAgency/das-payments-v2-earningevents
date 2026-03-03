@@ -5,6 +5,7 @@ using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
+using Common = SFA.DAS.Payments.Model.Core;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
@@ -32,7 +33,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 UKPRN = 10002233,
                 Training = new Training
                 {
-                    CourseCode = "ABC123",
+                    CourseCode = "123",
                     CourseReference = "ZSC00123",
                     LearningType = LearningType.ApprenticeshipUnit,
                     StartDate = new DateTime(2026, 1, 1),
@@ -155,8 +156,16 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.Ukprn.Should().Be(_message.UKPRN);
             earningEvent.Learner.ReferenceNumber.Should().Be(_message.Learner.Reference);
             earningEvent.Learner.Uln.Should().Be(_message.Learner.ULN);
-            earningEvent.LearningAim.StartDate.Should().Be(_message.Training.StartDate);
             earningEvent.LearningAim.Reference.Should().Be(_message.Training.CourseReference);
+            earningEvent.LearningAim.ProgrammeType.Should().Be(0);
+            earningEvent.LearningAim.StandardCode.Should().Be(Convert.ToInt32(_message.Training.CourseCode));
+            earningEvent.LearningAim.CourseCode.Should().Be(_message.Training.CourseCode);
+            earningEvent.LearningAim.FrameworkCode.Should().Be(1);
+            earningEvent.LearningAim.PathwayCode.Should().Be(0);
+            earningEvent.LearningAim.FundingLineType.Should().Be("");
+            earningEvent.LearningAim.SequenceNumber.Should().Be(0);
+            earningEvent.LearningAim.StartDate.Should().Be(_message.Training.StartDate);
+            earningEvent.LearningAim.LearningType.Should().Be((Common.TrainingType)_message.Training.LearningType);
             earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
             earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
             var eventPriceEpisodes = earningEvent.PriceEpisodes.ToArray();
