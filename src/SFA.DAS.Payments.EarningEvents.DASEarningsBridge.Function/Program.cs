@@ -55,7 +55,7 @@ builder.Services.AddScoped<ICollectionPeriodApiClient, CollectionPeriodApiClient
 builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPublisher>((sp) =>
 {
     var config = sp.GetService<IEarningsBridgeConfiguration>();
-    return new PaymentsServiceBusPublisher(config.PaymentsServiceBusConnectionString);
+    return new PaymentsServiceBusPublisher(config.ServiceBusConnectionString);
 });
 
 builder.Services.AddScoped<ICollectionPeriodService, CollectionPeriodService>();

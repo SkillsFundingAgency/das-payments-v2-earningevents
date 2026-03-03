@@ -38,7 +38,7 @@ Populate as follows:
         "CORSCredentials": false
     },
     "PaymentsConnectionString": "<< SQL connection string for your local DASPayments database instance >>",
-    "PaymentsServiceBusConnectionString": "<< Payments service bus connection string for your local instance - will be prefixed Endpoint=sb://das-pv2-dev- followed by initials >>",
+    "ServiceBusConnectionString": "<< Payments service bus connection string for your local instance - will be prefixed Endpoint=sb://das-pv2-dev- followed by initials >>",
     "CollectionPeriodApiBaseAddress": "<< base address of Collection Period API when running locally (look in the das-payments-v2-collectionperiod repo for this) >>"
 }
 ```
