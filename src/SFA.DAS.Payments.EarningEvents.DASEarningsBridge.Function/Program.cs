@@ -36,6 +36,10 @@ builder.Services
 builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, options) =>
 {
     var config = sp.GetService<IEarningsBridgeConfiguration>();
+    if (String.IsNullOrWhiteSpace(config.PaymentsConnectionString))
+    {
+        throw new InvalidOperationException("PaymentsConnectionString is required");
+    }
     options.UseSqlServer(config.PaymentsConnectionString);
 });
 
