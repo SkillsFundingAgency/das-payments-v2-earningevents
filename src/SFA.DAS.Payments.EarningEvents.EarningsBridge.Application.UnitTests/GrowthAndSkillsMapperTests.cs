@@ -160,7 +160,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.LearningAim.ProgrammeType.Should().Be(0);
             earningEvent.LearningAim.StandardCode.Should().Be(Convert.ToInt32(_message.Training.CourseCode));
             earningEvent.LearningAim.CourseCode.Should().Be(_message.Training.CourseCode);
-            earningEvent.LearningAim.FrameworkCode.Should().Be(1);
+            earningEvent.LearningAim.FrameworkCode.Should().Be(0);
             earningEvent.LearningAim.PathwayCode.Should().Be(0);
             earningEvent.LearningAim.FundingLineType.Should().Be("");
             earningEvent.LearningAim.SequenceNumber.Should().Be(0);
