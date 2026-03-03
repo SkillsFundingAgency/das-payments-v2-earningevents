@@ -30,10 +30,15 @@ Populate as follows:
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "AzureWebJobs.HttpExample.Disabled": "true",        
         "DASServiceBusConnectionString": "<< connection string for DAS service bus namespace >>",
-        "DASServiceBusQueueName": "<< name of queue to listen on in DAS service bus namespace >>",
-        "PaymentsConnectionString": "<< SQL connection string for your local DASPayments database instance >>",
-        "PaymentsServiceBusConnectionString": "<< Payments service bus connection string for your local instance - will be prefixed Endpoint=sb://das-pv2-dev- followed by initials >>",
-        "CollectionPeriodApiBaseAddress": "<< base address of Collection Period API when running locally (look in the das-payments-v2-collectionperiod repo for this) >>"
-  }
+        "DASServiceBusQueueName": "<< name of queue to listen on in DAS service bus namespace >>"        
+  },
+   "Host": {
+        "LocalHttpPort": 7071,
+        "CORS": "*",
+        "CORSCredentials": false
+    },
+    "PaymentsConnectionString": "<< SQL connection string for your local DASPayments database instance >>",
+    "PaymentsServiceBusConnectionString": "<< Payments service bus connection string for your local instance - will be prefixed Endpoint=sb://das-pv2-dev- followed by initials >>",
+    "CollectionPeriodApiBaseAddress": "<< base address of Collection Period API when running locally (look in the das-payments-v2-collectionperiod repo for this) >>"
 }
 ```

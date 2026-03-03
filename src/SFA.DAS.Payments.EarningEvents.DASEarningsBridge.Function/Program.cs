@@ -23,7 +23,7 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services
     .AddOptions<EarningsBridgeConfiguration>()
-    .Bind(builder.Configuration.GetSection("Values"))
+    .Bind(builder.Configuration)
     .ValidateOnStart();
 
 builder.Services.AddSingleton<IEarningsBridgeConfiguration>(sp =>
