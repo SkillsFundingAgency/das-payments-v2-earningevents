@@ -21,7 +21,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             try
             {
                 var collectionYears = new List<CollectionYear>();
-                HttpResponseMessage response = await _httpClient.GetAsync("/api/v1/collectionyear");
+                HttpResponseMessage response = await _httpClient.GetAsync("/api/collectionyear");
                 if (response.IsSuccessStatusCode)
                 {
                     collectionYears = await response.Content.ReadAsAsync<List<CollectionYear>>();
@@ -41,7 +41,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             try
             {
                 CollectionYear collectionYear = null;
-                HttpResponseMessage response = await _httpClient.GetAsync($"/api/v1/collectionyear/{academicYear}?status=Open");
+                HttpResponseMessage response = await _httpClient.GetAsync($"/api/collectionyear/{academicYear}?status=Open");
                 if (response.IsSuccessStatusCode)
                 {
                     collectionYear = await response.Content.ReadAsAsync<CollectionYear>();
@@ -61,7 +61,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             try
             {
                 CollectionPeriod collectionPeriod = null;
-                HttpResponseMessage response = await _httpClient.GetAsync($"/api/v1/collectionyear/{academicYear}/collectionperiod/{period}");
+                HttpResponseMessage response = await _httpClient.GetAsync($"/api/collectionyear/{academicYear}/collectionperiod/{period}");
                 if (response.IsSuccessStatusCode)
                 {
                     collectionPeriod = await response.Content.ReadAsAsync<CollectionPeriod>();
