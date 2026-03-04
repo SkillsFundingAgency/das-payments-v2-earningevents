@@ -49,12 +49,11 @@ builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsV
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
 
 
-builder.Services.AddHttpClient<CollectionPeriodApiClient>((sp, client) =>
+builder.Services.AddHttpClient<ICollectionPeriodApiClient, CollectionPeriodApiClient>((sp, client) =>
 {
     var config = sp.GetService<IEarningsBridgeConfiguration>();
     client.BaseAddress = new Uri(config.CollectionPeriodApiBaseAddress);
 });
-builder.Services.AddScoped<ICollectionPeriodApiClient, CollectionPeriodApiClient>();
 
 builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPublisher>((sp) =>
 {
