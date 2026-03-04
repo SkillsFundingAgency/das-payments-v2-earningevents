@@ -6,7 +6,7 @@
 
   <ItemGroup>
 	  <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.2.2" />
-	  <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-4" />
+	  <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-13" />
   </ItemGroup>
 
 </Project>

@@ -37,7 +37,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 UKPRN = 10002233,
                 Training = new Training
                 {
-                    CourseCode = "ABC123",
+                    CourseCode = "123456",
                     CourseReference = "ZSC00123",
                     LearningType = LearningType.ApprenticeshipUnit,
                     StartDate = new DateTime(2026, 1, 1),

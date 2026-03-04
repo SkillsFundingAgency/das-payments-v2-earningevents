@@ -5,6 +5,7 @@ using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
 using Common = SFA.DAS.Payments.Model.Core;
+using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
 
@@ -53,8 +54,16 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 },
                 LearningAim = new Common.LearningAim
                 {
+                    Reference = source.Training.CourseReference,
+                    ProgrammeType = 0,
+                    StandardCode = 0,
+                    CourseCode = source.Training.CourseCode,
+                    FrameworkCode = 0,
+                    PathwayCode = 0,
+                    FundingLineType = "",
+                    SequenceNumber = 0,
                     StartDate = source.Training.StartDate,
-                    Reference = source.Training.CourseReference
+                    LearningType = (Common.TrainingType)source.Training.LearningType,
                 },
                 CollectionPeriod = new Common.CollectionPeriod
                 {
