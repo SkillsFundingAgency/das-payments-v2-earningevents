@@ -13,7 +13,7 @@ namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
             builder.Property(x => x.Id).HasColumnName("Id");
             builder.Property(x => x.EarningsId).HasColumnName("EarningsId").IsRequired();
             builder.Property(x => x.UKPRN).HasColumnName("UKPRN").IsRequired();
-            builder.Property(x => x.LearnerId).HasColumnName("LearnerId").IsRequired();
+            builder.Property(x => x.LearnerKey).HasColumnName("LearnerKey").IsRequired();
             builder.Property(x => x.LearnerUln).HasColumnName("LearnerUln").IsRequired();
             builder.Property(x => x.LearnerReference).HasColumnName("LearnerReference").IsRequired();
             builder.Property(x => x.LearningType).HasColumnName("LearningType").IsRequired();

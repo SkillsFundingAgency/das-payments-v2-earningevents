@@ -37,9 +37,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
                 throw new ArgumentException("Learner is required");
             }
 
-            if (learner.LearnerId == Guid.Empty)
+            if (learner.LearnerKey == Guid.Empty)
             {
-                throw new ArgumentException("Learner Id is required");
+                throw new ArgumentException("Learner Key is required");
             }
 
             if (learner.ULN == 0)
