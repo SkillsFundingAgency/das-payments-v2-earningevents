@@ -1,10 +1,12 @@
-﻿using SFA.DAS.Payments.EarningEvents.Messages;
+﻿using Newtonsoft.Json.Linq;
+using SFA.DAS.Payments.EarningEvents.Messages;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
 using Common = SFA.DAS.Payments.Model.Core;
+using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
 
@@ -55,7 +57,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 {
                     Reference = source.Training.CourseReference,
                     ProgrammeType = 0,
-                    StandardCode = Convert.ToInt32(source.Training.CourseCode),
+                    StandardCode = source.Training.CourseType==CourseType.ShortCourse ? 0 : Convert.ToInt32(source.Training.CourseCode),
                     CourseCode = source.Training.CourseCode,
                     FrameworkCode = 0,
                     PathwayCode = 0,
