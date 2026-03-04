@@ -23,7 +23,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 UKPRN = 10001234,
                 Learner = new Learner
                 {
-                    LearnerId = Guid.NewGuid(),
+                    LearnerKey = Guid.NewGuid(),
                     Reference = "ref",
                     ULN = 123456789
                 },
@@ -139,14 +139,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void Validate_rejects_empty_learner_id()
+        public void Validate_rejects_empty_learner_key()
         {
-            _message.Learner.LearnerId = Guid.Empty;
+            _message.Learner.LearnerKey = Guid.Empty;
 
             Action act = () => _sut.Validate(_message);
 
             act.Should().Throw<ArgumentException>()
-                .WithMessage("Learner Id is required");
+                .WithMessage("Learner Key is required");
         }
 
         [Test]

@@ -21,7 +21,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             {
                 EarningsId = source.EarningsId,
                 UKPRN = source.UKPRN,
-                LearnerId = source.Learner.LearnerId,
+                LearnerKey = source.Learner.LearnerKey,
                 LearnerUln = source.Learner.ULN,
                 LearnerReference = source.Learner.Reference,
                 LearningType = (Model.LearningType)source.Training.LearningType,

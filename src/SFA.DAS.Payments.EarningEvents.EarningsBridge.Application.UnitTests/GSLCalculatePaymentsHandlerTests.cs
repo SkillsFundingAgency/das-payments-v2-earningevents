@@ -50,7 +50,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 {
                     ULN = 12345678,
                     Reference = "LEARNREF001",
-                    LearnerId = Guid.NewGuid()
+                    LearnerKey = Guid.NewGuid()
                 },
                 Earnings = new List<Earnings>
                 {

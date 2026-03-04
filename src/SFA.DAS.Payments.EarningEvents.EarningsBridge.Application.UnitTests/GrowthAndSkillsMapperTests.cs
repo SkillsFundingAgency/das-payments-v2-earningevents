@@ -48,7 +48,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 {
                     ULN = 12345678,
                     Reference = "LEARNREF001",
-                    LearnerId = Guid.NewGuid()
+                    LearnerKey = Guid.NewGuid()
                 },
                 Earnings = new List<Earnings>
                 {
@@ -97,7 +97,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             // Assert
             model.EarningsId.Should().Be(_message.EarningsId);
             model.UKPRN.Should().Be(_message.UKPRN);
-            model.LearnerId.Should().Be(_message.Learner.LearnerId);
+            model.LearnerKey.Should().Be(_message.Learner.LearnerKey);
             model.LearnerReference.Should().Be(_message.Learner.Reference);
             model.LearnerUln.Should().Be(_message.Learner.ULN);
             var learningTypeValue = (int)model.LearningType;
