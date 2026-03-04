@@ -5,7 +5,7 @@
         public long Id { get; set; }
         public Guid EarningsId { get; set; }
         public long UKPRN { get; set; } 
-        public Guid LearnerId { get; set; }
+        public Guid LearnerKey { get; set; }
         public long LearnerUln { get; set; }
         public string LearnerReference { get; set; } 
         public LearningType LearningType { get; set; }

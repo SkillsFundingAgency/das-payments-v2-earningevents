@@ -23,7 +23,7 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services
     .AddOptions<EarningsBridgeConfiguration>()
-    .Bind(builder.Configuration.GetSection("Values"))
+    .Bind(builder.Configuration)
     .ValidateOnStart();
 
 builder.Services.AddSingleton<IEarningsBridgeConfiguration>(sp =>
@@ -36,6 +36,10 @@ builder.Services
 builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, options) =>
 {
     var config = sp.GetService<IEarningsBridgeConfiguration>();
+    if (String.IsNullOrWhiteSpace(config.PaymentsConnectionString))
+    {
+        throw new InvalidOperationException("PaymentsConnectionString is required");
+    }
     options.UseSqlServer(config.PaymentsConnectionString);
 });
 
@@ -55,7 +59,7 @@ builder.Services.AddScoped<ICollectionPeriodApiClient, CollectionPeriodApiClient
 builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPublisher>((sp) =>
 {
     var config = sp.GetService<IEarningsBridgeConfiguration>();
-    return new PaymentsServiceBusPublisher(config.PaymentsServiceBusConnectionString);
+    return new PaymentsServiceBusPublisher(config.ServiceBusConnectionString);
 });
 
 builder.Services.AddScoped<ICollectionPeriodService, CollectionPeriodService>();

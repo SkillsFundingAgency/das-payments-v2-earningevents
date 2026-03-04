@@ -5,7 +5,7 @@
         public string PaymentsConnectionString { get; set; }
         public string DASServiceBusConnectionString { get; set; }
         public string DASServiceBusQueueName { get; set; }
-        public string PaymentsServiceBusConnectionString { get; set; }
+        public string ServiceBusConnectionString { get; set; }
         public string CollectionPeriodApiBaseAddress { get; set; }
     }
 }
