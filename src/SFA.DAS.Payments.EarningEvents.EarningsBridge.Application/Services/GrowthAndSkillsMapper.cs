@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using SFA.DAS.Payments.EarningEvents.Messages;
+﻿using SFA.DAS.Payments.EarningEvents.Messages;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
