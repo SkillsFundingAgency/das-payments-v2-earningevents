@@ -6,6 +6,7 @@ using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
 using Common = SFA.DAS.Payments.Model.Core;
+using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
@@ -34,6 +35,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Training = new Training
                 {
                     CourseCode = "123456",
+                    CourseType = CourseType.ShortCourse,
                     CourseReference = "ZSC00123",
                     LearningType = LearningType.ApprenticeshipUnit,
                     StartDate = new DateTime(2026, 1, 1),
@@ -158,7 +160,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.Learner.Uln.Should().Be(_message.Learner.ULN);
             earningEvent.LearningAim.Reference.Should().Be(_message.Training.CourseReference);
             earningEvent.LearningAim.ProgrammeType.Should().Be(0);
-            earningEvent.LearningAim.StandardCode.Should().Be(Convert.ToInt32(_message.Training.CourseCode));
+            earningEvent.LearningAim.StandardCode.Should().Be(0);
             earningEvent.LearningAim.CourseCode.Should().Be(_message.Training.CourseCode);
             earningEvent.LearningAim.FrameworkCode.Should().Be(0);
             earningEvent.LearningAim.PathwayCode.Should().Be(0);
@@ -229,6 +231,20 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             // Assert
             earningEvent.PriceEpisodes[0].Completed.Should().BeTrue();
+        }
+
+        [Test]
+        public void StandardCode_is_zero_when_course_type_is_short_course()
+        {
+            // Arrange
+            short academicYear = 2526;
+            byte collectionPeriod = 1;
+
+            // Act
+            var earningEvent = _sut.MapToShortCourseEarningEvent(_message, academicYear, collectionPeriod);
+
+            // Assert
+            earningEvent.LearningAim.StandardCode.Should().Be(0);
         }
 
         [Test]

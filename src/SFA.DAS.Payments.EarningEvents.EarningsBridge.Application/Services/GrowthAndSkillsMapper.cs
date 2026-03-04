@@ -57,7 +57,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 {
                     Reference = source.Training.CourseReference,
                     ProgrammeType = 0,
-                    StandardCode = source.Training.CourseType==CourseType.ShortCourse ? 0 : Convert.ToInt32(source.Training.CourseCode),
+                    StandardCode = 0,
                     CourseCode = source.Training.CourseCode,
                     FrameworkCode = 0,
                     PathwayCode = 0,
