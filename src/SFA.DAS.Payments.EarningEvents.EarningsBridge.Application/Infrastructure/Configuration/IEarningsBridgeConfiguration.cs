@@ -7,5 +7,6 @@
         string DASServiceBusQueueName { get; set; }
         string ServiceBusConnectionString { get; set; }
         string CollectionPeriodApiBaseAddress { get; set; }
+        string CollectionPeriodApiKey { get; set; }
     }
 }
