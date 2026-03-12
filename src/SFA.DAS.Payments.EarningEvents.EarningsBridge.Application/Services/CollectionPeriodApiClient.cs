@@ -1,18 +1,19 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructure.Configuration;
 using SFA.DAS.Payments.EarningEvents.Model;
-using SFA.DAS.Payments.Model.Core.Entities;
-
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
     public class CollectionPeriodApiClient : ICollectionPeriodApiClient
     {
         private readonly HttpClient _httpClient;
+        private readonly IEarningsBridgeConfiguration _configuration;
         private readonly ILogger<CollectionPeriodApiClient> _logger;
 
-        public CollectionPeriodApiClient(HttpClient httpClient, ILogger<CollectionPeriodApiClient> logger)
+        public CollectionPeriodApiClient(HttpClient httpClient, IEarningsBridgeConfiguration configuration, ILogger<CollectionPeriodApiClient> logger)
         {
             _httpClient = httpClient;
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -21,7 +22,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             try
             {
                 var collectionYears = new List<CollectionYear>();
-                HttpResponseMessage response = await _httpClient.GetAsync("/api/v1/collectionyear");
+                HttpResponseMessage response = await _httpClient.GetAsync($"/api/collectionyear?code={_configuration.CollectionPeriodApiKey}");
                 if (response.IsSuccessStatusCode)
                 {
                     collectionYears = await response.Content.ReadAsAsync<List<CollectionYear>>();
@@ -41,7 +42,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             try
             {
                 CollectionYear collectionYear = null;
-                HttpResponseMessage response = await _httpClient.GetAsync($"/api/v1/collectionyear/{academicYear}?status=Open");
+                HttpResponseMessage response = await _httpClient.GetAsync($"/api/collectionyear/{academicYear}?status=Open&code={_configuration.CollectionPeriodApiKey}");
                 if (response.IsSuccessStatusCode)
                 {
                     collectionYear = await response.Content.ReadAsAsync<CollectionYear>();
@@ -61,7 +62,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             try
             {
                 CollectionPeriod collectionPeriod = null;
-                HttpResponseMessage response = await _httpClient.GetAsync($"/api/v1/collectionyear/{academicYear}/collectionperiod/{period}");
+                HttpResponseMessage response = await _httpClient.GetAsync($"/api/collectionyear/{academicYear}/collectionperiod/{period}?code={_configuration.CollectionPeriodApiKey}");
                 if (response.IsSuccessStatusCode)
                 {
                     collectionPeriod = await response.Content.ReadAsAsync<CollectionPeriod>();
