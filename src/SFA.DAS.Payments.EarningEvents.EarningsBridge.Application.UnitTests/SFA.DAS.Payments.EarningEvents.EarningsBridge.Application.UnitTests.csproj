@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="FluentAssertions" Version="5.9.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="NUnit" Version="4.4.0" />
     <PackageReference Include="NUnit.Analyzers" Version="4.11.2">
@@ -23,6 +24,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function\SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
   </ItemGroup>
 
   <ItemGroup>

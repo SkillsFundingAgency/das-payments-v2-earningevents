@@ -1,17 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SFA.DAS.Payments.EarningEvents.Model;
+using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
 {
-    public class ShortCourseEarningPricePeriodModelConfiguration : IEntityTypeConfiguration<ShortCourseEarningPricePeriodModel>
+    public class GrowthAndSkillsEarningPricePeriodModelConfiguration : IEntityTypeConfiguration<GrowthAndSkillsEarningPricePeriodModel>
     {
-        public void Configure(EntityTypeBuilder<ShortCourseEarningPricePeriodModel> builder)
+        public void Configure(EntityTypeBuilder<GrowthAndSkillsEarningPricePeriodModel> builder)
         {
-            builder.ToTable("ShortCourseEarningPricePeriod", "Payments2");
+            builder.ToTable("GrowthAndSkillsEarningPricePeriod", "Payments2");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).HasColumnName("Id").IsRequired();
-            builder.Property(x => x.ShortCourseEarningsId).HasColumnName("ShortCourseEarningsId").IsRequired();
+            builder.Property(x => x.Id).HasColumnName("Id");
+            builder.Property(x => x.GrowthAndSkillsEarningsId).HasColumnName("GrowthAndSkillsEarningsId").IsRequired();
             builder.Property(x => x.Price).HasColumnName("Price").IsRequired().HasColumnType("decimal(15,5)");
             builder.Property(x => x.StartDate).HasColumnName("StartDate").IsRequired();
             builder.Property(x => x.EndDate).HasColumnName("EndDate").IsRequired();
@@ -22,6 +23,12 @@ namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
             builder.Property(x => x.EmployerAccountId).HasColumnName("EmployerAccountId").IsRequired();
             builder.Property(x => x.EmployerType).HasColumnName("EmployerType").IsRequired();
             builder.Property(x => x.FundingAccountId).HasColumnName("FundingAccountId").IsRequired();
+            builder.Property(x => x.ProcessedOn).HasColumnName("ProcessedOn");
+            builder.Property(x => x.ApprenticeshipId).HasColumnName("ApprenticeshipId");
+            builder.HasOne(x => x.GrowthAndSkillsEarning)
+                .WithMany(x => x.PricePeriods)
+                .HasForeignKey(x => x.GrowthAndSkillsEarningsId)
+                .HasPrincipalKey(x => x.EarningsId);
         }
     }
 }

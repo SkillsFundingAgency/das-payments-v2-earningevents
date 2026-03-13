@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-13" />
+    <PackageReference Include="Autofac" Version="7.0.1" />
+    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Data\SFA.DAS.Payments.EarningEvents.Data.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
+  </ItemGroup>
+
+</Project>
