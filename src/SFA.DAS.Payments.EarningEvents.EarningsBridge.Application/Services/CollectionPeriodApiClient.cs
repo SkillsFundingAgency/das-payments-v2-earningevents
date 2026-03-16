@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Net;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructure.Configuration;
 using SFA.DAS.Payments.EarningEvents.Model;
 
@@ -23,7 +24,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             {
                 var collectionYears = new List<CollectionYear>();
                 HttpResponseMessage response = await _httpClient.GetAsync($"/api/collectionyear?code={_configuration.CollectionPeriodApiKey}");
-                if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     collectionYears = await response.Content.ReadAsAsync<List<CollectionYear>>();
                 }
@@ -43,7 +44,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             {
                 CollectionYear collectionYear = null;
                 HttpResponseMessage response = await _httpClient.GetAsync($"/api/collectionyear/{academicYear}?status=Open&code={_configuration.CollectionPeriodApiKey}");
-                if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     collectionYear = await response.Content.ReadAsAsync<CollectionYear>();
                 }
@@ -63,7 +64,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             {
                 CollectionPeriod collectionPeriod = null;
                 HttpResponseMessage response = await _httpClient.GetAsync($"/api/collectionyear/{academicYear}/collectionperiod/{period}?code={_configuration.CollectionPeriodApiKey}");
-                if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     collectionPeriod = await response.Content.ReadAsAsync<CollectionPeriod>();
                 }
