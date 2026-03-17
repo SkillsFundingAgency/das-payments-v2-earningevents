@@ -587,7 +587,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.LearningAim.FundingLineType.Should().Be("");
             earningEvent.LearningAim.SequenceNumber.Should().Be(0);
             earningEvent.LearningAim.StartDate.Should().Be(_message.Training.StartDate);
-            earningEvent.LearningAim.LearningType.Should().Be((Common.TrainingType)_message.Training.LearningType);
+            earningEvent.LearningAim.LearningType.Should().Be((Common.Entities.LearningType)_message.Training.LearningType);
             earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
             earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
             var eventPriceEpisodes = earningEvent.PriceEpisodes.ToArray();

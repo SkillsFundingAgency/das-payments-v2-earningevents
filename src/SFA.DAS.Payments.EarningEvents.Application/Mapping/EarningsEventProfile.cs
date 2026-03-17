@@ -72,6 +72,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                         source.Aims.OrderBy(aim => aim.LearningDeliveryValues.LearnStartDate).First()
                             .LearningDeliveryValues.AgeAtProgStart))
                 .Ignore(x => x.ContractType)
+                .AfterMap((intermediateLearningAim, earningEvent) => earningEvent.LearningAim.LearningType = LearningType.FunctionalSkill)
                 ;
 
             CreateMap<ApprenticeshipContractType1EarningEvent, ApprenticeshipContractType1RedundancyEarningEvent>()
@@ -106,6 +107,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                 .ForMember(dest => dest.StandardCode, opt => opt.MapFrom(source => source.Aims.First().LearningDeliveryValues.StdCode))
                 .ForMember(dest => dest.SequenceNumber, opt => opt.MapFrom(source => source.Aims.First().AimSeqNumber))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(source => source.Aims.Min(x => x.LearningDeliveryValues.LearnStartDate)))
+                .ForMember(dest => dest.CourseCode, opt => opt.Ignore())
+                .ForMember(dest => dest.LearningType, opt => opt.MapFrom(source => LearningType.Apprenticeship))
                 ;
 
             CreateMap<IntermediateLearningAim, SubmittedLearnerAimModel>()

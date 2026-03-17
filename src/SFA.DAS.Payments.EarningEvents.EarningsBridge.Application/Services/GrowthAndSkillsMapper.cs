@@ -72,7 +72,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                             FundingLineType = "",
                             SequenceNumber = 0,
                             StartDate = source.Training.StartDate,
-                            LearningType = (Common.TrainingType)source.Training.LearningType,
+                            LearningType = (Common.Entities.LearningType)source.Training.LearningType,
                         },
                         CollectionPeriod = new Common.CollectionPeriod
                         {
