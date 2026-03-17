@@ -839,5 +839,29 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             events.Single().Earnings.Should().HaveCount(3);
             events.Single().Earnings.Single(x => x.Type == FunctionalSkillType.LearningSupport).Periods.Should().HaveCount(12);
         }
+
+        [Test]
+        public void MapLearningTypeCorrectly()
+        {
+            // arrange
+            var builder = new FunctionalSkillEarningEventBuilder(mapper, redundancyEarningService.Object);
+
+            // act
+            var events = builder.Build(learnerSubmission);
+
+            // assert
+            events.Should().NotBeNull();
+            events.Should().HaveCount(2);
+
+            var nonLevyContractTypeEarning = events.Single(x => x.ContractType == ContractType.Act2);
+            nonLevyContractTypeEarning.Should().BeOfType<Act2FunctionalSkillEarningsEvent>();
+            nonLevyContractTypeEarning.LearningAim.Should().NotBeNull();
+            nonLevyContractTypeEarning.LearningAim.LearningType.Should().Be(LearningType.FunctionalSkill);
+
+            var levyContractTypeEarning = events.Single(x => x.ContractType == ContractType.Act1);
+            levyContractTypeEarning.Should().BeOfType<Act1FunctionalSkillEarningsEvent>();
+            levyContractTypeEarning.LearningAim.Should().NotBeNull();
+            levyContractTypeEarning.LearningAim.LearningType.Should().Be(LearningType.FunctionalSkill);
+        }
     }
 }
