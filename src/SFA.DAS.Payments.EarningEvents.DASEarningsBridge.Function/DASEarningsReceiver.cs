@@ -1,0 +1,39 @@
+using Azure.Messaging.ServiceBus;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
+using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+// ReSharper disable InconsistentNaming
+
+namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
+{
+
+    public class DASEarningsReceiver
+    {
+        private readonly ILogger<DASEarningsReceiver> _logger;
+        private readonly IGSLCalculatePaymentsHandler _gslCalculatePaymentsHandler;
+
+        public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGSLCalculatePaymentsHandler gslCalculatePaymentsHandler)
+        {
+            _logger = logger;
+            _gslCalculatePaymentsHandler = gslCalculatePaymentsHandler;
+        }
+
+        [Function(nameof(DASEarningsReceiver))]
+        public async Task Run(
+            [ServiceBusTrigger("%DASServiceBusQueueName%", Connection = "DASServiceBusConnectionString")]
+            ServiceBusReceivedMessage message,
+            ServiceBusMessageActions messageActions)
+        {
+            _logger.LogInformation("Message ID: {id}", message.MessageId);
+            _logger.LogInformation("Message Body: {body}", message.Body);
+            _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
+
+            var growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
+            await _gslCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
+
+            await messageActions.CompleteMessageAsync(message);
+        }
+    }
+}
+
