@@ -44,7 +44,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     TrainingStatus = TrainingStatus.Continuing,
                     AgeAtStartOfTraining = 25,
                     PlannedEndDate = new DateTime(2026, 1, 15),
-                    ActualEndDate = new DateTime(2026, 1, 31)
+                    ActualEndDate = new DateTime(2026, 1, 31),
+                    LearningKey = Guid.NewGuid()
                 },
                 Learner = new Learner
                 {
@@ -115,6 +116,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             model.EmployerContribution.Should().Be(_message.EmployerContribution);
             var courseTypeValue = (int)model.CourseType;
             courseTypeValue.Should().Be((int)_message.Training.CourseType);
+            model.LearningKey.Should().Be(_message.Training.LearningKey);
             var pricePeriodModels = model.PricePeriods.ToArray();
             foreach (var earning in _message.Earnings)
             {

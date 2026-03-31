@@ -26,6 +26,7 @@ namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
             builder.Property(x => x.TrainingStatus).HasColumnName("TrainingStatus").IsRequired();
             builder.Property(x => x.EmployerContribution).HasColumnName("EmployerContribution").IsRequired().HasColumnType("decimal(15,5)");
             builder.Property(x => x.CourseType).HasColumnName("CourseType").IsRequired();
+            builder.Property(x => x.LearningKey).HasColumnName("LearningKey").IsRequired();
         }
     }
 }

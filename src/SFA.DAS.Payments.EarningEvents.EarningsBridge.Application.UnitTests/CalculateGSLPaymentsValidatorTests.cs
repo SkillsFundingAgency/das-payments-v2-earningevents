@@ -35,7 +35,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     CourseReference = "ZSC00123",
                     LearningType = LearningType.ApprenticeshipUnit,
                     PlannedEndDate = new DateTime(2026, 03, 31),
-                    TrainingStatus = TrainingStatus.Continuing
+                    TrainingStatus = TrainingStatus.Continuing,
+                    LearningKey = Guid.NewGuid()
                 },
                 Earnings = new List<Earnings>
                 {
@@ -235,6 +236,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             act.Should().Throw<ArgumentException>()
                 .WithMessage("Training Planned End Date is required");
+        }
+
+        [Test]
+        public void Validate_rejects_empty_learning_key()
+        {
+            _message.Training.LearningKey = Guid.Empty;
+
+            Action act = () => _sut.Validate(_message);
+
+            act.Should().Throw<ArgumentException>()
+                .WithMessage("Learning Key is required");
         }
 
         [Test]
