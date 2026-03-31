@@ -46,7 +46,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     TrainingStatus = TrainingStatus.Continuing,
                     AgeAtStartOfTraining = 25,
                     PlannedEndDate = new DateTime(2026, 1, 15),
-                    ActualEndDate = new DateTime(2026, 1, 31)
+                    ActualEndDate = new DateTime(2026, 1, 31),
+                    LearningKey = Guid.NewGuid()
                 },
                 Learner = new Learner
                 {
