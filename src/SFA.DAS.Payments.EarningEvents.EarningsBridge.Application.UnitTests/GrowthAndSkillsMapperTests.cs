@@ -633,6 +633,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                         earningPeriod.Period.Should().Be(pricePeriods[i].DeliveryPeriod);
                         earningPeriod.SfaContributionPercentage.Should().Be(0.95m); // 95% funding for Levy employers
                         earningPeriod.ApprenticeshipId.Should().Be(pricePeriods[i].LearningId);
+                        var expectedPriceEpisodeIdentifier = $"{_message.Training.CourseCode}-{pricePeriod.StartDate}";
+                        earningPeriod.PriceEpisodeIdentifier.Should().Be(expectedPriceEpisodeIdentifier);
                     }
                 }
             }
