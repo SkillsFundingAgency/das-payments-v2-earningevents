@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Payments.EarningEvents.Messages;
+﻿using System.Data.SqlTypes;
+using SFA.DAS.Payments.EarningEvents.Messages;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
@@ -80,7 +81,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                             Period = openCollectionPeriods.First(x => x.AcademicYear == earning.AcademicYear).Period
                         },
                         AgeAtStartOfLearning = source.Training.AgeAtStartOfTraining,
-                        FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService
+                        FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService,
+                        IlrSubmissionDateTime = SqlDateTime.MinValue.Value
                     });
                 }
             }

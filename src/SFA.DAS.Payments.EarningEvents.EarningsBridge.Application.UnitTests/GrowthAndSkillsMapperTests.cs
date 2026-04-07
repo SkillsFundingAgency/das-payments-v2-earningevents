@@ -1,4 +1,5 @@
 ﻿
+using System.Data.SqlTypes;
 using FluentAssertions;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
@@ -590,6 +591,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.LearningAim.LearningType.Should().Be((Common.Entities.LearningType)_message.Training.LearningType);
             earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
             earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
+            earningEvent.IlrSubmissionDateTime.Should().Be(SqlDateTime.MinValue.Value);
             var eventPriceEpisodes = earningEvent.PriceEpisodes.ToArray();
             foreach (var earning in _message.Earnings.Where(x => x.AcademicYear == academicYear))
             {
