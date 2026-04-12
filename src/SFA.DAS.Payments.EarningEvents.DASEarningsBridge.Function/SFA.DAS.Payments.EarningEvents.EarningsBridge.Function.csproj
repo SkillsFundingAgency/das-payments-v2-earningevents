@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="local.settings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="local.settings.json" />
   </ItemGroup>
 
