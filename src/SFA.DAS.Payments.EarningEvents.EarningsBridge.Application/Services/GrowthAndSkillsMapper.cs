@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Payments.EarningEvents.Messages;
+﻿using System.Data.SqlTypes;
+using SFA.DAS.Payments.EarningEvents.Messages;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
@@ -34,6 +35,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 TrainingStatus = (Model.TrainingStatus)source.Training.TrainingStatus,
                 EmployerContribution = source.EmployerContribution,
                 CourseType = (Model.CourseType)source.Training.CourseType,
+                LearningKey = source.Training.LearningKey,
                 PricePeriods = MapToPricePeriodModels(source)
             };
         }
@@ -80,7 +82,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                             Period = openCollectionPeriods.First(x => x.AcademicYear == earning.AcademicYear).Period
                         },
                         AgeAtStartOfLearning = source.Training.AgeAtStartOfTraining,
-                        FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService
+                        FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService,
+                        IlrSubmissionDateTime = SqlDateTime.MinValue.Value
                     });
                 }
             }
@@ -187,7 +190,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                     {
                         priceEpisodes.Add(new Common.PriceEpisode
                         {
-                            Identifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod),
+                            Identifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate),
                             AgreedPrice = pricePeriod.Price,
                             CourseStartDate = source.Training.StartDate,
                             StartDate = source.Training.StartDate,
@@ -218,9 +221,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             return $"GSO Short Courses (Apprenticeship Units) {employerTypeText}";
         }
 
-        private string BuildPriceEpisodeIdentifier(Training training, PricePeriod pricePeriod)
+        private string BuildPriceEpisodeIdentifier(Training training, DateTime startDate)
         {
-            return $"{training.CourseCode}-{pricePeriod.StartDate}";
+            return $"{training.CourseCode}-{startDate}";
         }
 
         private IEnumerable<ShortCourseEarning> MapToEarnings(CalculateGrowthAndSkillsPayments source, short academicYear)
@@ -245,7 +248,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                                         ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
                                         Period = period.DeliveryPeriod,
                                         SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType),
-                                        ApprenticeshipId = period.LearningId
+                                        ApprenticeshipId = period.LearningId,
+                                        PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate)
                                     }
                                 }
                         }

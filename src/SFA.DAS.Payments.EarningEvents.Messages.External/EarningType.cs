@@ -18,6 +18,6 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.External
         OnProgrammeMathsAndEnglish = 13,
         BalancingMathsAndEnglish = 14,
         LearningSupport = 15,
-        Milestone1 = 16
+        Milestone1 = 17
     }
 }
