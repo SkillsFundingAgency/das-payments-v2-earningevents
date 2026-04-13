@@ -12,5 +12,6 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.External
         public DateTime PlannedEndDate { get; set; }
         public DateTime? ActualEndDate { get; set; }
         public TrainingStatus TrainingStatus { get; set; }
+        public Guid LearningKey { get; set; }
     }
 }

@@ -35,6 +35,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 TrainingStatus = (Model.TrainingStatus)source.Training.TrainingStatus,
                 EmployerContribution = source.EmployerContribution,
                 CourseType = (Model.CourseType)source.Training.CourseType,
+                LearningKey = source.Training.LearningKey,
                 PricePeriods = MapToPricePeriodModels(source)
             };
         }
