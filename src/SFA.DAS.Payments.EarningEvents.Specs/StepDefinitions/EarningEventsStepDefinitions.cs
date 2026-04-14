@@ -37,6 +37,47 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         {
         }
 
+        [Given("an employer has already approved the initial funding a learner on an Apprenticeship Unit course")]
+        public void GivenAnEmployerHasAlreadyApprovedTheInitialFundingALearnerOnAnApprenticeshipUnitCourse()
+        {
+            throw new PendingStepException();
+        }
+
+        [Given("the earnings were persisted")]
+        public void GivenTheEarningsWerePersisted()
+        {
+            throw new PendingStepException();
+        }
+
+        [Given("the provider and employer have agreed a change to the delivery of training for the course within the same collection period as the previous earnings")]
+        public void GivenTheProviderAndEmployerHaveAgreedAChangeToTheDeliveryOfTrainingForTheCourseWithinTheSameCollectionPeriodAsThePreviousEarnings()
+        {
+            throw new PendingStepException();
+        }
+
+        [Given("the change has resulted in new earnings generated for the training")]
+        public void GivenTheChangeHasResultedInNewEarningsGeneratedForTheTraining()
+        {
+            throw new PendingStepException();
+        }
+
+        [When("the Payments Earnings Bridge component receives the DAS Earnings")]
+        public void WhenThePaymentsEarningsBridgeComponentReceivesTheDASEarnings()
+        {
+            throw new PendingStepException();
+        }
+
+        [Then("it should convert them to a ShortCourseEarnings event")]
+        public void ThenItShouldConvertThemToAShortCourseEarningsEvent()
+        {
+            throw new PendingStepException();
+        }
+
+        [Then("the earnings should use an identifier that is higher or later than the identifier used in the previous earnings")]
+        public void ThenTheEarningsShouldUseAnIdentifierThatIsHigherOrLaterThanTheIdentifierUsedInThePreviousEarnings()
+        {
+            throw new PendingStepException();
+        }
 
 
 
