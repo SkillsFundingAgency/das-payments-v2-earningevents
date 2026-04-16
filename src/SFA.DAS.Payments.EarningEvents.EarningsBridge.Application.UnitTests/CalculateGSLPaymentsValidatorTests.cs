@@ -129,17 +129,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void Validate_rejects_empty_earnings()
-        {
-            _message.Earnings = new List<Earnings>();
-
-            Action act = () => _sut.Validate(_message);
-
-            act.Should().Throw<ArgumentException>()
-                .WithMessage("Earnings are required");
-        }
-
-        [Test]
         public void Validate_rejects_empty_learner_key()
         {
             _message.Learner.LearnerKey = Guid.Empty;
@@ -640,6 +629,15 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         [Test]
         public void Validate_accepts_valid_command()
         {
+            var result = _sut.Validate(_message);
+
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Validate_Accepts_Valid_Message_Empty_Earnings()
+        {
+            _message.Earnings = new List<Earnings>();
             var result = _sut.Validate(_message);
 
             result.Should().BeTrue();

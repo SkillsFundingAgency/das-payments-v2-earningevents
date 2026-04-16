@@ -95,7 +95,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
         private void ValidateEarnings(CalculateGrowthAndSkillsPayments command)
         {
             var earnings = command.Earnings;
-            if ((earnings == null) || !earnings.Any())
+            if (earnings == null)
             {
                 throw new ArgumentException("Earnings are required");
             }
