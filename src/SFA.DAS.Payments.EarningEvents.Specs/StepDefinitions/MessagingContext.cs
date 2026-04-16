@@ -6,15 +6,20 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
     {
         private IEndpointInstance endpointInstance;
 
-        public MessagingContext()
+        public MessagingContext(IEndpointInstance endpointInstance)
         {
-            endpointInstance = TestRunBindings.endpoint;
+            this.endpointInstance = endpointInstance;
         }
 
-        public async Task Send<T>(string messageJson)
+        //public async Task Send<T>(string messageJson)
+        //{
+        //    var message = System.Text.Json.JsonSerializer.Deserialize<T>(messageJson);
+        //    await endpointInstance.Send("sfa-das-payments-collectionperiod", message);
+        //}
+
+        public async Task Send<T>(T message)
         {
-            var message = System.Text.Json.JsonSerializer.Deserialize<T>(messageJson);
-            await endpointInstance.Send("sfa-das-payments-collectionperiod", message);
+            await endpointInstance.Send("sfa-das-payments-earningevents-bridge", message);
         }
     }
 }

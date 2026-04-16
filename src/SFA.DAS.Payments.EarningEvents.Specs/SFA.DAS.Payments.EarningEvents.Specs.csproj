@@ -20,6 +20,7 @@
 		<PackageReference Include="SFA.DAS.Payments.Application" Version="2.4.1-prerelease-55" />
 		<PackageReference Include="SFA.DAS.Payments.Core" Version="2.4.1-prerelease-55" />
 		<PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-55" />
+		<PackageReference Include="UUIDNext" Version="4.2.4" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,6 +34,12 @@
 
 	<ItemGroup>
 	  <Folder Include="Features\" />
+	  <Folder Include="Handlers\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
+	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -2,6 +2,10 @@
 
 The system should discard any earnings that are older than the most recent earnings processed.   
 
+Background: 
+	Given the collection period has opened recently
+
+
 Scenario: Previous Earnings
 Given the Payments system has already recorded the payments and associated earnings for the most recent Earnings for the training
 But there was an issue in the DAS Earnings system resulting in an older set of earnings being sent to the Payments system

@@ -16,7 +16,9 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         public TimeSpan TimeToWait => TimeSpan.FromSeconds(10);
         public TimeSpan TimeToPause => TimeSpan.FromSeconds(2);
         public long JobId { get; set; }
-        
+        public MessagingContext Pv2MessageContext { get; }
+        public MessagingContext DASMessageContext { get; }
+
 
         public TestSession()
         {
@@ -37,6 +39,8 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             Provider = GenerateProvider();
             Learner = GenerateLearner(Provider.Ukprn);
             JobId = GenerateId();
+            Pv2MessageContext = new MessagingContext(TestRunBindings.PV2Endpoint);
+            DASMessageContext = new MessagingContext(TestRunBindings.DASEndpoint);
         }
 
         public long GenerateId(int maxValue = 1000000)
@@ -53,7 +57,8 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 Ukprn = ukprn,
                 Uln = uln != 0 ? uln :GenerateId(),
                 LearnRefNumber = GenerateId().ToString(),
-                Course = CourseFaker.Generate(1).FirstOrDefault()
+                Course = CourseFaker.Generate(1).FirstOrDefault(),
+                LearnerIdentifier = Guid.NewGuid()
             };
         }
 

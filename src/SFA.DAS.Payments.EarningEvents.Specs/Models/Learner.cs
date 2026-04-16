@@ -9,7 +9,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.Models
         public long Uln { get; set; }
         public Course Course { get; set; }
 
-        public string LearnerIdentifier { get; set; }
+        public Guid LearnerIdentifier { get; set; }
 
         public string SmallEmployer { get; set; }
 

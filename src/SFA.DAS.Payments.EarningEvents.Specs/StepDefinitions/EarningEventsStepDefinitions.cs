@@ -1,5 +1,14 @@
 ﻿using Reqnroll;
+using SFA.DAS.Payments.EarningEvents.Messages.External;
+using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.Specs.Handlers;
 using SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions;
+using SFA.DAS.Payments.Model.Core;
+using SFA.DAS.Payments.Model.Core.Entities;
+using UUIDNext;
+using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
+using EarningPeriod = SFA.DAS.Payments.EarningEvents.Messages.External.EarningPeriod;
+using Learner = SFA.DAS.Payments.EarningEvents.Messages.External.Learner;
 
 namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
 {
@@ -11,11 +20,12 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         private TestSession testSession;
         private Model.Core.CollectionPeriod collectionPeriod;
         private short currentAcademicYear;
+        private CollectionPeriod currentPeriod;
+        private Guid previousIdentifier;
 
-        public EarningEventsStepDefinitions(ScenarioContext scenarioContext, MessagingContext messagingContext)
+        public EarningEventsStepDefinitions(ScenarioContext scenarioContext)
         {
             this.scenarioContext = scenarioContext;
-            this.messagingContext = messagingContext;            
         }
 
         protected void SetCurrentCollectionYear()
@@ -35,6 +45,26 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         [AfterScenario]
         public void AfterScenario()
         {
+        }
+
+        [Given("the collection period has opened recently")]
+        [Given("that the collection period has opened recently")]
+        public async Task GivenThatTheCollectionPeriodHasOpenedRecently()
+        {
+            currentPeriod = new CollectionPeriodBuilder().WithDate(DateTime.Today).Build();
+            testSession.DataContext.CollectionPeriods.Add(new CollectionPeriodModel
+            {
+                AcademicYear = currentPeriod.AcademicYear,
+                CalendarMonth = (byte)DateTime.Today.Month,
+                CalendarYear = (byte)DateTime.Today.Year,
+                CompletionDate = DateTime.Today,
+                EndDateTime = null,
+                Period = currentPeriod.Period,
+                ReferenceDataValidationDate = null,
+                StartDateTime = DateTime.Today,
+                Status = CollectionPeriodStatus.Open
+            });
+            await testSession.DataContext.SaveChangesAsync();
         }
 
         [Given("an employer has already approved the initial funding a learner on an Apprenticeship Unit course")]
@@ -104,6 +134,78 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             throw new PendingStepException();
         }
 
+
+        [Given("a previous set of earnings were recorded for the short course")]
+        public void GivenAPreviousSetOfEarningsWereRecordedForTheShortCourse()
+        {
+            previousIdentifier = UUIDNext.Uuid.NewDatabaseFriendly(Database.SqlServer);
+            Console.WriteLine($"Previous id is: {previousIdentifier}");
+
+        }
+
+        [When("new changes are approved and the resultant earnings are sent to the Payments system")]
+        public async Task WhenNewChangesAreApprovedAndTheResultantEarningsAreSentToThePaymentsSystem()
+        {
+            var earnings = new CalculateGrowthAndSkillsPayments
+            {
+                EarningsId = UUIDNext.Uuid.NewDatabaseFriendly(Database.SqlServer),
+                UKPRN = testSession.Provider.Ukprn,
+                EmployerContribution = 1,
+                Learner = new Learner
+                {
+                    ULN = testSession.Learner.Uln,
+                    LearnerKey = testSession.Learner.LearnerIdentifier,
+                    Reference = testSession.Learner.LearnRefNumber,
+                },
+                Training = new Training
+                {
+                    AgeAtStartOfTraining = 21,
+                    CourseCode = "ZSC00001",
+                    CourseReference = "ZSC00001",
+                    CourseType = CourseType.ShortCourse,
+                    LearningType = Messages.External.LearningType.ApprenticeshipUnit,
+                    PlannedEndDate = DateTime.Today.AddMonths(1),
+                    StartDate = DateTime.Today,
+                    TrainingStatus = TrainingStatus.Continuing
+                },
+                Earnings = new List<Earnings>
+                {
+                    new Earnings
+                    {
+                        AcademicYear = currentAcademicYear,
+                        PricePeriods = new List<PricePeriod>
+                        {
+                            new PricePeriod
+                            {
+                                StartDate = DateTime.Now,
+                                CompletionAmount = 700,
+                                InstalmentAmount = 300,
+                                NumberOfInstalments = 1,
+                                Price = 1000,
+                                Periods = new List<EarningPeriod>
+                                {
+                                    new EarningPeriod
+                                    {
+                                        Amount = 300,
+                                        DeliveryPeriod = 1,
+                                        EarningType = EarningType.Milestone1,
+                                        Employer = new Employer
+                                        {
+                                            AccountId = 123456,
+                                            EmployerType = EmployerType.Levy,
+                                            FundingAccountId = 123456
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            };
+            await testSession.DASMessageContext.Send<CalculateGrowthAndSkillsPayments>(earnings);
+        }
+
         [When("the Payments Earnings Bridge component receives the older, now invalid earnings")]
         public void WhenThePaymentsEarningsBridgeComponentReceivesTheOlderNowInvalidEarnings()
         {
@@ -141,7 +243,18 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             throw new PendingStepException();
         }
 
+        [Then("the new earnings should have identifiers that indicate they are later than the previous earnings")]
+        public async Task ThenTheNewEarningsShouldHaveIdentifiersThatIndicateTheyAreLaterThanThePreviousEarnings()
+        {
+            await testSession.WaitForIt(() => GSLShortCourseEarningsEventHandler.GetEvents(testSession.Learner)
+                .Any(earning => IsLaterThan(previousIdentifier, earning.EventId)),"Failed to find the short course earning event");
+        }
 
-
+        private bool IsLaterThan(Guid previousEventId, Guid newEventId)
+        {
+            var comparer = new UUIDNext.Tools.GuidComparer();
+            Console.WriteLine($"Comparing previous guid: {previousEventId} to new guid: {newEventId}");
+            return comparer.Compare(newEventId, previousEventId) > 0;
+        }
     }
 }
