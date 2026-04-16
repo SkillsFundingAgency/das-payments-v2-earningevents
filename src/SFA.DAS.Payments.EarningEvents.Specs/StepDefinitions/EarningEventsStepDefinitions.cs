@@ -61,8 +61,70 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             throw new PendingStepException();
         }
 
+        [Given("the Payments system has already recorded the payments and associated earnings for the most recent Earnings for the training")]
+        public void GivenThePaymentsSystemHasAlreadyRecordedThePaymentsAndAssociatedEarningsForTheMostRecentEarningsForTheTraining()
+        {
+            throw new PendingStepException();
+        }
+
+        [Given("there was an issue in the DAS Earnings system resulting in an older set of earnings being sent to the Payments system")]
+        public void GivenThereWasAnIssueInTheDASEarningsSystemResultingInAnOlderSetOfEarningsBeingSentToThePaymentsSystem()
+        {
+            throw new PendingStepException();
+        }
+
+
+        [Given("the Payments system has already recorded the payments and associated earnings transactions for earnings that were approved today")]
+        public void GivenThePaymentsSystemHasAlreadyRecordedThePaymentsAndAssociatedEarningsTransactionsForEarningsThatWereApprovedToday()
+        {
+            throw new PendingStepException();
+        }
+
+        [Given("there was an issue in the DAS Earnings system resulting in the previous set of earnings being resent to the Payments system")]
+        public void GivenThereWasAnIssueInTheDASEarningsSystemResultingInThePreviousSetOfEarningsBeingResentToThePaymentsSystem()
+        {
+            throw new PendingStepException();
+        }
+
+        [Given("an employer has approved funding for a short course training")]
+        public void GivenAnEmployerHasApprovedFundingForAShortCourseTraining()
+        {
+            throw new PendingStepException();
+        }
+
+        [Given("the earnings for the initial verion of the training delivery were not sent to the payments system")]
+        public void GivenTheEarningsForTheInitialVerionOfTheTrainingDeliveryWereNotSentToThePaymentsSystem()
+        {
+            throw new PendingStepException();
+        }
+
+        [Given("the employer approves funding for a change to the earnings delivery")]
+        public void GivenTheEmployerApprovesFundingForAChangeToTheEarningsDelivery()
+        {
+            throw new PendingStepException();
+        }
+
+        [When("the Payments Earnings Bridge component receives the older, now invalid earnings")]
+        public void WhenThePaymentsEarningsBridgeComponentReceivesTheOlderNowInvalidEarnings()
+        {
+            throw new PendingStepException();
+        }
+
+
+        [When("the Payments Earnings Bridge component receives the duplicate earnings")]
+        public void WhenThePaymentsEarningsBridgeComponentReceivesTheDuplicateEarnings()
+        {
+            throw new PendingStepException();
+        }
+
         [When("the Payments Earnings Bridge component receives the DAS Earnings")]
         public void WhenThePaymentsEarningsBridgeComponentReceivesTheDASEarnings()
+        {
+            throw new PendingStepException();
+        }
+
+        [Then("it should discard the earnings")]
+        public void ThenItShouldDiscardTheEarnings()
         {
             throw new PendingStepException();
         }
