@@ -16,7 +16,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         public TimeSpan TimeToWait => TimeSpan.FromSeconds(10);
         public TimeSpan TimeToPause => TimeSpan.FromSeconds(2);
         public long JobId { get; set; }
-        public HttpClient HttpClient { get; set; } = new();
+        
 
         public TestSession()
         {
@@ -37,7 +37,6 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             Provider = GenerateProvider();
             Learner = GenerateLearner(Provider.Ukprn);
             JobId = GenerateId();
-            HttpClient.BaseAddress = new Uri(TestRunBindings.Config["CollectionPeriodAPIBaseUrl"]);
         }
 
         public long GenerateId(int maxValue = 1000000)
