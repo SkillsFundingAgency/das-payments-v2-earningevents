@@ -20,7 +20,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appSettings.json"))
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appSettings.development.json"), true)
                 .Build();
-
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
             DASEndpoint = await CreateEndpoint("DASServiceBusConnectionString", true);
             PV2Endpoint = await CreateEndpoint("ServiceBusConnectionString");
         }
@@ -38,8 +38,12 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             var connectionConfig = $"ConnectionStrings:{connectionName}";
             var connectionString = Config[connectionConfig];
             Console.WriteLine($"Config: {connectionConfig}, ConnectionString: {connectionString}");
-            endpointConfig.UseTransport<AzureServiceBusTransport>()
-                .ConnectionString(connectionString);
+            var transport = new AzureServiceBusTransport(connectionString, TopicTopology.Default)
+                {
+                    UseWebSockets = Config["UseWebSockets"]?.ToLower() == "true"
+                };
+
+            endpointConfig.UseTransport(transport);
             endpointConfig.EnableInstallers();
             var startable = await Endpoint.Create(endpointConfig);
             return await startable.Start();
