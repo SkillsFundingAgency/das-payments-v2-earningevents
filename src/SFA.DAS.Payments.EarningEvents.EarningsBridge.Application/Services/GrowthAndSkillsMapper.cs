@@ -1,13 +1,15 @@
-﻿using System.Data.SqlTypes;
-using SFA.DAS.Payments.EarningEvents.Messages;
+﻿using SFA.DAS.Payments.EarningEvents.Messages;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
+using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
+using System.Data.SqlTypes;
 using Common = SFA.DAS.Payments.Model.Core;
 using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
+using LearningType = SFA.DAS.Payments.Model.Core.Entities.LearningType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
 
 // ReSharper disable InconsistentNaming
@@ -47,44 +49,26 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 .GroupBy(x => x.AcademicYear)
                 .ToDictionary(x => x.Key, x => x.First()); // shouldn't have duplicates
 
-            foreach (var earning in source.Earnings.Where(e => collectionPeriods.ContainsKey(e.AcademicYear)))
+
+            var earnings = source.Earnings.Where(e => collectionPeriods.ContainsKey(e.AcademicYear)).ToList();
+
+            //Generate blank earning event for each open collection period
+            if (!earnings.Any())
+            {
+                foreach (var collectionPeriod in collectionPeriods)
+                {
+                    var earningEvent = GenerateShortCourseEarningEvent(source, collectionPeriod.Key, openCollectionPeriods);
+                    earningEvents.Add(earningEvent.Key, earningEvent.Value);
+                }
+                return earningEvents.Values.ToList();
+            }
+ 
+            foreach (var earning in earnings)
             {
                 if (!earningEvents.ContainsKey(earning.AcademicYear))
                 {
-                    earningEvents.Add(earning.AcademicYear, new GSLShortCourseEarningsEvent
-                    {
-                        JobId = 0,
-                        EventTime = DateTimeOffset.UtcNow,
-                        EventId = Guid.NewGuid(),
-                        ExternalEarningsId = source.EarningsId,
-                        Ukprn = source.UKPRN,
-                        Learner = new Common.Learner
-                        {
-                            ReferenceNumber = source.Learner.Reference,
-                            Uln = source.Learner.ULN
-                        },
-                        LearningAim = new Common.LearningAim
-                        {
-                            Reference = source.Training.CourseReference,
-                            ProgrammeType = 0,
-                            StandardCode = 0,
-                            CourseCode = source.Training.CourseCode,
-                            FrameworkCode = 0,
-                            PathwayCode = 0,
-                            FundingLineType = "",
-                            SequenceNumber = 0,
-                            StartDate = source.Training.StartDate,
-                            LearningType = (Common.Entities.LearningType)source.Training.LearningType,
-                        },
-                        CollectionPeriod = new Common.CollectionPeriod
-                        {
-                            AcademicYear = earning.AcademicYear,
-                            Period = openCollectionPeriods.First(x => x.AcademicYear == earning.AcademicYear).Period
-                        },
-                        AgeAtStartOfLearning = source.Training.AgeAtStartOfTraining,
-                        FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService,
-                        IlrSubmissionDateTime = SqlDateTime.MinValue.Value
-                    });
+                    var earningEvent = GenerateShortCourseEarningEvent(source, earning.AcademicYear, openCollectionPeriods);
+                    earningEvents.Add(earningEvent.Key, earningEvent.Value);
                 }
             }
 
@@ -123,22 +107,19 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 
             foreach (var collectionPeriod in openCollectionPeriods)
             {
-                if (source.Earnings.Any(x => x.AcademicYear == collectionPeriod.AcademicYear))
+                earningsEvents.Add(new DasEarningsReceivedEvent
                 {
-                    earningsEvents.Add(new DasEarningsReceivedEvent
+                    EarningsId = source.EarningsId,
+                    CourseCode = source.Training.CourseCode,
+                    CollectionPeriod = new Common.CollectionPeriod
                     {
-                        EarningsId = source.EarningsId,
-                        CourseCode = source.Training.CourseCode,
-                        CollectionPeriod = new Common.CollectionPeriod
-                        {
-                            AcademicYear = collectionPeriod.AcademicYear,
-                            Period = collectionPeriod.Period
-                        },
-                        ULN = source.Learner.ULN,
-                        UKPRN = source.UKPRN,
-                        LearningAimReference = source.Training.CourseReference,
-                    });
-                }
+                        AcademicYear = collectionPeriod.AcademicYear,
+                        Period = collectionPeriod.Period
+                    },
+                    ULN = source.Learner.ULN,
+                    UKPRN = source.UKPRN,
+                    LearningAimReference = source.Training.CourseReference,
+                });
             }
 
             return earningsEvents;
@@ -270,6 +251,50 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             }
 
             return 0.95m; // 95% for Levy employers
+        }
+
+        private KeyValuePair<short, GSLShortCourseEarningsEvent> GenerateShortCourseEarningEvent(
+            CalculateGrowthAndSkillsPayments source, short earningYear,
+            IEnumerable<CollectionPeriodModel> openCollectionPeriods)
+        {
+            return new KeyValuePair<short, GSLShortCourseEarningsEvent>
+            (
+                earningYear, new GSLShortCourseEarningsEvent
+                {
+                    JobId = 0,
+                    EventTime = DateTimeOffset.UtcNow,
+                    EventId = Guid.NewGuid(),
+                    ExternalEarningsId = source.EarningsId,
+                    Ukprn = source.UKPRN,
+                    Learner = new Common.Learner
+                    {
+                        ReferenceNumber = source.Learner.Reference,
+                        Uln = source.Learner.ULN
+                    },
+                    LearningAim = new Common.LearningAim
+                    {
+                        Reference = source.Training.CourseReference,
+                        ProgrammeType = 0,
+                        StandardCode = 0,
+                        CourseCode = source.Training.CourseCode,
+                        FrameworkCode = 0,
+                        PathwayCode = 0,
+                        FundingLineType = "",
+                        SequenceNumber = 0,
+                        StartDate = source.Training.StartDate,
+                        LearningType = (LearningType)source.Training.LearningType
+                    },
+                    CollectionPeriod = new Common.CollectionPeriod
+                    {
+                        AcademicYear = earningYear,
+                        Period = openCollectionPeriods.First(x => x.AcademicYear == earningYear).Period
+                    },
+                    AgeAtStartOfLearning = source.Training.AgeAtStartOfTraining,
+                    FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService,
+                    IlrSubmissionDateTime = SqlDateTime.MinValue.Value,
+                    Earnings = new List<ShortCourseEarning>(),
+                    PriceEpisodes = new List<Common.PriceEpisode>()
+                });
         }
     }
 }
