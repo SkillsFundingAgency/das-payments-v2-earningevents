@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -15,6 +14,7 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Repositories
 {
+    [TestFixture]
     public class EarningsRepositoryTests
     {
         private IEarningsRepository _repository;
@@ -124,17 +124,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
             _dbContextOptions = new DbContextOptionsBuilder<EarningsDataContext>()
                 .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
                 .Options;
+            _dataContext = new EarningsDataContext(_dbContextOptions);
 
-            using (_dataContext = new EarningsDataContext(_dbContextOptions))
-            {
-
-                _dataContext.GrowthAndSkillsEarnings.AddRange(_growthAndSkillsEarnings);
-                _dataContext.SaveChanges();
-            }
             _mockLogger = new Mock<ILogger<EarningsRepository>>();
             _repository = new EarningsRepository(_dataContext, _mockLogger.Object);
 
+        }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _dataContext.Dispose();
         }
 
         [Test]
