@@ -166,7 +166,8 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                     LearningType = Messages.External.LearningType.ApprenticeshipUnit,
                     PlannedEndDate = DateTime.Today.AddMonths(1),
                     StartDate = DateTime.Today,
-                    TrainingStatus = TrainingStatus.Continuing
+                    TrainingStatus = TrainingStatus.Continuing,
+                    LearningKey = Uuid.NewDatabaseFriendly(Database.SqlServer)
                 },
                 Earnings = new List<Earnings>
                 {
