@@ -100,6 +100,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _collectionPeriodService = new Mock<ICollectionPeriodService>();
             _logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
 
+            _repository.Setup(x => x.CheckEarningsAreLatest(It.IsAny<CalculateGrowthAndSkillsPayments>())).ReturnsAsync(true);
             var collectionPeriods = new List<CollectionPeriodModel>
             {
                 new CollectionPeriodModel
