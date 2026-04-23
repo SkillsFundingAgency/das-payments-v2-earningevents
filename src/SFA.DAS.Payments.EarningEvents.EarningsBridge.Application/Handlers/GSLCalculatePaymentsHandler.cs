@@ -41,6 +41,16 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 {
                     return;
                 };
+
+                // Check if earnings in DB are the latest
+                var earningsAreLatest = await _repository.CheckEarningsAreLatest(message);
+                if (!earningsAreLatest)
+                {
+                    _logger.LogInformation("Earnings received are not the latest. " +
+                                           "Skipping processing for message with EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}", 
+                        message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                    return; // If earnings are not the latest, don't proceed
+                }
             }
             catch (Exception ex)
             {
@@ -49,13 +59,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             }
 
             var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
-
-            // Check if earnings in DB are the latest
-            var earningsAreLatest = await _repository.CheckEarningsAreLatest(message);
-            if (!earningsAreLatest)
-            {
-                return; // If earnings are not the latest, don't proceed
-            }
 
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
