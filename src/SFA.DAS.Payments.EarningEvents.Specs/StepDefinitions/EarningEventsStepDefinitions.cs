@@ -148,7 +148,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         {
             var earnings = new CalculateGrowthAndSkillsPayments
             {
-                EarningsId = UUIDNext.Uuid.NewDatabaseFriendly(Database.SqlServer),
+                EarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer),
                 UKPRN = testSession.Provider.Ukprn,
                 EmployerContribution = 1,
                 Learner = new Learner
@@ -194,7 +194,8 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                                             AccountId = 123456,
                                             EmployerType = EmployerType.Levy,
                                             FundingAccountId = 123456
-                                        }
+                                        },
+                                        LearningId = 12345
                                     }
                                 }
                             }
