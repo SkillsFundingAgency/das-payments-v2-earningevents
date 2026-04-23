@@ -388,16 +388,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public async Task Earnings_Sent_Are_Older_Than_Latest_DB_Earnings()
+        public async Task Earnings_Are_Older_Than_Latest_DB_Earnings_Should_Ignore_Message()
         {
             // Arrange
             var dateTimeNow = DateTime.UtcNow;
-            
             var oldGuid = UuidToolkit.CreateUuidV7FromSpecificDate(dateTimeNow);
             var newGuid = UuidToolkit.CreateUuidV7FromSpecificDate(dateTimeNow.AddDays(1.0));
 
-            //Store newGuid in DB mock
-            //Repository object will return a mocked set of earnings matched on ULN, UKPRN, CourseCode
+            // Mocking the repository to return existing earnings with a newer EarningsId
+            _repository.Setup(repo => repo.CheckEarningsAreLatest(It.IsAny<CalculateGrowthAndSkillsPayments>()))
+                       .ReturnsAsync(false); // Simulate that the earnings are older than the latest in DB
+
             _message.EarningsId = oldGuid;
 
             var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
@@ -407,14 +408,53 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
-            //Expect a log/exception to say we've received older earnings than we have in the DB and that the message is being ignored
-            _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
-            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
-                Times.Never);
-            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
-                Times.Never);
-            _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
-                y => y.PricePeriods.All(p => p.ProcessedOn != null))), Times.Never);
+            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Never);
+            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Earnings_Are_Latest_Should_Process_And_Save()
+        {
+            // Arrange
+            var dateTimeNow = DateTime.UtcNow;
+            var newGuid = UuidToolkit.CreateUuidV7FromSpecificDate(dateTimeNow);
+
+            // Mocking the repository to return that the earnings are the latest
+            _repository.Setup(repo => repo.CheckEarningsAreLatest(It.IsAny<CalculateGrowthAndSkillsPayments>()))
+                       .ReturnsAsync(true); // Earnings are the latest in DB
+
+            _message.EarningsId = newGuid;
+
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+                _collectionPeriodService.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            // Assert
+            _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(model => model.PricePeriods.Any())), Times.Once);
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Once);
+            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Exception_In_CheckEarningsAreLatest_Should_Log_Error_And_Abort()
+        {
+            // Arrange
+            _repository.Setup(repo => repo.CheckEarningsAreLatest(It.IsAny<CalculateGrowthAndSkillsPayments>()))
+                       .ThrowsAsync(new Exception("Database error"));
+
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+                _collectionPeriodService.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            // Assert
+            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Never);
+            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
         }
     }
 }

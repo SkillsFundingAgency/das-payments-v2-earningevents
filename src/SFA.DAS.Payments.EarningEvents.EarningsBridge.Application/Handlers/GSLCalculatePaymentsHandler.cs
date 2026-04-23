@@ -50,6 +50,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
 
+            // Check if earnings in DB are the latest
+            var earningsAreLatest = await _repository.CheckEarningsAreLatest(message);
+            if (!earningsAreLatest)
+            {
+                return; // If earnings are not the latest, don't proceed
+            }
+
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
             if(!openCollectionPeriods.Any())
