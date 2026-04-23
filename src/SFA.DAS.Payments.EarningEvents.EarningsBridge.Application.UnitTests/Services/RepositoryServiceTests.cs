@@ -14,8 +14,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
         [SetUp]
         public void Setup()
         {
-            var logger = new Mock<ILogger<RepositoryService>>().Object;
-            _service = new RepositoryService(logger);
+            _service = new RepositoryService();
         }
 
         [Test]
@@ -65,20 +64,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
 
         [Test]
         public void CheckEarningsAreLatest_WhenMessageTimestamp_CannotBeDecoded_ShouldReturnFalse()
-        {
-            // Arrange
-            var messageTimestamp = Guid.Empty;
-            var tableEntryTimestamp = Guid.Empty;
-
-            // Act
-            var result = _service.CheckEarningsAreLatest(messageTimestamp, tableEntryTimestamp);
-
-            // Assert
-            result.Should().BeFalse();
-        }
-
-        [Test]
-        public void CheckEarningsAreLatest_WhenMessageTimestamp_ThrowsError_ShouldReturnException()
         {
             // Arrange
             var messageTimestamp = Guid.Empty;

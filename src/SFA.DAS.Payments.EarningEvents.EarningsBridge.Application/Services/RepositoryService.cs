@@ -5,12 +5,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
     public class RepositoryService : IRepositoryService
     {
-        private readonly ILogger<RepositoryService> _logger;
-
-        public RepositoryService(ILogger<RepositoryService> logger)
-        {
-            _logger = logger;
-        }
         public bool CheckEarningsAreLatest(Guid messageTimestamp, Guid tableEntryTimestamp)
         {
             var messageDecode = UuidDecoder.TryDecodeTimestamp(messageTimestamp, out var messageTime);

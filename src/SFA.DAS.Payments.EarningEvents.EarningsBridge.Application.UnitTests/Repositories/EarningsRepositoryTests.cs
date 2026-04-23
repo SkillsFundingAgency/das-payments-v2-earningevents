@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Payments.EarningEvents.Data;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
@@ -23,6 +24,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
         private Mock<ILogger<EarningsRepository>> _mockLogger;
         private EarningsDataContext _dataContext;
         private DbContextOptions<EarningsDataContext> _dbContextOptions;
+        private IRepositoryService _repositoryService;
 
         private long _ukPrn;
         private long _uln;
@@ -100,15 +102,16 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
                 .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
                 .Options;
             _dataContext = new EarningsDataContext(_dbContextOptions);
-
+            _repositoryService = new RepositoryService();
             _mockLogger = new Mock<ILogger<EarningsRepository>>();
-            _repository = new EarningsRepository(_dataContext, _mockLogger.Object);
+            _repository = new EarningsRepository(_dataContext, _repositoryService, _mockLogger.Object);
 
         }
 
         [TearDown]
         public void TearDown()
         {
+            _dataContext.Database.EnsureDeleted();
             _dataContext.Dispose();
         }
 
@@ -118,7 +121,27 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
             // Act
             var result = await _repository.CheckEarningsAreLatest(_message);
             // Assert
-            result.Should().Be(true);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Earnings_Received_With_Older_Entry_In_Table_Returns_True()
+        {
+            // Arrange
+            var timestamp = DateTime.Now;
+            var tableEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1));
+            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp);
+
+            var tablesEarning = CreateGrowthAndSkills(tableEarningsId, 1);
+            _dataContext.GrowthAndSkillsEarnings.Add(tablesEarning);
+            await _dataContext.SaveChangesAsync();
+
+            _message.EarningsId = messageEarningsId;
+
+            // Act
+            var result = await _repository.CheckEarningsAreLatest(_message);
+            // Assert
+            result.Should().BeTrue();
         }
 
         [Test]
@@ -126,26 +149,101 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
         {
             // Arrange
             var timestamp = DateTime.Now;
-            var oldGuid = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1));
-            var currentGuid = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp);
+            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp);
 
-            var oldEarning = CreateGrowthAndSkills(oldGuid);
-            _dataContext.GrowthAndSkillsEarnings.Add(oldEarning);
+            var olderTableEntries = new List<GrowthAndSkillsEarningModel>
+            {
+                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1)), 1),
+                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-2)), 2),
+                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-3)), 3),
+
+            };
+            _dataContext.GrowthAndSkillsEarnings.AddRange(olderTableEntries);
             await _dataContext.SaveChangesAsync();
 
-            _message.EarningsId = currentGuid;
+            _message.EarningsId = messageEarningsId;
 
             // Act
             var result = await _repository.CheckEarningsAreLatest(_message);
             // Assert
-            result.Should().Be(true);
+            result.Should().BeTrue();
         }
 
-        private GrowthAndSkillsEarningModel CreateGrowthAndSkills(Guid dateTimeGuid)
+        [Test]
+        public async Task Earnings_Received_With_Newer_Entry_In_Table_Returns_False()
+        {
+            // Arrange
+            var timestamp = DateTime.Now;
+            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1));
+
+            var newerTableEntries = new List<GrowthAndSkillsEarningModel>
+            {
+                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(1)), 1)
+
+            };
+            _dataContext.GrowthAndSkillsEarnings.AddRange(newerTableEntries);
+            await _dataContext.SaveChangesAsync();
+
+            _message.EarningsId = messageEarningsId;
+
+            // Act
+            var result = await _repository.CheckEarningsAreLatest(_message);
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task Earnings_Received_With_Newer_Entries_In_Table_Returns_False()
+        {
+            // Arrange
+            var timestamp = DateTime.Now;
+            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1));
+
+            var newerTableEntries = new List<GrowthAndSkillsEarningModel>
+            {
+                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(1)), 1),
+                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(2)), 2),
+                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(3)), 3),
+
+            };
+            _dataContext.GrowthAndSkillsEarnings.AddRange(newerTableEntries);
+            await _dataContext.SaveChangesAsync();
+
+            _message.EarningsId = messageEarningsId;
+
+            // Act
+            var result = await _repository.CheckEarningsAreLatest(_message);
+            // Assert
+            result.Should().BeFalse();
+        }
+        [Test]
+        public async Task Earnings_Received_With_Matching_Entries_In_Table_Returns_False()
+        {
+            // Arrange
+            var timestamp = DateTime.Now;
+            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp);
+
+            var newerTableEntries = new List<GrowthAndSkillsEarningModel>
+            {
+                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp), 1),
+
+            };
+            _dataContext.GrowthAndSkillsEarnings.AddRange(newerTableEntries);
+            await _dataContext.SaveChangesAsync();
+
+            _message.EarningsId = messageEarningsId;
+
+            // Act
+            var result = await _repository.CheckEarningsAreLatest(_message);
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        private GrowthAndSkillsEarningModel CreateGrowthAndSkills(Guid dateTimeGuid, long id)
         {
             return new GrowthAndSkillsEarningModel
             {
-                Id = 1,
+                Id = id,
                 EarningsId = dateTimeGuid,
                 UKPRN = _ukPrn,
                 LearnerKey = Guid.NewGuid(),
@@ -165,7 +263,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
                 {
                     new GrowthAndSkillsEarningPricePeriodModel
                     {
-                        Id = 1,
+                        Id = id,
                         StartDate = new DateTime(2026, 1, 1),
                         EndDate = new DateTime(2026, 1, 31),
                         Price = 5000m,
