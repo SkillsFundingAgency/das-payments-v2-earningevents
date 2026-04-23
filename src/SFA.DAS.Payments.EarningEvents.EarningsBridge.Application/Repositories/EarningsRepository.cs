@@ -46,6 +46,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
                 {
                     return true;
                 }
+
+
             }
             catch (Exception ex)
             {
