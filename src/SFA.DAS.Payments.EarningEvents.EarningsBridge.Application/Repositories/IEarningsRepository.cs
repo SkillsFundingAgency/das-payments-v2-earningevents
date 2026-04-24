@@ -6,5 +6,5 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
 public interface IEarningsRepository
 {
     Task SaveEarnings(GrowthAndSkillsEarningModel growthAndSkillsEarningModel);
-    Task<bool> CheckEarningsAreLatest(CalculateGrowthAndSkillsPayments message);
+    List<GrowthAndSkillsEarningModel> GetGrowthAndSkillsEarnings(CalculateGrowthAndSkillsPayments message);
 }

@@ -4,6 +4,7 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
@@ -13,6 +14,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
         private ICalculateGSLPaymentsValidator _validator;
         private IGrowthAndSkillsMapper _mapper;
         private IEarningsRepository _repository;
+        private IGSLService _gslService;
         private IPaymentsServiceBusPublisher _publisher;
         private ICollectionPeriodService _collectionPeriodService;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
@@ -21,6 +23,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             ICalculateGSLPaymentsValidator validator,
             IGrowthAndSkillsMapper mapper,
             IEarningsRepository repository,
+            IGSLService gslService,
             IPaymentsServiceBusPublisher publisher,
             ICollectionPeriodService collectionPeriodService,
             ILogger<GSLCalculatePaymentsHandler> logger)
@@ -28,6 +31,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _validator = validator;
             _mapper = mapper;
             _repository = repository;
+            _gslService = gslService;
             _publisher = publisher;
             _collectionPeriodService = collectionPeriodService;
             _logger = logger;
@@ -43,7 +47,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 };
 
                 // Check if earnings in DB are the latest
-                var earningsAreLatest = await _repository.CheckEarningsAreLatest(message);
+                var dbEarnings = _repository.GetGrowthAndSkillsEarnings(message);
+                var earningsAreLatest = _gslService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
                 if (!earningsAreLatest)
                 {
                     _logger.LogInformation("Earnings received are not the latest. " +
@@ -94,7 +99,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }
-
     }
 }
 

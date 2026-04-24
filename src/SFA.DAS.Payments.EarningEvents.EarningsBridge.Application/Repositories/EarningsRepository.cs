@@ -10,13 +10,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
     public class EarningsRepository : IEarningsRepository
     {
         private readonly IEarningsDataContext _earningsDataContext;
-        private readonly IRepositoryService _repositoryService;
+        private readonly IGSLService _repositoryService;
         private readonly ILogger<EarningsRepository> _logger;
         
-        public EarningsRepository(IEarningsDataContext earningsDataContext, IRepositoryService repositoryService, ILogger<EarningsRepository> logger)
+        public EarningsRepository(IEarningsDataContext earningsDataContext, ILogger<EarningsRepository> logger)
         {
             _earningsDataContext = earningsDataContext;
-            _repositoryService = repositoryService;
             _logger = logger;
         }
 
@@ -33,45 +32,22 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
             }
         }
 
-        public async Task<bool> CheckEarningsAreLatest(CalculateGrowthAndSkillsPayments message)
+        public List<GrowthAndSkillsEarningModel> GetGrowthAndSkillsEarnings(CalculateGrowthAndSkillsPayments message)
         {
             try
             {
                 var ukPrn = message.UKPRN;
                 var uln = message.Learner.ULN;
                 var courseCode = message.Training.CourseCode;
-                var messageEarningsId = message.EarningsId;
 
-                var earnings = _earningsDataContext.GrowthAndSkillsEarnings
+                return _earningsDataContext.GrowthAndSkillsEarnings
                     .Where(x => x.UKPRN == ukPrn && x.LearnerUln == uln && x.CourseCode == courseCode).ToList();
-
-                // If there are no earnings for the given UKPRN, ULN, and CourseCode, we can consider the current earnings as the latest.
-                if (earnings.Count == 0)
-                {
-                    return true;
-                }
-
-                foreach (var earning in earnings)
-                {
-                    var tableEarningsId = earning.EarningsId;
-                    var isLatest = _repositoryService.CheckEarningsAreLatest(messageTimestamp: messageEarningsId,
-                        tableEntryTimestamp: tableEarningsId);
-
-                    if (!isLatest)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error while querying GrowthAndSkills data. Exception: {ex.Message}");
+                throw;
             }
-
-            return false;
         }
     }
 }

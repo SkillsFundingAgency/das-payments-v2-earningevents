@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -24,7 +25,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
         private Mock<ILogger<EarningsRepository>> _mockLogger;
         private EarningsDataContext _dataContext;
         private DbContextOptions<EarningsDataContext> _dbContextOptions;
-        private IRepositoryService _repositoryService;
 
         private long _ukPrn;
         private long _uln;
@@ -102,9 +102,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
                 .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
                 .Options;
             _dataContext = new EarningsDataContext(_dbContextOptions);
-            _repositoryService = new RepositoryService();
             _mockLogger = new Mock<ILogger<EarningsRepository>>();
-            _repository = new EarningsRepository(_dataContext, _repositoryService, _mockLogger.Object);
+            _repository = new EarningsRepository(_dataContext, _mockLogger.Object);
 
         }
 
@@ -116,141 +115,78 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
         }
 
         [Test]
-        public async Task Earnings_Received_With_Empty_Table_Returns_True()
+        public async Task Empty_Table_Returns_EmptyResults()
         {
             // Act
-            var result = await _repository.CheckEarningsAreLatest(_message);
+            var result = _repository.GetGrowthAndSkillsEarnings(_message);
             // Assert
-            result.Should().BeTrue();
+            result.Count.Should().Be(0);
         }
 
         [Test]
-        public async Task Earnings_Received_With_Older_Entry_In_Table_Returns_True()
+        public async Task Non_Matching_Earning_Returns_EmptyResults()
         {
             // Arrange
-            var timestamp = DateTime.Now;
-            var tableEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1));
-            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp);
+            _message.UKPRN = _ukPrn;
+            _message.Learner.ULN = _uln;
+            _message.Training.CourseCode = _courseCode;
 
-            var tablesEarning = CreateGrowthAndSkills(tableEarningsId, 1);
-            _dataContext.GrowthAndSkillsEarnings.Add(tablesEarning);
-            await _dataContext.SaveChangesAsync();
-
-            _message.EarningsId = messageEarningsId;
-
-            // Act
-            var result = await _repository.CheckEarningsAreLatest(_message);
-            // Assert
-            result.Should().BeTrue();
-        }
-
-        [Test]
-        public async Task Earnings_Received_With_Older_Entries_In_Table_Returns_True()
-        {
-            // Arrange
-            var timestamp = DateTime.Now;
-            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp);
-
-            var olderTableEntries = new List<GrowthAndSkillsEarningModel>
+            var tableEntries = new List<GrowthAndSkillsEarningModel>
             {
-                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1)), 1),
-                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-2)), 2),
-                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-3)), 3),
-
+                CreateGrowthAndSkills(1, 1234,1234, "nonMatching"),
             };
-            _dataContext.GrowthAndSkillsEarnings.AddRange(olderTableEntries);
+            _dataContext.GrowthAndSkillsEarnings.AddRange(tableEntries);
             await _dataContext.SaveChangesAsync();
 
-            _message.EarningsId = messageEarningsId;
-
             // Act
-            var result = await _repository.CheckEarningsAreLatest(_message);
+            var result = _repository.GetGrowthAndSkillsEarnings(_message);
             // Assert
-            result.Should().BeTrue();
+            result.Count.Should().Be(0);
         }
 
         [Test]
-        public async Task Earnings_Received_With_Newer_Entry_In_Table_Returns_False()
+        public async Task Matching_Earning_Returns_DatabaseResults()
         {
             // Arrange
-            var timestamp = DateTime.Now;
-            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1));
-
-            var newerTableEntries = new List<GrowthAndSkillsEarningModel>
+            var tableEntries = new List<GrowthAndSkillsEarningModel>
             {
-                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(1)), 1)
-
+                CreateGrowthAndSkills(1, _ukPrn,_uln, _courseCode),
+                CreateGrowthAndSkills(2, _ukPrn,_uln, _courseCode),
+                CreateGrowthAndSkills(3, _ukPrn,_uln, "nonMatching"),
             };
-            _dataContext.GrowthAndSkillsEarnings.AddRange(newerTableEntries);
+            _dataContext.GrowthAndSkillsEarnings.AddRange(tableEntries);
             await _dataContext.SaveChangesAsync();
 
-            _message.EarningsId = messageEarningsId;
-
             // Act
-            var result = await _repository.CheckEarningsAreLatest(_message);
+            var result = _repository.GetGrowthAndSkillsEarnings(_message);
             // Assert
-            result.Should().BeFalse();
+            result.Count.Should().Be(2);
         }
 
         [Test]
-        public async Task Earnings_Received_With_Newer_Entries_In_Table_Returns_False()
+        public void Unhandled_Error_Throws_Exception()
         {
             // Arrange
-            var timestamp = DateTime.Now;
-            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(-1));
+            var mockContext = new Mock<IEarningsDataContext>();
+            mockContext.Setup(x => x.GrowthAndSkillsEarnings).Throws(new Exception("Unhandled error"));
+            _repository = new EarningsRepository(mockContext.Object, _mockLogger.Object);
 
-            var newerTableEntries = new List<GrowthAndSkillsEarningModel>
-            {
-                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(1)), 1),
-                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(2)), 2),
-                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp.AddDays(3)), 3),
-
-            };
-            _dataContext.GrowthAndSkillsEarnings.AddRange(newerTableEntries);
-            await _dataContext.SaveChangesAsync();
-
-            _message.EarningsId = messageEarningsId;
-
-            // Act
-            var result = await _repository.CheckEarningsAreLatest(_message);
-            // Assert
-            result.Should().BeFalse();
-        }
-        [Test]
-        public async Task Earnings_Received_With_Matching_Entries_In_Table_Returns_False()
-        {
-            // Arrange
-            var timestamp = DateTime.Now;
-            var messageEarningsId = UuidToolkit.CreateUuidV7FromSpecificDate(timestamp);
-
-            var newerTableEntries = new List<GrowthAndSkillsEarningModel>
-            {
-                CreateGrowthAndSkills(UuidToolkit.CreateUuidV7FromSpecificDate(timestamp), 1),
-
-            };
-            _dataContext.GrowthAndSkillsEarnings.AddRange(newerTableEntries);
-            await _dataContext.SaveChangesAsync();
-
-            _message.EarningsId = messageEarningsId;
-
-            // Act
-            var result = await _repository.CheckEarningsAreLatest(_message);
-            // Assert
-            result.Should().BeFalse();
+            // Act & Assert
+            Assert.Throws<Exception>(() => _repository.GetGrowthAndSkillsEarnings(_message));
         }
 
-        private GrowthAndSkillsEarningModel CreateGrowthAndSkills(Guid dateTimeGuid, long id)
+        private GrowthAndSkillsEarningModel CreateGrowthAndSkills(long id, long ukprn, long uln, string courseCode)
         {
             return new GrowthAndSkillsEarningModel
             {
                 Id = id,
-                EarningsId = dateTimeGuid,
-                UKPRN = _ukPrn,
+                EarningsId = Guid.NewGuid(),
+                UKPRN = ukprn,
                 LearnerKey = Guid.NewGuid(),
-                LearnerUln = _uln,
+                LearnerUln = uln,
                 LearnerReference = "LEARNREF001",
                 LearningType = Model.LearningType.ApprenticeshipUnit,
-                CourseCode = _courseCode,
+                CourseCode = courseCode,
                 CourseReference = "ZSC00123",
                 StartDate = new DateTime(2026, 1, 1),
                 AgeAtStartOfTraining = 25,

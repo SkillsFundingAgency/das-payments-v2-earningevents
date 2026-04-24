@@ -62,7 +62,7 @@ builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPubli
 });
 
 builder.Services.AddScoped<ICollectionPeriodService, CollectionPeriodService>();
-builder.Services.AddScoped<IRepositoryService, RepositoryService>();
+builder.Services.AddScoped<IGSLService, GSLService>();
 
 builder.Services.AddHostedService<ServiceBusQueueManager>();
 
