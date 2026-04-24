@@ -1,6 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Moq;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Model;
 using UUIDNext.Tools;
@@ -10,12 +8,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
     [TestFixture]
     public class GslServiceTests
     {
-        private IGSLService _service;
+        private IGSLEarningsService _service;
 
         [SetUp]
         public void Setup()
         {
-            _service = new GSLService();
+            _service = new GSLEarningsService();
         }
 
         [Test]

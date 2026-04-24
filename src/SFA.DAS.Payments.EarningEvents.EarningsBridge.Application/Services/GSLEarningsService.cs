@@ -3,7 +3,8 @@ using UUIDNext.Tools;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 
-public class GSLService : IGSLService
+// ReSharper disable once InconsistentNaming
+public class GSLEarningsService : IGSLEarningsService
 {
     public bool CheckEarningsAreLatest(List<GrowthAndSkillsEarningModel> earnings, Guid messageEarningsId)
     {

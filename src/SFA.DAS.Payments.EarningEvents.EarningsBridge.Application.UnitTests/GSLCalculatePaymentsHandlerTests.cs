@@ -27,7 +27,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private GrowthAndSkillsMapper _mapper;
         private Mock<IEarningsRepository> _repository;
         private Mock<IPaymentsServiceBusPublisher> _publisher;
-        private Mock<IGSLService> _gslService;
+        private Mock<IGSLEarningsService> _gslService;
         private Mock<ICollectionPeriodService> _collectionPeriodService;
         private Mock<ILogger<GSLCalculatePaymentsHandler>> _logger;
         
@@ -100,7 +100,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _publisher = new Mock<IPaymentsServiceBusPublisher>();
             _collectionPeriodService = new Mock<ICollectionPeriodService>();
             _logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
-            _gslService = new Mock<IGSLService>();
+            _gslService = new Mock<IGSLEarningsService>();
 
             _repository.Setup(x => x.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>())).ReturnsAsync(new List<GrowthAndSkillsEarningModel>());
             _gslService.Setup(x => x.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>())).Returns(true);
@@ -413,6 +413,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
+            _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
             _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Never);
             _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
@@ -441,13 +442,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
+            _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(model => model.PricePeriods.Any())), Times.Once);
             _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Once);
             _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Once);
         }
 
         [Test]
-        public void Exception_In_CheckEarningsAreLatest_Should_Log_Error_And_Abort()
+        public void Exception_In_GetGrowthAndSkillsEarnings_Should_Log_Error_And_Abort()
         {
             // Arrange
             _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
@@ -460,6 +462,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             Assert.ThrowsAsync<Exception>(async () => await handler.HandleGslCalculatePaymentsMessage(_message));
 
             // Assert
+            _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
             _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Never);
             _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Never);

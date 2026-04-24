@@ -14,7 +14,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
         private ICalculateGSLPaymentsValidator _validator;
         private IGrowthAndSkillsMapper _mapper;
         private IEarningsRepository _repository;
-        private IGSLService _gslService;
+        private IGSLEarningsService _gslEarningsService;
         private IPaymentsServiceBusPublisher _publisher;
         private ICollectionPeriodService _collectionPeriodService;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
@@ -23,7 +23,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             ICalculateGSLPaymentsValidator validator,
             IGrowthAndSkillsMapper mapper,
             IEarningsRepository repository,
-            IGSLService gslService,
+            IGSLEarningsService gslEarningsService,
             IPaymentsServiceBusPublisher publisher,
             ICollectionPeriodService collectionPeriodService,
             ILogger<GSLCalculatePaymentsHandler> logger)
@@ -31,7 +31,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _validator = validator;
             _mapper = mapper;
             _repository = repository;
-            _gslService = gslService;
+            _gslEarningsService = gslEarningsService;
             _publisher = publisher;
             _collectionPeriodService = collectionPeriodService;
             _logger = logger;
@@ -45,23 +45,34 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 {
                     return;
                 };
-
-                // Check if earnings in DB are the latest
-                var dbEarnings = await _repository.GetGrowthAndSkillsEarnings(ukPrn: message.UKPRN, uln: message.Learner.ULN, courseCode: message.Training.CourseCode);
-                var earningsAreLatest = _gslService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
-                if (!earningsAreLatest)
-                {
-                    _logger.LogInformation("Earnings received are not the latest. " +
-                                           "Skipping processing for message with EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}", 
-                        message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
-                    return; // If earnings are not the latest, don't proceed
-                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to validate GSL calculate payments message");
                 throw;
             }
+
+            try
+            {
+                // Check if earnings in DB are the latest
+                var dbEarnings = await _repository.GetGrowthAndSkillsEarnings(ukPrn: message.UKPRN, uln: message.Learner.ULN, courseCode: message.Training.CourseCode);
+                var earningsAreLatest = _gslEarningsService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
+                if (!earningsAreLatest)
+                {
+                    _logger.LogWarning("Earnings received are not the latest. " +
+                                           "Skipping processing for message with EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
+                        message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                    return; // If earnings are not the latest, don't proceed
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing CalculateGrowthAndSkillsPayments with " +
+                                     "EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
+                    message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                throw;
+            }
+
 
             var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
 
