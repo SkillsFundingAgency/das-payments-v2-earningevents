@@ -6,5 +6,5 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
 public interface IEarningsRepository
 {
     Task SaveEarnings(GrowthAndSkillsEarningModel growthAndSkillsEarningModel);
-    List<GrowthAndSkillsEarningModel> GetGrowthAndSkillsEarnings(CalculateGrowthAndSkillsPayments message);
+    Task <List<GrowthAndSkillsEarningModel>> GetGrowthAndSkillsEarnings(long ukPrn, long uln, string courseCode);
 }

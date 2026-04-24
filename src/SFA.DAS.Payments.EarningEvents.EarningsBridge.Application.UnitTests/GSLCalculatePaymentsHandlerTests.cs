@@ -48,7 +48,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     TrainingStatus = TrainingStatus.Continuing,
                     AgeAtStartOfTraining = 25,
                     PlannedEndDate = new DateTime(2026, 1, 15),
-                    ActualEndDate = new DateTime(2026, 1, 31)
+                    ActualEndDate = new DateTime(2026, 1, 31),
+                    LearningKey = Guid.NewGuid()
                 },
                 Learner = new Learner
                 {
@@ -101,7 +102,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
             _gslService = new Mock<IGSLService>();
 
-            _repository.Setup(x => x.GetGrowthAndSkillsEarnings(It.IsAny<CalculateGrowthAndSkillsPayments>())).Returns(new List<GrowthAndSkillsEarningModel>());
+            _repository.Setup(x => x.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>())).ReturnsAsync(new List<GrowthAndSkillsEarningModel>());
             _gslService.Setup(x => x.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>())).Returns(true);
             var collectionPeriods = new List<CollectionPeriodModel>
             {
@@ -171,9 +172,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         {
             // Arrange
             _message.Earnings.ToList()[0].AcademicYear = 2425;
-            
-            var expectedModel = new GrowthAndSkillsMapper().MapToGrowthAndSkillsEarningModel(_message);
-            
+            var collectionPeriods = new List<CollectionPeriodModel>();
+            _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
             var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
@@ -398,8 +398,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var oldGuid = UuidToolkit.CreateUuidV7FromSpecificDate(dateTimeNow);
 
             // Mocking the repository to return existing earnings with a newer EarningsId
-            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<CalculateGrowthAndSkillsPayments>()))
-                       .Returns(new List<GrowthAndSkillsEarningModel>()); // Simulate that there are existing earnings
+            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+                       .ReturnsAsync(new List<GrowthAndSkillsEarningModel>()); // Simulate that there are existing earnings
 
             _gslService.Setup(service => service.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>()))
                        .Returns(false); // Simulate that the earnings are older than the latest in DB
@@ -426,8 +426,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var newGuid = UuidToolkit.CreateUuidV7FromSpecificDate(dateTimeNow);
 
             // Mocking the repository to return that the earnings are the latest
-            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<CalculateGrowthAndSkillsPayments>()))
-                       .Returns(new List<GrowthAndSkillsEarningModel>()); // Simulate that there are existing earnings
+            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+                       .ReturnsAsync(new List<GrowthAndSkillsEarningModel>()); // Simulate that there are existing earnings
 
             _gslService.Setup(service => service.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>()))
                        .Returns(true); // Simulate that the earnings are the latest in DB
@@ -450,7 +450,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         public void Exception_In_CheckEarningsAreLatest_Should_Log_Error_And_Abort()
         {
             // Arrange
-            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<CalculateGrowthAndSkillsPayments>()))
+            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Throws(new Exception("Database error"));
 
             var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,

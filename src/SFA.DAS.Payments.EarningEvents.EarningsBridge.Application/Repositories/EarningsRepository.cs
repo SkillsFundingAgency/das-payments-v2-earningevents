@@ -1,16 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.EarningEvents.Data;
-using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
-using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
-using UUIDNext.Tools;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
 {
     public class EarningsRepository : IEarningsRepository
     {
         private readonly IEarningsDataContext _earningsDataContext;
-        private readonly IGSLService _repositoryService;
         private readonly ILogger<EarningsRepository> _logger;
         
         public EarningsRepository(IEarningsDataContext earningsDataContext, ILogger<EarningsRepository> logger)
@@ -32,16 +29,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
             }
         }
 
-        public List<GrowthAndSkillsEarningModel> GetGrowthAndSkillsEarnings(CalculateGrowthAndSkillsPayments message)
+        public async Task<List<GrowthAndSkillsEarningModel>> GetGrowthAndSkillsEarnings(long ukPrn, long uln, string courseCode)
         {
             try
             {
-                var ukPrn = message.UKPRN;
-                var uln = message.Learner.ULN;
-                var courseCode = message.Training.CourseCode;
-
-                return _earningsDataContext.GrowthAndSkillsEarnings
-                    .Where(x => x.UKPRN == ukPrn && x.LearnerUln == uln && x.CourseCode == courseCode).ToList();
+                var results =  await _earningsDataContext.GrowthAndSkillsEarnings
+                    .Where(x => x.UKPRN == ukPrn && x.LearnerUln == uln && x.CourseCode == courseCode)
+                    .ToListAsync();
+                return results;
             }
             catch (Exception ex)
             {

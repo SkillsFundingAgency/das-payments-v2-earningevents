@@ -118,7 +118,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
         public async Task Empty_Table_Returns_EmptyResults()
         {
             // Act
-            var result = _repository.GetGrowthAndSkillsEarnings(_message);
+            var result = await _repository.GetGrowthAndSkillsEarnings(_message.UKPRN, _message.Learner.ULN, _message.Training.CourseCode);
             // Assert
             result.Count.Should().Be(0);
         }
@@ -139,7 +139,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
             await _dataContext.SaveChangesAsync();
 
             // Act
-            var result = _repository.GetGrowthAndSkillsEarnings(_message);
+            var result = await _repository.GetGrowthAndSkillsEarnings(_message.UKPRN, _message.Learner.ULN, _message.Training.CourseCode);
             // Assert
             result.Count.Should().Be(0);
         }
@@ -158,7 +158,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
             await _dataContext.SaveChangesAsync();
 
             // Act
-            var result = _repository.GetGrowthAndSkillsEarnings(_message);
+            var result = await _repository.GetGrowthAndSkillsEarnings(_message.UKPRN, _message.Learner.ULN, _message.Training.CourseCode);
             // Assert
             result.Count.Should().Be(2);
         }
@@ -172,7 +172,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
             _repository = new EarningsRepository(mockContext.Object, _mockLogger.Object);
 
             // Act & Assert
-            Assert.Throws<Exception>(() => _repository.GetGrowthAndSkillsEarnings(_message));
+            Assert.ThrowsAsync<Exception>(async () => await _repository.GetGrowthAndSkillsEarnings(_message.UKPRN, _message.Learner.ULN, _message.Training.CourseCode));
         }
 
         private GrowthAndSkillsEarningModel CreateGrowthAndSkills(long id, long ukprn, long uln, string courseCode)

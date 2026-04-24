@@ -47,7 +47,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 };
 
                 // Check if earnings in DB are the latest
-                var dbEarnings = _repository.GetGrowthAndSkillsEarnings(message);
+                var dbEarnings = await _repository.GetGrowthAndSkillsEarnings(ukPrn: message.UKPRN, uln: message.Learner.ULN, courseCode: message.Training.CourseCode);
                 var earningsAreLatest = _gslService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
                 if (!earningsAreLatest)
                 {
