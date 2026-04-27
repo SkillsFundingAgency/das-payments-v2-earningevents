@@ -2,7 +2,6 @@
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Specs.Handlers;
-using SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions;
 using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
 using UUIDNext;
@@ -138,9 +137,8 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         [Given("a previous set of earnings were recorded for the short course")]
         public void GivenAPreviousSetOfEarningsWereRecordedForTheShortCourse()
         {
-            previousIdentifier = UUIDNext.Uuid.NewDatabaseFriendly(Database.SqlServer);
+            previousIdentifier = Uuid.NewDatabaseFriendly(Database.SqlServer);
             Console.WriteLine($"Previous id is: {previousIdentifier}");
-
         }
 
         [When("new changes are approved and the resultant earnings are sent to the Payments system")]

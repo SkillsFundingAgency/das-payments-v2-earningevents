@@ -1,7 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using NServiceBus;
 using Reqnroll;
+using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.Messages.Common;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
 {
@@ -21,11 +24,11 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appSettings.development.json"), true)
                 .Build();
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
-            DASEndpoint = await CreateEndpoint("DASServiceBusConnectionString", true);
-            PV2Endpoint = await CreateEndpoint("ServiceBusConnectionString");
+            DASEndpoint = await CreateEndpoint("DASServiceBusConnectionString", sendOnly: true);
+            PV2Endpoint = await CreateEndpoint("ServiceBusConnectionString", sendOnly: false, eventToSubscribeTo: typeof(GSLShortCourseEarningsEvent));
         }
 
-        public static async Task<IEndpointInstance> CreateEndpoint(string connectionName, bool sendOnly = false)
+        public static async Task<IEndpointInstance> CreateEndpoint(string connectionName, bool sendOnly = false, Type eventToSubscribeTo = null)
         {
             var endpointConfig = new EndpointConfiguration("sfa-das-payments-earningevents-bridge-specs");
             var conventions = endpointConfig.Conventions();
@@ -38,15 +41,36 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             var connectionConfig = $"ConnectionStrings:{connectionName}";
             var connectionString = Config[connectionConfig];
             Console.WriteLine($"Config: {connectionConfig}, ConnectionString: {connectionString}");
-            var transport = new AzureServiceBusTransport(connectionString, TopicTopology.Default)
+            var transport = new AzureServiceBusTransport(connectionString)
                 {
-                    UseWebSockets = Config["UseWebSockets"]?.ToLower() == "true"
-                };
+                    UseWebSockets = Config["UseWebSockets"]?.ToLower() == "true",
+                    SubscriptionRuleNamingConvention = ShortRuleName
+            };
 
             endpointConfig.UseTransport(transport);
             endpointConfig.EnableInstallers();
             var startable = await Endpoint.Create(endpointConfig);
-            return await startable.Start();
+            var endpoint = await startable.Start();
+
+            if (!sendOnly && eventToSubscribeTo != null)
+            {
+                await endpoint.Subscribe(eventToSubscribeTo);
+            }
+
+            return endpoint;
+        }
+
+        private static string ShortRuleName(Type type)
+        {
+            var name = type.FullName;
+
+            if (name.Length <= 50)
+                return name;
+
+            using var md5 = MD5.Create();
+            var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(name));
+
+            return new Guid(bytes).ToString(); // 36 chars
         }
     }
 }
