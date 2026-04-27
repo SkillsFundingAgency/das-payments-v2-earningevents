@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using Moq;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;

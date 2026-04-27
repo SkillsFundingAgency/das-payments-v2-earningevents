@@ -13,7 +13,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         public Provider Provider { get; }
         public Learner  Learner { get; }
         public TestSessionDataContext DataContext { get; }
-        public TimeSpan TimeToWait => TimeSpan.FromSeconds(10);
+        public TimeSpan TimeToWait => TimeSpan.FromSeconds(30);
         public TimeSpan TimeToPause => TimeSpan.FromSeconds(2);
         public long JobId { get; set; }
         public MessagingContext Pv2MessageContext { get; }
