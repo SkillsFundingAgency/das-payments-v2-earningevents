@@ -16,10 +16,6 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
 
         public Provider GetProvider()
         {
-            //string appGuid =
-            //    ((GuidAttribute)Assembly.GetExecutingAssembly().
-            //        GetCustomAttributes(typeof(GuidAttribute), false).
-            //        GetValue(0)).Value.ToString();
 
             Provider provider = null;
             using (var mutex = new Mutex(false, $"Global\\{{{appGuid}}}"))
@@ -29,11 +25,6 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                     provider = dataContext.LeastRecentlyUsed();
                     provider.Use();
                     dataContext.SaveChanges();
-                    //var blockedList = jobService.GetJobsByStatus(provider.Ukprn, 2, 3).Result;
-                    //if (blockedList.Any())
-                    //{
-                    //    provider = GetProvider();
-                    //}
 
                     mutex.ReleaseMutex();
                 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using NServiceBus;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Specs.Models;
 

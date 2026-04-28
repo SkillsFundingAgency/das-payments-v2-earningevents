@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using NServiceBus;
 using Reqnroll;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.Messages.Common;
