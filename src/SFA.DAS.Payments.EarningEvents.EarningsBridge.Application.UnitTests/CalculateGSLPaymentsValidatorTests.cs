@@ -35,7 +35,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     CourseReference = "ZSC00123",
                     LearningType = LearningType.ApprenticeshipUnit,
                     PlannedEndDate = new DateTime(2026, 03, 31),
-                    TrainingStatus = TrainingStatus.Continuing
+                    TrainingStatus = TrainingStatus.Continuing,
+                    LearningKey = Guid.NewGuid()
                 },
                 Earnings = new List<Earnings>
                 {
@@ -120,17 +121,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         public void Validate_rejects_null_earnings()
         {
             _message.Earnings = null;
-
-            Action act = () => _sut.Validate(_message);
-
-            act.Should().Throw<ArgumentException>()
-                .WithMessage("Earnings are required");
-        }
-
-        [Test]
-        public void Validate_rejects_empty_earnings()
-        {
-            _message.Earnings = new List<Earnings>();
 
             Action act = () => _sut.Validate(_message);
 
@@ -235,6 +225,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             act.Should().Throw<ArgumentException>()
                 .WithMessage("Training Planned End Date is required");
+        }
+
+        [Test]
+        public void Validate_rejects_empty_learning_key()
+        {
+            _message.Training.LearningKey = Guid.Empty;
+
+            Action act = () => _sut.Validate(_message);
+
+            act.Should().Throw<ArgumentException>()
+                .WithMessage("Learning Key is required");
         }
 
         [Test]
@@ -628,6 +629,15 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         [Test]
         public void Validate_accepts_valid_command()
         {
+            var result = _sut.Validate(_message);
+
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Validate_Accepts_Valid_Message_Empty_Earnings()
+        {
+            _message.Earnings = new List<Earnings>();
             var result = _sut.Validate(_message);
 
             result.Should().BeTrue();
