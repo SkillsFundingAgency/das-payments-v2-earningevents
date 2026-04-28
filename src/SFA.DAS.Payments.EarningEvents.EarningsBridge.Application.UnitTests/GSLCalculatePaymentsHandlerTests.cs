@@ -498,6 +498,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             // Assert
             events[0].EventId.Should().NotBe(firstEarningsId);
             events[1].EventId.Should().NotBe(secondEarningsId);
+            events[0].ExternalEarningsId.Should().Be(firstEarningsId);
+            events[1].ExternalEarningsId.Should().Be(secondEarningsId);
 
             var firstEventIdDecodesToTimestamp = UuidDecoder.TryDecodeTimestamp(events[0].EventId, out var firstEventDateTime);
             var secondEventIdDecodesToTimestamp = UuidDecoder.TryDecodeTimestamp(events[1].EventId, out var secondEventDateTime);

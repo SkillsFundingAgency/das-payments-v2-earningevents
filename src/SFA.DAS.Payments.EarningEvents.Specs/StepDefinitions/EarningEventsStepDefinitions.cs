@@ -5,6 +5,7 @@ using SFA.DAS.Payments.EarningEvents.Specs.Handlers;
 using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
 using UUIDNext;
+using UUIDNext.Tools;
 using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EarningPeriod = SFA.DAS.Payments.EarningEvents.Messages.External.EarningPeriod;
 using Learner = SFA.DAS.Payments.EarningEvents.Messages.External.Learner;
@@ -252,9 +253,24 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
 
         private bool IsLaterThan(Guid previousEventId, Guid newEventId)
         {
-            var comparer = new UUIDNext.Tools.GuidComparer();
             Console.WriteLine($"Comparing previous guid: {previousEventId} to new guid: {newEventId}");
-            return comparer.Compare(newEventId, previousEventId) > 0;
+            
+            var firstEventIdDecodesToTimestamp = UuidDecoder.TryDecodeTimestamp(previousEventId, out var firstEventDateTime);
+            var secondEventIdDecodesToTimestamp = UuidDecoder.TryDecodeTimestamp(newEventId, out var secondEventDateTime);
+            if (firstEventIdDecodesToTimestamp && secondEventIdDecodesToTimestamp)
+            {
+                if (firstEventDateTime >= secondEventDateTime)
+                {
+                    return false;
+                }
+
+                if (secondEventDateTime > firstEventDateTime)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
