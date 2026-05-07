@@ -61,6 +61,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
                 throw new ArgumentException("Training is required");
             }
 
+            if (training.LearningKey == Guid.Empty)
+            {
+                throw new ArgumentException("Learning Key is required");
+            }
+
             if (String.IsNullOrWhiteSpace(training.CourseCode))
             {
                 throw new ArgumentException("Course Code is required");
@@ -90,7 +95,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
         private void ValidateEarnings(CalculateGrowthAndSkillsPayments command)
         {
             var earnings = command.Earnings;
-            if ((earnings == null) || !earnings.Any())
+            if (earnings == null)
             {
                 throw new ArgumentException("Earnings are required");
             }
