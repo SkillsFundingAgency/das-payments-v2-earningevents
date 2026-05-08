@@ -52,6 +52,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
+            if(!openCollectionPeriods.Any())
+            {
+                await _repository.SaveEarnings(growthAndSkillsEarningModel);
+                return;
+            }
+
             foreach (var earning in growthAndSkillsEarningModel.PricePeriods)
             {
                 if (openCollectionPeriods.Any(x => x.AcademicYear == earning.AcademicYear))
@@ -64,18 +70,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
 
-            if (requiredPaymentsEvents.Any() && fundingSourceEvents.Any())
-            {
-                foreach (var requiredPaymentsEvent in requiredPaymentsEvents)
-                {
-                    await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
-                }
 
-                foreach (var fundingSourceEvent in fundingSourceEvents)
-                {
-                    await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
-                }
+            foreach (var requiredPaymentsEvent in requiredPaymentsEvents)
+            {
+                await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
             }
+
+            foreach (var fundingSourceEvent in fundingSourceEvents)
+            {
+                await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
+            }
+            
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }

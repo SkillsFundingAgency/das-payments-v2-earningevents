@@ -1,4 +1,5 @@
 ﻿
+using System.Data.SqlTypes;
 using FluentAssertions;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
@@ -43,7 +44,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     TrainingStatus = TrainingStatus.Continuing,
                     AgeAtStartOfTraining = 25,
                     PlannedEndDate = new DateTime(2026, 1, 15),
-                    ActualEndDate = new DateTime(2026, 1, 31)
+                    ActualEndDate = new DateTime(2026, 1, 31),
+                    LearningKey = Guid.NewGuid()
                 },
                 Learner = new Learner
                 {
@@ -114,6 +116,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             model.EmployerContribution.Should().Be(_message.EmployerContribution);
             var courseTypeValue = (int)model.CourseType;
             courseTypeValue.Should().Be((int)_message.Training.CourseType);
+            model.LearningKey.Should().Be(_message.Training.LearningKey);
             var pricePeriodModels = model.PricePeriods.ToArray();
             foreach (var earning in _message.Earnings)
             {
@@ -590,6 +593,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.LearningAim.LearningType.Should().Be((Common.Entities.LearningType)_message.Training.LearningType);
             earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
             earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
+            earningEvent.IlrSubmissionDateTime.Should().Be(SqlDateTime.MinValue.Value);
             var eventPriceEpisodes = earningEvent.PriceEpisodes.ToArray();
             foreach (var earning in _message.Earnings.Where(x => x.AcademicYear == academicYear))
             {
@@ -633,6 +637,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                         earningPeriod.Period.Should().Be(pricePeriods[i].DeliveryPeriod);
                         earningPeriod.SfaContributionPercentage.Should().Be(0.95m); // 95% funding for Levy employers
                         earningPeriod.ApprenticeshipId.Should().Be(pricePeriods[i].LearningId);
+                        var expectedPriceEpisodeIdentifier = $"{_message.Training.CourseCode}-{pricePeriod.StartDate}";
+                        earningPeriod.PriceEpisodeIdentifier.Should().Be(expectedPriceEpisodeIdentifier);
                     }
                 }
             }
