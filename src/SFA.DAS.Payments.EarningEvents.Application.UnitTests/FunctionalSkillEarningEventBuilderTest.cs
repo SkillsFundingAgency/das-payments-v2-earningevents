@@ -856,12 +856,12 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests
             var nonLevyContractTypeEarning = events.Single(x => x.ContractType == ContractType.Act2);
             nonLevyContractTypeEarning.Should().BeOfType<Act2FunctionalSkillEarningsEvent>();
             nonLevyContractTypeEarning.LearningAim.Should().NotBeNull();
-            nonLevyContractTypeEarning.LearningAim.LearningType.Should().Be(LearningType.MathsandEnglish);
+            nonLevyContractTypeEarning.LearningAim.LearningType.Should().Be(LearningType.MathsAndEnglish);
 
             var levyContractTypeEarning = events.Single(x => x.ContractType == ContractType.Act1);
             levyContractTypeEarning.Should().BeOfType<Act1FunctionalSkillEarningsEvent>();
             levyContractTypeEarning.LearningAim.Should().NotBeNull();
-            levyContractTypeEarning.LearningAim.LearningType.Should().Be(LearningType.MathsandEnglish);
+            levyContractTypeEarning.LearningAim.LearningType.Should().Be(LearningType.MathsAndEnglish);
         }
     }
 }
