@@ -1,4 +1,5 @@
 ﻿
+using System.Data.SqlTypes;
 using UUIDNext;
 using UUIDNext.Tools;
 
@@ -10,7 +11,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private const int Iterations = 100;
 
         [Test]
-        public void UUID_CompareTo_reliably_compares_two_UUID_v8_values()
+        public void UUID_CompareTo_reliably_compares_two_UUID_v8_values() // fails in first few iterations
         {
             for(int i = 1; i <= Iterations; i++)
             {
@@ -25,7 +26,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void GuidComparer_reliably_compares_two_UUID_v8_values()
+        public void GuidComparer_reliably_compares_two_UUID_v8_values() // fails in first few iterations
         {
             var comparer = new GuidComparer();
             for (int i = 1; i <= Iterations; i++)
@@ -41,7 +42,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void Timestamp_comparison_reliably_compares_two_UUID_v8_values()
+        public void Timestamp_comparison_reliably_compares_two_UUID_v8_values() // reliable
         {
             for (int i = 1; i <= Iterations; i++)
             {
@@ -53,6 +54,21 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 var secondEventIdDecodesToTimestamp = UuidDecoder.TryDecodeTimestamp(secondUUID, out var secondEventDateTime);
                 
                 Assert.That(secondEventDateTime, Is.GreaterThan(firstEventDateTime), "Comparison failed on iteration " + i);
+            }
+        }
+
+        [Test]
+        public void SqlGuid_reliably_compares_two_SQL_Server_UUID_v8_values() // reliable
+        {
+            for (int i = 1; i <= Iterations; i++)
+            {
+                var firstUUID = Uuid.NewDatabaseFriendly(Database.SqlServer);
+                Thread.Sleep(1);
+                var secondUUID = Uuid.NewDatabaseFriendly(Database.SqlServer);
+
+                var result = new SqlGuid(secondUUID).CompareTo(new SqlGuid(firstUUID));
+
+                Assert.That(result, Is.GreaterThan(0), "Comparison failed on iteration " + i);
             }
         }
     }
