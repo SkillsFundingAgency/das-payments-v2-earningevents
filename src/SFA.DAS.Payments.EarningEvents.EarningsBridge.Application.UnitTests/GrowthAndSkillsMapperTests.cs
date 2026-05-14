@@ -385,6 +385,44 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
+        public void TransferSenderAccountId_is_mapped_correctly_when_funding_account_id_is_different_to_employer_account_id()
+        {
+            // Arrange
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel
+                {
+                    AcademicYear = 2526,
+                    Period = 1,
+                    Status = CollectionPeriodStatus.Open
+                }
+            };
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    foreach (var earningPeriod in pricePeriod.Periods)
+                    {
+                        earningPeriod.Employer.FundingAccountId = 1234567;
+                    }
+                }
+            }
+
+            // Act
+            var earningEvents = _sut.MapToShortCourseEarningEvents(_message, collectionPeriods);
+
+            // Assert
+            var earningEvent = earningEvents.First();
+            foreach (var earning in earningEvent.Earnings)
+            {
+                foreach (var earningPeriod in earning.Periods)
+                {
+                    earningPeriod.TransferSenderAccountId.Should().Be(1234567);
+                }
+            }
+        }
+
+        [Test]
         public void Properties_are_mapped_from_inbound_message_to_das_earnings_received_events()
         {
             // Arrange
@@ -632,6 +670,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                         var earningPeriod = eventEarnings[i].Periods.FirstOrDefault();
                         earningPeriod.AccountId.Should().Be(pricePeriods[i].Employer.AccountId);
                         earningPeriod.Amount.Should().Be(pricePeriods[i].Amount);
+                        earningPeriod.TransferSenderAccountId.Should().BeNull();
                         var employerTypeValue = (int)earningPeriod.ApprenticeshipEmployerType;
                         employerTypeValue.Should().Be((int)pricePeriods[i].Employer.EmployerType);
                         earningPeriod.Period.Should().Be(pricePeriods[i].DeliveryPeriod);
