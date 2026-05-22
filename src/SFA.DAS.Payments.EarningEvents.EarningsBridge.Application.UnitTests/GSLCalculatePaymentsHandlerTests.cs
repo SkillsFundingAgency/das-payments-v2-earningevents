@@ -10,6 +10,8 @@ using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
+using UUIDNext;
+using UUIDNext.Tools;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
@@ -432,7 +434,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
             _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
                 Times.Once);
-            //Todo: expect one invocation
             _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
                 Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(x => x.PricePeriods.Count == 0)), Times.Once);
@@ -472,6 +473,41 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
                 Times.Exactly(2));
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(x => x.PricePeriods.Count == 0)), Times.Once);
+        }
+
+        [Test]
+        public async Task Subsequent_messages_generate_an_event_id_that_is_sortable()
+        {
+            // Arrange
+            var firstEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
+            var secondEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
+            var events = new List<GSLShortCourseEarningsEvent>();
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+                _collectionPeriodService.Object, _logger.Object);
+
+            _publisher.Setup(x => x.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()))
+                .Callback<GSLShortCourseEarningsEvent>(events.Add);
+
+            // Act
+            _message.EarningsId = firstEarningsId;
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+            _message.EarningsId = secondEarningsId;
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            // Assert
+            events[0].EventId.Should().NotBe(firstEarningsId);
+            events[1].EventId.Should().NotBe(secondEarningsId);
+            events[0].ExternalEarningsId.Should().Be(firstEarningsId);
+            events[1].ExternalEarningsId.Should().Be(secondEarningsId);
+
+            var firstEventIdDecodesToTimestamp = UuidDecoder.TryDecodeTimestamp(events[0].EventId, out var firstEventDateTime);
+            var secondEventIdDecodesToTimestamp = UuidDecoder.TryDecodeTimestamp(events[1].EventId, out var secondEventDateTime);
+            firstEventIdDecodesToTimestamp.Should().BeTrue();
+            secondEventIdDecodesToTimestamp.Should().BeTrue();
+
+            firstEventDateTime.Should().NotBe(secondEventDateTime);
+            secondEventDateTime.Should().BeAfter(firstEventDateTime);
         }
     }
 }
