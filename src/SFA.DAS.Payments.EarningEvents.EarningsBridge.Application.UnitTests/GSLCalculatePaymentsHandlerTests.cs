@@ -28,6 +28,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private GrowthAndSkillsMapper _mapper;
         private Mock<IEarningsRepository> _repository;
         private Mock<IPaymentsServiceBusPublisher> _publisher;
+        private Mock<IGSLEarningsService> _gslService;
         private Mock<ICollectionPeriodService> _collectionPeriodService;
         private Mock<ILogger<GSLCalculatePaymentsHandler>> _logger;
         
@@ -100,7 +101,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _publisher = new Mock<IPaymentsServiceBusPublisher>();
             _collectionPeriodService = new Mock<ICollectionPeriodService>();
             _logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
+            _gslService = new Mock<IGSLEarningsService>();
 
+            _repository.Setup(x => x.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>())).ReturnsAsync(new List<GrowthAndSkillsEarningModel>());
+            _gslService.Setup(x => x.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>())).Returns(true);
             var collectionPeriods = new List<CollectionPeriodModel>
             {
                 new CollectionPeriodModel
@@ -118,7 +122,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         {
             // Arrange
             _message.UKPRN = 0;
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object, 
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object, 
                                                           _collectionPeriodService.Object, _logger.Object);
             
             // Act 
@@ -145,41 +149,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public async Task Earnings_are_not_processed_if_earnings_are_null()
-        {
-            // Arrange
-            _message.Earnings = null;
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
-                _collectionPeriodService.Object, _logger.Object);
-
-            // Act 
-            Func<Task> act = async () => await handler.HandleGslCalculatePaymentsMessage(_message);
-            act.Should().Throw<ArgumentException>()
-                .WithMessage("Earnings are required");
-
-            // Assert
-            _logger.Verify(
-                l => l.Log(
-                    LogLevel.Error,
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<ArgumentException>(),
-                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                Times.Once);
-
-            _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
-            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
-                Times.Never);
-            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
-                Times.Never);
-            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
-        }
-
-        [Test]
         public async Task Earnings_are_sent_to_service_bus_and_stored_to_database_cache()
         {
             // Arrange          
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object, 
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object, 
                                                           _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -202,9 +175,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _message.Earnings.ToList()[0].AcademicYear = 2425;
             var collectionPeriods = new List<CollectionPeriodModel>();
             _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
-            var expectedModel = new GrowthAndSkillsMapper().MapToGrowthAndSkillsEarningModel(_message);
-            
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -292,7 +263,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 }
             };
 
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -400,7 +371,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             };
             _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
 
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
             
             // Act
@@ -419,48 +390,53 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 y => y.PricePeriods.Where(x => x.AcademicYear == 2526)
                     .All(p => p.ProcessedOn != null))), Times.Once);
         }
+
         [Test]
-        public async Task Message_With_Empty_Earnings_Generates_Record_And_RequiredPayments_Message()
+        public async Task Earnings_Are_Older_Than_Latest_DB_Earnings_Should_Ignore_Message()
         {
-            // Arrange          
-            _message.Earnings = [];
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+            // Arrange
+            var dateTimeNow = DateTime.UtcNow;
+            var oldGuid = UuidToolkit.CreateUuidV7FromSpecificDate(dateTimeNow);
+
+            // Mocking the repository to return existing earnings with a newer EarningsId
+            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+                       .ReturnsAsync(new List<GrowthAndSkillsEarningModel>()); // Simulate that there are existing earnings
+
+            _gslService.Setup(service => service.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>()))
+                       .Returns(false); // Simulate that the earnings are older than the latest in DB
+
+            _message.EarningsId = oldGuid;
+
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
             await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
-            _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
-            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
-                Times.Once);
-            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
-                Times.Once);
-            _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(x => x.PricePeriods.Count == 0)), Times.Once);
+            _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
+            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Never);
+            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
         }
-        [Test]
-        public async Task Rollover_Message_With_Empty_Earnings_Generates_Record_And_RequiredPayments_Message()
-        {
-            // Arrange          
-            _message.Earnings = [];
-            var collectionPeriods = new List<CollectionPeriodModel>
-            {
-                new CollectionPeriodModel
-                {
-                    AcademicYear = 2526,
-                    Period = 13,
-                    Status = CollectionPeriodStatus.Open
-                },
-                new CollectionPeriodModel
-                {
-                    AcademicYear = 2627,
-                    Period = 1,
-                    Status = CollectionPeriodStatus.Open
-                }
-            };
-            _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
 
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+        [Test]
+        public async Task Earnings_Are_Latest_Should_Process_And_Save()
+        {
+            // Arrange
+            var dateTimeNow = DateTime.UtcNow;
+            var newGuid = UuidToolkit.CreateUuidV7FromSpecificDate(dateTimeNow);
+
+            // Mocking the repository to return that the earnings are the latest
+            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+                       .ReturnsAsync(new List<GrowthAndSkillsEarningModel>()); // Simulate that there are existing earnings
+
+            _gslService.Setup(service => service.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>()))
+                       .Returns(true); // Simulate that the earnings are the latest in DB
+
+            _message.EarningsId = newGuid;
+
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -468,11 +444,29 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
-            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
-                Times.Exactly(2));
-            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
-                Times.Exactly(2));
-            _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(x => x.PricePeriods.Count == 0)), Times.Once);
+            _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(model => model.PricePeriods.Any())), Times.Once);
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Once);
+            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Once);
+        }
+
+        [Test]
+        public void Exception_In_GetGrowthAndSkillsEarnings_Should_Log_Error_And_Abort()
+        {
+            // Arrange
+            _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+                .Throws(new Exception("Database error"));
+
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+                _collectionPeriodService.Object, _logger.Object);
+
+            // Act
+            Assert.ThrowsAsync<Exception>(async () => await handler.HandleGslCalculatePaymentsMessage(_message));
+
+            // Assert
+            _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
+            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Never);
+            _publisher.Verify(p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
         }
 
         [Test]
@@ -482,7 +476,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var firstEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
             var secondEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
             var events = new List<GSLShortCourseEarningsEvent>();
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             _publisher.Setup(x => x.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()))

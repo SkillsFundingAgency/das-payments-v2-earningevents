@@ -1,7 +1,7 @@
 ﻿
 namespace SFA.DAS.Payments.EarningEvents.Model
 {
-    public enum TrainingStatus
+    public enum TrainingStatus : byte
     {
         Continuing = 1,
         Completed = 2,
