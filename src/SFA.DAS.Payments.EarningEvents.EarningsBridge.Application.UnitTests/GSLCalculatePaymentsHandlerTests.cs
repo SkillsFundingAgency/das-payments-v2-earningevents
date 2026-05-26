@@ -10,6 +10,7 @@ using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
+using UUIDNext;
 using UUIDNext.Tools;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
@@ -475,7 +476,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var firstEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
             var secondEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
             var events = new List<GSLShortCourseEarningsEvent>();
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             _publisher.Setup(x => x.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()))

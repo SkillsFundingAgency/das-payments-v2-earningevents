@@ -4,8 +4,6 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
-using SFA.DAS.Payments.EarningEvents.Model;
-using SFA.DAS.Payments.Model.Core;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
