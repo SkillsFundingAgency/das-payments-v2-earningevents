@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Payments.EarningEvents.Application.UnitTests", "SFA.DAS.Payments.EarningEvents.Application.UnitTests\SFA.DAS.Payments.EarningEvents.Application.UnitTests.csproj", "{A4008A87-EB57-4211-A8AA-418CC20E15E3}"
 EndProject
@@ -40,6 +40,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.EarningEvents.Messages.External", "SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj", "{E547A853-E12D-4057-84D3-DDA10A3AED19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.EarningEvents.EarningsBridge.Application", "SFA.DAS.Payments.EarningEvents.EarningsBridge.Application\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.csproj", "{962E6180-BC32-4C8F-948F-67ABFA452FD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.EarningEvents.Specs", "SFA.DAS.Payments.EarningEvents.Specs\SFA.DAS.Payments.EarningEvents.Specs.csproj", "{70214D98-F720-4A42-8EAD-F620AA5E2E1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -197,6 +199,14 @@ Global
 		{962E6180-BC32-4C8F-948F-67ABFA452FD0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{962E6180-BC32-4C8F-948F-67ABFA452FD0}.Release|x64.ActiveCfg = Release|Any CPU
 		{962E6180-BC32-4C8F-948F-67ABFA452FD0}.Release|x64.Build.0 = Release|Any CPU
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B}.Debug|x64.Build.0 = Debug|Any CPU
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B}.Release|x64.ActiveCfg = Release|Any CPU
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -205,6 +215,7 @@ Global
 		{A4008A87-EB57-4211-A8AA-418CC20E15E3} = {8F1656D8-B3C9-4805-811C-B7091FB3E718}
 		{100F3E05-A5CF-49E3-A840-76E66C3EF9C1} = {8F1656D8-B3C9-4805-811C-B7091FB3E718}
 		{C6E220C5-0C59-4E55-8254-729519522843} = {8F1656D8-B3C9-4805-811C-B7091FB3E718}
+		{70214D98-F720-4A42-8EAD-F620AA5E2E1B} = {8F1656D8-B3C9-4805-811C-B7091FB3E718}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {67DD4CC3-0BBE-4C39-AAFA-DD050FFF81EF}

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Payments.EarningEvents.Data.Configuration;
 using SFA.DAS.Payments.EarningEvents.Model;
+using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.EarningEvents.Data
 {
@@ -10,6 +11,7 @@ namespace SFA.DAS.Payments.EarningEvents.Data
 
         public DbSet<GrowthAndSkillsEarningModel> GrowthAndSkillsEarnings { get; set; }
         public DbSet<GrowthAndSkillsEarningPricePeriodModel> GrowthAndSkillsEarningPricePeriods { get; set; }
+        
 
         public EarningsDataContext(string connectionString)
         {
