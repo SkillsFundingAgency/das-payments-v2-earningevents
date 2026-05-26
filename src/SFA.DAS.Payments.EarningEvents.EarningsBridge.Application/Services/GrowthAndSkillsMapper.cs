@@ -6,6 +6,7 @@ using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
 using System.Data.SqlTypes;
+using UUIDNext;
 using Common = SFA.DAS.Payments.Model.Core;
 using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
@@ -263,7 +264,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 {
                     JobId = 0,
                     EventTime = DateTimeOffset.UtcNow,
-                    EventId = Guid.NewGuid(),
+                    EventId = Uuid.NewDatabaseFriendly(Database.SqlServer),
                     ExternalEarningsId = source.EarningsId,
                     Ukprn = source.UKPRN,
                     Learner = new Common.Learner

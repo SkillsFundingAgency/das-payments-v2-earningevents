@@ -8,9 +8,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="local.settings.json" />
-  </ItemGroup>
+	<ItemGroup>
+	<Content Include="local.settings.json" />
+	</ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
