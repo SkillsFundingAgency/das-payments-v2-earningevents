@@ -9,6 +9,7 @@ using System.Data.SqlTypes;
 using UUIDNext;
 using Common = SFA.DAS.Payments.Model.Core;
 using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
+using EarningPeriod = SFA.DAS.Payments.EarningEvents.Messages.External.EarningPeriod;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.Model.Core.Entities.LearningType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
@@ -222,11 +223,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                         {
                             Type = (ShortCourseEarningType)period.EarningType,
                             Periods = new List<Common.EarningPeriod>
-                                {
+                            {
                                     new Common.EarningPeriod
                                     {
                                         AccountId = period.Employer.AccountId,
                                         Amount = period.Amount,
+                                        TransferSenderAccountId = MapTransferSenderAccountId(period),
                                         ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
                                         Period = period.DeliveryPeriod,
                                         SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType),
@@ -234,14 +236,23 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                                         PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate)
                                     }
                                 }
-                        }
-
+                            }
                         );
                     }
                 }
             }
 
             return shortCourseEarnings;
+        }
+
+        private long? MapTransferSenderAccountId(EarningPeriod earningPeriod)
+        {
+            if (earningPeriod.Employer.AccountId != earningPeriod.Employer.FundingAccountId)
+            {
+                return earningPeriod.Employer.FundingAccountId;
+            }
+
+            return null;
         }
 
         private decimal? MapSfaContributionPercentage(EmployerType employerType)
