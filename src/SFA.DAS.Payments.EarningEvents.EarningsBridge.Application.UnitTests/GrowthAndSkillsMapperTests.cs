@@ -631,6 +631,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.LearningAim.LearningType.Should().Be((Common.Entities.LearningType)_message.Training.LearningType);
             earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
             earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
+            earningEvent.IlrSubmissionDateTime.Should().Be(earningEvent.IlrSubmissionDateTime);
             var eventPriceEpisodes = earningEvent.PriceEpisodes.ToArray();
             foreach (var earning in _message.Earnings.Where(x => x.AcademicYear == academicYear))
             {
