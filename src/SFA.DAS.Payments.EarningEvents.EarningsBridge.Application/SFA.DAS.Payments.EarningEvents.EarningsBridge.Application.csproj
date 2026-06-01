@@ -9,10 +9,10 @@
   <ItemGroup>
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
-    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-26" />
+    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.5.0-prerelease-73" />
     <PackageReference Include="Autofac" Version="7.0.1" />
-    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.2.2" />
-    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.2.2" />
+    <PackageReference Include="SFA.DAS.Payments.Core" Version="2.5.0-prerelease-73" />
+    <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.5.0-prerelease-73" />
     <PackageReference Include="UUIDNext" Version="4.2.4" />
   </ItemGroup>
 
