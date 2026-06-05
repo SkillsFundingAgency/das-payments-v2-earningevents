@@ -4,7 +4,6 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
-using SFA.DAS.Payments.Model.Core;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
@@ -13,6 +12,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
         private ICalculateGSLPaymentsValidator _validator;
         private IGrowthAndSkillsMapper _mapper;
         private IEarningsRepository _repository;
+        private IGSLEarningsService _gslEarningsService;
         private IPaymentsServiceBusPublisher _publisher;
         private ICollectionPeriodService _collectionPeriodService;
         private ILogger<GSLCalculatePaymentsHandler> _logger;
@@ -21,6 +21,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             ICalculateGSLPaymentsValidator validator,
             IGrowthAndSkillsMapper mapper,
             IEarningsRepository repository,
+            IGSLEarningsService gslEarningsService,
             IPaymentsServiceBusPublisher publisher,
             ICollectionPeriodService collectionPeriodService,
             ILogger<GSLCalculatePaymentsHandler> logger)
@@ -28,6 +29,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _validator = validator;
             _mapper = mapper;
             _repository = repository;
+            _gslEarningsService = gslEarningsService;
             _publisher = publisher;
             _collectionPeriodService = collectionPeriodService;
             _logger = logger;
@@ -47,6 +49,28 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 _logger.LogError(ex, "Failed to validate GSL calculate payments message");
                 throw;
             }
+
+            try
+            {
+                // Check if earnings in DB are the latest
+                var dbEarnings = await _repository.GetGrowthAndSkillsEarnings(ukPrn: message.UKPRN, uln: message.Learner.ULN, courseCode: message.Training.CourseCode);
+                var earningsAreLatest = _gslEarningsService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
+                if (!earningsAreLatest)
+                {
+                    _logger.LogWarning("Earnings received are not the latest. " +
+                                           "Skipping processing for message with EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
+                        message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                    return; // If earnings are not the latest, don't proceed
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing CalculateGrowthAndSkillsPayments with " +
+                                     "EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
+                    message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                throw;
+            }
+
 
             var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
 
@@ -84,7 +108,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }
-
     }
 }
 
