@@ -72,7 +72,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                         source.Aims.OrderBy(aim => aim.LearningDeliveryValues.LearnStartDate).First()
                             .LearningDeliveryValues.AgeAtProgStart))
                 .Ignore(x => x.ContractType)
-                .AfterMap((intermediateLearningAim, earningEvent) => earningEvent.LearningAim.LearningType = LearningType.FunctionalSkill)
+                .AfterMap((intermediateLearningAim, earningEvent) => earningEvent.LearningAim.LearningType = LearningType.MathsAndEnglish)
                 ;
 
             CreateMap<ApprenticeshipContractType1EarningEvent, ApprenticeshipContractType1RedundancyEarningEvent>()
