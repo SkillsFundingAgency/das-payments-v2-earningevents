@@ -303,7 +303,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                     },
                     AgeAtStartOfLearning = source.Training.AgeAtStartOfTraining,
                     FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService,
-                    IlrSubmissionDateTime = SqlDateTime.MinValue.Value,
                     Earnings = new List<ShortCourseEarning>(),
                     PriceEpisodes = new List<Common.PriceEpisode>()
                 });
