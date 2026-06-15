@@ -33,7 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.EarningEventsService2526\SFA.DAS.Payments.EarningEvents.EarningEventsService2526.csproj" />
-    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.EarningEventsService2425\SFA.DAS.Payments.EarningEvents.EarningEventsService2425.csproj" />
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.EarningEventsService2627\SFA.DAS.Payments.EarningEvents.EarningEventsService2627.csproj" />
     <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.ProcessLearnerProxyService\SFA.DAS.Payments.EarningEvents.ProcessLearnerProxyService.csproj" />
     <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.ProcessLearnerService\SFA.DAS.Payments.EarningEvents.ProcessLearnerService.csproj" />
   </ItemGroup>
