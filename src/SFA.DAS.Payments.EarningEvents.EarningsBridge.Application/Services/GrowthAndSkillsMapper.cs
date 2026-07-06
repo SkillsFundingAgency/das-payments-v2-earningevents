@@ -233,7 +233,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                                         Period = period.DeliveryPeriod,
                                         SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType),
                                         ApprenticeshipId = period.LearningId,
-                                        PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate)
+                                        PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate),
+                                        IsPaymentPaused = period.IsPaymentPaused
                                     }
                                 }
                             }

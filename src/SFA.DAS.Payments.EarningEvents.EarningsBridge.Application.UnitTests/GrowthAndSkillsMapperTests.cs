@@ -423,6 +423,44 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
+        public void IsPaymentPaused_is_mapped_correctly_in_earning_event()
+        {
+            // Arrange
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel
+                {
+                    AcademicYear = 2526,
+                    Period = 1,
+                    Status = CollectionPeriodStatus.Open
+                }
+            };
+            foreach (var earning in _message.Earnings)
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    foreach (var earningPeriod in pricePeriod.Periods)
+                    {
+                        earningPeriod.IsPaymentPaused = true;
+                    }
+                }
+            }
+
+            // Act
+            var earningEvents = _sut.MapToShortCourseEarningEvents(_message, collectionPeriods);
+
+            // Assert
+            var earningEvent = earningEvents.First();
+            foreach (var earning in earningEvent.Earnings)
+            {
+                foreach (var earningPeriod in earning.Periods)
+                {
+                    earningPeriod.IsPaymentPaused.Should().BeTrue();
+                }
+            }
+        }
+
+        [Test]
         public void Properties_are_mapped_from_inbound_message_to_das_earnings_received_events()
         {
             // Arrange

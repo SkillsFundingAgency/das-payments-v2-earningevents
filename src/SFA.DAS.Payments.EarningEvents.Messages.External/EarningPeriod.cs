@@ -8,5 +8,6 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.External
         public decimal Amount { get; set; }
         public Employer Employer { get; set; }
         public long LearningId { get; set; }
+        public bool IsPaymentPaused { get; set; }
     }
 }
