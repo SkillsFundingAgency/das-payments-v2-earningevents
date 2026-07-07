@@ -76,18 +76,29 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
-            if(!openCollectionPeriods.Any())
-            {
-                await _repository.SaveEarnings(growthAndSkillsEarningModel);
-                return;
-            }
+            var skipPublishing = false;
 
             foreach (var earning in growthAndSkillsEarningModel.PricePeriods)
             {
-                if (openCollectionPeriods.Any(x => x.AcademicYear == earning.AcademicYear))
+                var openCollectionPeriod = openCollectionPeriods
+                    .FirstOrDefault(x => x.AcademicYear == earning.AcademicYear);
+
+                if (openCollectionPeriod != null)
                 {
-                    earning.ProcessedOn = DateTime.UtcNow; // if ProcessedOn is not set then will be cached and picked up for processing later
+                    if (earning.DeliveryPeriod > openCollectionPeriod.Period)
+                    {
+                        skipPublishing = true;
+                        break;
+                    }
+
+                    earning.ProcessedOn = DateTime.UtcNow;
                 }
+            }
+
+            if (skipPublishing)
+            {
+                await _repository.SaveEarnings(growthAndSkillsEarningModel);
+                return;
             }
 
             var requiredPaymentsEvents = _mapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);

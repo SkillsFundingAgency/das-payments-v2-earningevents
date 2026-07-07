@@ -31,7 +31,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private Mock<IGSLEarningsService> _gslService;
         private Mock<ICollectionPeriodService> _collectionPeriodService;
         private Mock<ILogger<GSLCalculatePaymentsHandler>> _logger;
-        
+
         [SetUp]
         public void SetUp()
         {
@@ -116,15 +116,15 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             };
             _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
         }
-        
+
         [Test]
         public async Task Earnings_are_not_processed_if_validation_fails()
         {
             // Arrange
             _message.UKPRN = 0;
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object, 
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                                                           _collectionPeriodService.Object, _logger.Object);
-            
+
             // Act 
             Func<Task> act = async () => await handler.HandleGslCalculatePaymentsMessage(_message);
             act.Should().Throw<ArgumentException>()
@@ -149,10 +149,51 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
+        public async Task Earnings_are_saved_but_not_published_when_delivery_period_is_greater_than_collection_period()
+        {
+            // Arrange
+            var handler = new GSLCalculatePaymentsHandler(
+                _validator,
+                _mapper,
+                _repository.Object,
+                _gslService.Object,
+                _publisher.Object,
+                _collectionPeriodService.Object,
+                _logger.Object);
+
+            var collectionPeriods = new List<CollectionPeriodModel>()
+            {
+                new()
+                {
+                    AcademicYear=2425,
+                    Period=5
+                },
+            };
+            _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
+            _message.Earnings.First().AcademicYear = 2425;
+            _message.Earnings.First().PricePeriods.First().Periods.First().DeliveryPeriod = 6;
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            // Assert
+            _publisher.Verify(
+                p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
+                Times.Never);
+
+            _publisher.Verify(
+                p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
+                Times.Never);
+
+            _repository.Verify(
+                r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()),
+                Times.Once);
+        }
+        [Test]
         public async Task Earnings_are_sent_to_service_bus_and_stored_to_database_cache()
         {
             // Arrange          
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object, 
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                                                           _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -373,7 +414,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
-            
+
             // Act
             await handler.HandleGslCalculatePaymentsMessage(_message);
 
