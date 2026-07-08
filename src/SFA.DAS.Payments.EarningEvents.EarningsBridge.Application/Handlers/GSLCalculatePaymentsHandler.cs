@@ -34,7 +34,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _collectionPeriodService = collectionPeriodService;
             _logger = logger;
         }
-        
+
         public async Task HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
         {
             try
@@ -43,7 +43,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 {
                     return;
                 };
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to validate GSL calculate payments message");
@@ -76,7 +75,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
-            var skipPublishing = false;
+            if (!openCollectionPeriods.Any())
+            {
+                await _repository.SaveEarnings(growthAndSkillsEarningModel);
+                return;
+            }
 
             foreach (var earning in growthAndSkillsEarningModel.PricePeriods)
             {
@@ -85,20 +88,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
                 if (openCollectionPeriod != null)
                 {
-                    if (earning.DeliveryPeriod > openCollectionPeriod.Period)
+                    if (earning.DeliveryPeriod <= openCollectionPeriod.Period)
                     {
-                        skipPublishing = true;
-                        break;
+                        earning.ProcessedOn = DateTime.UtcNow;
                     }
-
-                    earning.ProcessedOn = DateTime.UtcNow;
                 }
-            }
-
-            if (skipPublishing)
-            {
-                await _repository.SaveEarnings(growthAndSkillsEarningModel);
-                return;
             }
 
             var requiredPaymentsEvents = _mapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
@@ -115,7 +109,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             {
                 await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
             }
-            
+
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }

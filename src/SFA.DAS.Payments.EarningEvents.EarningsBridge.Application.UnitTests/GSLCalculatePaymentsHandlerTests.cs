@@ -185,10 +185,122 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
                 Times.Never);
 
+            _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
+                y => y.PricePeriods.All(p => p.ProcessedOn == null))), Times.Once);
+        }
+
+        [Test]
+        public async Task Current_delivery_period_earnings_are_published_and_future_delivery_period_earnings_are_saved_without_publishing()
+        {
+            // Arrange
+            var handler = new GSLCalculatePaymentsHandler(
+                _validator,
+                _mapper,
+                _repository.Object,
+                _gslService.Object,
+                _publisher.Object,
+                _collectionPeriodService.Object,
+                _logger.Object);
+
+            var collectionPeriods = new List<CollectionPeriodModel>()
+            {
+                new()
+                {
+                    AcademicYear=2425,
+                    Period=10
+                },
+            };
+            _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
+
+            GrowthAndSkillsEarningModel savedModel = null;
+            // Arrange
+
+            _message.Earnings = new List<Earnings>
+                {
+                    new Earnings
+                    {
+                        AcademicYear = 2425,
+                        PricePeriods = new List<PricePeriod>
+                        {
+                            new PricePeriod
+                            {
+                                StartDate = new DateTime(2026, 1, 1),
+                                Price = 5000m,
+                                EndDate = new DateTime(2026, 1, 31),
+                                CompletionAmount = 1000m,
+                                InstalmentAmount = 2000m,
+                                NumberOfInstalments = 2,
+                                Periods = new List<EarningPeriod>
+                                {
+                                    new EarningPeriod
+                                    {
+                                        Employer = new Employer
+                                        {
+                                            EmployerType = EmployerType.Levy,
+                                            AccountId = 10000,
+                                            FundingAccountId = 10000
+                                        },
+                                        Amount = 2000m,
+                                        DeliveryPeriod = 10,
+                                        EarningType = EarningType.Milestone1,
+                                        LearningId = 123456,
+                                        
+                                        
+                                    },
+                                    new EarningPeriod
+                                    {
+                                        Employer = new Employer
+                                        {
+                                            EmployerType = EmployerType.Levy,
+                                            AccountId = 10000,
+                                            FundingAccountId = 10000
+                                        },
+                                        Amount = 2000m,
+                                        DeliveryPeriod = 11,
+                                        EarningType = EarningType.Milestone1,
+                                        LearningId = 123456,
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+            _repository
+                .Setup(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()))
+                .Callback<GrowthAndSkillsEarningModel>(m => savedModel = m)
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            // Assert
+
+            // Current delivery period is published
+            _publisher.Verify(
+                p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()),
+                Times.Once);
+
+            _publisher.Verify(
+                p => p.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()),
+                Times.Once);
+
+            // Earnings are always saved
             _repository.Verify(
                 r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()),
                 Times.Once);
+
+            // Verify processed flags
+            savedModel.Should().NotBeNull();
+
+            var milestone = savedModel.PricePeriods.Single(x => x.DeliveryPeriod == 10);
+            milestone.ProcessedOn.Should().NotBeNull();
+
+            var completion = savedModel.PricePeriods.Single(x => x.DeliveryPeriod == 11);
+            completion.ProcessedOn.Should().BeNull();
         }
+
         [Test]
         public async Task Earnings_are_sent_to_service_bus_and_stored_to_database_cache()
         {
