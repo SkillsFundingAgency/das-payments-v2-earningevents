@@ -42,7 +42,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 if (!_validator.Validate(message))
                 {
                     return;
-                };
+                }
+                ;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to validate GSL calculate payments message");
@@ -96,21 +98,20 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             }
 
             var requiredPaymentsEvents = _mapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
-
-            var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
-
+            if (requiredPaymentsEvents.Any())
+            {
+                var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
+                foreach (var fundingSourceEvent in fundingSourceEvents)
+                {
+                    await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
+                }
+            }
 
             foreach (var requiredPaymentsEvent in requiredPaymentsEvents)
             {
                 await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
             }
-
-            foreach (var fundingSourceEvent in fundingSourceEvents)
-            {
-                await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
-            }
-
-
+            
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }
     }
