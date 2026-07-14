@@ -113,6 +113,28 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             }
             Assert.Fail($"{failText}  Time: {DateTime.Now:G}.  Ukprn: {Provider.Ukprn}. Job Id: {JobId}");
         }
+
+        public async Task WaitForItAndFail(Func<bool> lookForIt, string failText)
+        {
+            var endTime = DateTime.Now.Add(TimeToWait);
+            var lastRun = false;
+
+            while (DateTime.Now < endTime || lastRun)
+            {
+                if (lookForIt())
+                {
+                    if (lastRun) return;
+                    lastRun = true;
+                    Assert.Fail($"{failText}  Time: {DateTime.Now:G}.  Ukprn: {Provider.Ukprn}. Job Id: {JobId}");
+                }
+                else
+                {
+                    if (lastRun) break;
+                }
+
+                await Task.Delay(TimeToPause);
+            }
+        }
     }
 }
 

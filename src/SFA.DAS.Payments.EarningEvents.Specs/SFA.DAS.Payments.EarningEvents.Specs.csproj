@@ -7,7 +7,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <ReqnrollFeatureFile Remove="Features\DAS Earnings Processing.feature" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Bogus" Version="35.6.5" />
+		<PackageReference Include="FluentAssertions" Version="5.9.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.2" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
@@ -15,6 +20,7 @@
 		<PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="3.2.1" />
 		<PackageReference Include="NUnit" Version="3.14.0" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+		<PackageReference Include="Reqnroll" Version="3.3.4" />
 		<PackageReference Include="Reqnroll.NUnit" Version="3.3.4" />
 		<PackageReference Include="NUnit.ConsoleRunner" Version="3.22.0" />
 
@@ -35,11 +41,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Features\" />
 	  <Folder Include="Handlers\" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\SFA.DAS.EarningEvents.Model\SFA.DAS.Payments.EarningEvents.Model.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
 	</ItemGroup>
