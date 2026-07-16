@@ -6,6 +6,7 @@
     <ServerGarbageCollection>True</ServerGarbageCollection>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <TargetLatestRuntimePatch>False</TargetLatestRuntimePatch>
+	<SelfContained>True</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
