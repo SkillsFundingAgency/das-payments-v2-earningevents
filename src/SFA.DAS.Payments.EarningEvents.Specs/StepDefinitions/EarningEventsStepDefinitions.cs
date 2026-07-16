@@ -4,6 +4,7 @@ using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Specs.Handlers;
+using SFA.DAS.Payments.Messages.Common.Events;
 using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
 using UUIDNext;
@@ -62,6 +63,9 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
 
         [Given("a CalculatedRequiredLevyAmount message is received for a Levy employer with a GSO learner")]
         [Given("the Employer has insufficient funds")]
+        [Given("the employer has insufficient levy balance for the full amount of the payment")]
+        [Given("the employers remaining balance will be used first and co-investment used for the remainder")]
+        [Given("the employer has no levy balance available")]
         public void BlankStep()
         {
         }
@@ -266,6 +270,12 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             ageAtStartOfTraining = 24;
         }
 
+        [Given("the learner is 25 or older")]
+        public void GivenTheLearnerIsAged25OrOlderOnTheStartDate()
+        {
+            ageAtStartOfTraining = 25;
+        }
+
         [When("new changes are approved and the resultant earnings are sent to the Payments system")]
         [When("the payments are generated")]
         public async Task WhenPaymentsAreGenerated()
@@ -410,16 +420,76 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             CheckSfaContributionPercentage(gslShortCourseEvent, 0.95m);
         }
 
+        [Then(@"the payment funding is split between 'SFA co-investment' \(75%\) and 'Employer co-investment' \(25%\)")]
+        public async Task ThenPaymentLinesAreGenerated75SplitBetweenSfaCoInvestmentAndEmployerCoInvestment()
+        {
+
+            await testSession.WaitForIt(() => GSLShortCourseEarningsEventHandler.GetEvents(testSession.Learner)
+                .Any(earning => earning.ExternalEarningsId == earningsId), "Failed to find the short course earning event");
+
+            var earningEvents = GSLShortCourseEarningsEventHandler.GetEvents(testSession.Learner).ToList();
+            Assert.That(earningEvents.Count, Is.EqualTo(1));
+
+            var gslShortCourseEvent = earningEvents.Single();
+            CheckSfaContributionPercentage(gslShortCourseEvent, 0.75m);
+        }
+
+        [Then("the payment funding percentage is set to Non-Levy: {decimal} and Levy: {decimal}")]
+        public async Task ThenLevyAndNonLevySfaPercentagesAreSet(decimal nonLevyPercentage, decimal levyPercentage)
+        {
+
+            await testSession.WaitForIt(() => GSLShortCourseEarningsEventHandler.GetEvents(testSession.Learner)
+                .Any(earning => earning.ExternalEarningsId == earningsId), "Failed to find the short course earning event");
+
+            var earningEvents = GSLShortCourseEarningsEventHandler.GetEvents(testSession.Learner).ToList();
+            Assert.That(earningEvents.Count, Is.EqualTo(1));
+            
+            var gslShortCourseEvent = earningEvents.Single();
+            CheckEmployerTypeChangeContribution(gslShortCourseEvent, nonLevyPercentage, levyPercentage);
+        }
+
         private void CheckSfaContributionPercentage(GSLShortCourseEarningsEvent gslShortCourseEvent, decimal sfaContributionPercentage)
         {
             var shortCourseEarnings = gslShortCourseEvent.Earnings;
             if (shortCourseEarnings != null)
             {
-                foreach (var periods in shortCourseEarnings)
+                var courseEarnings = shortCourseEarnings.ToList();
+
+                Assert.That(courseEarnings.Count, Is.EqualTo(1));
+                foreach (var periods in courseEarnings)
                 {
                     foreach (var period in periods.Periods)
                     {
                         Assert.That(period.SfaContributionPercentage, Is.EqualTo(sfaContributionPercentage));
+                    }
+                }
+            }
+            else
+            {
+                throw new ReqnrollException("Short course earnings not found");
+            }
+        }
+        private void CheckEmployerTypeChangeContribution(GSLShortCourseEarningsEvent gslShortCourseEvent, decimal nonLevyPercentage, decimal levyPercentage)
+        {
+            var shortCourseEarnings = gslShortCourseEvent.Earnings;
+            if (shortCourseEarnings != null)
+            {
+                var courseEarnings = shortCourseEarnings.ToList();
+
+                Assert.That(courseEarnings.Count, Is.EqualTo(2));
+
+                foreach (var periods in courseEarnings)
+                {
+                    foreach (var period in periods.Periods)
+                    {
+                        if (period.ApprenticeshipEmployerType == ApprenticeshipEmployerType.NonLevy)
+                        {
+                            Assert.That(period.SfaContributionPercentage, Is.EqualTo(nonLevyPercentage));
+                        }
+                        else if (period.ApprenticeshipEmployerType == ApprenticeshipEmployerType.Levy)
+                        {
+                            Assert.That(period.SfaContributionPercentage, Is.EqualTo(levyPercentage));
+                        }
                     }
                 }
             }
