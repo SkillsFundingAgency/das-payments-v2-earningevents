@@ -2,6 +2,7 @@
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.EarningEvents.Specs.Data.Configurations;
 using SFA.DAS.Payments.EarningEvents.Specs.Models;
+using SFA.DAS.Payments.EarningEvents.Data.Configuration;
 using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.Specs.Data;
@@ -32,7 +33,8 @@ public class TestSessionDataContext : DbContext
         modelBuilder.ApplyConfiguration(new ProviderConfiguration());
         modelBuilder.ApplyConfiguration(new PaymentModelConfiguration());
         modelBuilder.ApplyConfiguration(new CollectionPeriodModelConfiguration());
-        modelBuilder.ApplyConfiguration(new GrowthAndSkillsPaymentsConfiguration());
+        modelBuilder.ApplyConfiguration(new GrowthAndSkillsEarningModelConfiguration());
+        modelBuilder.ApplyConfiguration(new GrowthAndSkillsEarningPricePeriodModelConfiguration());
     }
 
     public Provider LeastRecentlyUsed() =>
@@ -48,6 +50,15 @@ public class TestSessionDataContext : DbContext
             delete from Payments2.CollectionPeriod 
         ";
 
+    private const string DeleteGrowthAndSkillsEarningPricePeriods = @"
+            delete from Payments2.GrowthAndSkillsEarningPricePeriod
+        ";
+
+    private const string DeleteGrowthAndSkillsEarnings = @"
+            delete from Payments2.GrowthAndSkillsEarning
+        ";
+
+
     public async Task ClearCollectionPeriodsData(int collectionYear)
     {
         await Database.ExecuteSqlRawAsync(DeleteCollectionPeriodsByYear, collectionYear);
@@ -56,6 +67,12 @@ public class TestSessionDataContext : DbContext
     public async Task ClearCollectionPeriodsData()
     {
         await Database.ExecuteSqlRawAsync(DeleteCollectionPeriods);
+    }
+
+    public async Task ClearGrowthAndSkillsEarningsData()
+    {
+        await Database.ExecuteSqlRawAsync(DeleteGrowthAndSkillsEarningPricePeriods);
+        await Database.ExecuteSqlRawAsync(DeleteGrowthAndSkillsEarnings);
     }
     
 }

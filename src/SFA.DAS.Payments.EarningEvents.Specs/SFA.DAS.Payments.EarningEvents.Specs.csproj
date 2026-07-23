@@ -7,10 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ReqnrollFeatureFile Remove="Features\DAS Earnings Processing.feature" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Bogus" Version="35.6.5" />
 		<PackageReference Include="FluentAssertions" Version="5.9.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
@@ -32,7 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="appSettings.development.json">
+	  <None Update="appSettings.local.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	  <None Update="appSettings.json">
@@ -41,13 +37,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Handlers\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\SFA.DAS.EarningEvents.Model\SFA.DAS.Payments.EarningEvents.Model.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
+	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Data\SFA.DAS.Payments.EarningEvents.Data.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -85,12 +85,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             }
 
             // discard any earning events without earnings
-            var earningsToMove = earningEvents
+            var earningsToRemove = earningEvents
                 .Where(kvp => !kvp.Value.Earnings.Any())
                 .Select(kvp => kvp.Key)
                 .ToList();
 
-            foreach (var earningsKey in earningsToMove)
+            foreach (var earningsKey in earningsToRemove)
             {
                 earningEvents.Remove(earningsKey);
             }

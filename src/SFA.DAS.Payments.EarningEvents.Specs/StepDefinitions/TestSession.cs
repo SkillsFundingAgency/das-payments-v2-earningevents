@@ -18,6 +18,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         public long JobId { get; set; }
         public MessagingContext Pv2MessageContext { get; }
         public MessagingContext DASMessageContext { get; }
+        public MessagingContext DASEarningsReceivedEventContext { get; }
 
 
         public TestSession()
@@ -41,6 +42,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             JobId = GenerateId();
             Pv2MessageContext = new MessagingContext(TestRunBindings.PV2Endpoint);
             DASMessageContext = new MessagingContext(TestRunBindings.DASEndpoint);
+            DASEarningsReceivedEventContext = new MessagingContext(TestRunBindings.DASEarningsReceivedEventEndpoint);
         }
 
         public long GenerateId(int maxValue = 1000000)

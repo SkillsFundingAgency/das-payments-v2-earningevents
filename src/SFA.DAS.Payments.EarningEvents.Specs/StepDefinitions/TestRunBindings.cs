@@ -12,6 +12,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
     {
         public static IEndpointInstance PV2Endpoint { get; private set; }
         public static IEndpointInstance DASEndpoint { get; private set; }
+        public static IEndpointInstance DASEarningsReceivedEventEndpoint { get; private set; }
         public static IConfiguration Config { get; private set; }
 
 
@@ -20,11 +21,12 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         {
             Config = new ConfigurationBuilder()
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appSettings.json"))
-                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appSettings.development.json"), true)
+                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appSettings.local.json"), true)
                 .Build();
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
             DASEndpoint = await CreateEndpoint("DASServiceBusConnectionString", sendOnly: true);
             PV2Endpoint = await CreateEndpoint("ServiceBusConnectionString", sendOnly: false, eventToSubscribeTo: typeof(GSLShortCourseEarningsEvent));
+            DASEarningsReceivedEventEndpoint = await CreateEndpoint("ServiceBusConnectionString", sendOnly: false, eventToSubscribeTo: typeof(DasEarningsReceivedEvent));
         }
 
         public static async Task<IEndpointInstance> CreateEndpoint(string connectionName, bool sendOnly = false, Type eventToSubscribeTo = null)

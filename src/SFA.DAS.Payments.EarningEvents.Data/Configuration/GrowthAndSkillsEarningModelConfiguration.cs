@@ -4,7 +4,7 @@ using SFA.DAS.Payments.EarningEvents.Model;
 
 namespace SFA.DAS.Payments.EarningEvents.Data.Configuration
 {
-    internal class GrowthAndSkillsEarningModelConfiguration : IEntityTypeConfiguration<GrowthAndSkillsEarningModel>
+    public class GrowthAndSkillsEarningModelConfiguration : IEntityTypeConfiguration<GrowthAndSkillsEarningModel>
     {
         public void Configure(EntityTypeBuilder<GrowthAndSkillsEarningModel> builder)
         {
