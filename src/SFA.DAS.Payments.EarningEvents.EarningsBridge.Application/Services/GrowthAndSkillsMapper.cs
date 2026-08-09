@@ -3,12 +3,10 @@ using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
-using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
 using System.Data.SqlTypes;
 using UUIDNext;
 using Common = SFA.DAS.Payments.Model.Core;
-using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EarningPeriod = SFA.DAS.Payments.EarningEvents.Messages.External.EarningPeriod;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.Model.Core.Entities.LearningType;
@@ -20,6 +18,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
 {
     public class GrowthAndSkillsMapper : IGrowthAndSkillsMapper
     {
+        private const int FundingRules2026AgeThreshold = 25;
+        private const decimal DefaultSfaContribution = 0.95m;
+        public static readonly DateTime FundingRules2026EligibilityDate = new(2026, 8, 1);
+
         public GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source)
         {
             return new GrowthAndSkillsEarningModel
@@ -231,7 +233,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                                         TransferSenderAccountId = MapTransferSenderAccountId(period),
                                         ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
                                         Period = period.DeliveryPeriod,
-                                        SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType),
+                                        SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType, source.Training),
                                         ApprenticeshipId = period.LearningId,
                                         PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate)
                                     }
@@ -255,14 +257,31 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             return null;
         }
 
-        private decimal? MapSfaContributionPercentage(EmployerType employerType)
+        private decimal? MapSfaContributionPercentage(EmployerType employerType, Training training)
         {
+            
             if (employerType == EmployerType.NonLevy)
             {
                 return 1m; // 100%
             }
 
-            return 0.95m; // 95% for Levy employers
+            // If the earning event is for a levy employer and the start date is before the 2026 eligibility date, it is not eligible for recalculation.
+            if (training.StartDate < FundingRules2026EligibilityDate)
+            {
+                return DefaultSfaContribution;
+            }
+
+            if (training.StartDate >= FundingRules2026EligibilityDate &&
+                training.AgeAtStartOfTraining < FundingRules2026AgeThreshold)
+            {
+                return 1m; // 100% for Levy employers under 25 years old
+            }
+            if (training.StartDate >= FundingRules2026EligibilityDate &&
+                training.AgeAtStartOfTraining >= FundingRules2026AgeThreshold)
+            {
+                return 0.75m; // 75% for Levy employers 25 years old and above
+            }
+            return DefaultSfaContribution; // 95% for Levy employers
         }
 
         private KeyValuePair<short, GSLShortCourseEarningsEvent> GenerateShortCourseEarningEvent(
