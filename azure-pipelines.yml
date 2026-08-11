@@ -57,19 +57,19 @@ stages:
       ArtifactName: $(ArtifactName)
       Environment: DAS
 
-# - stage: Deploy_DST
-#   dependsOn: Deploy_DAS
-#   displayName: Deploy to DST
-#   variables:
-#   - group: DST das-payments-v2-earningevents
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       ServiceConnection: DCT-VSO
-#       ServiceFabricClusterConnection: DCOL-DST-ServiceFabric-WEU
-#       SolutionBaseName: ${{ variables.SolutionBaseName }}
-#       ArtifactName: $(ArtifactName)
-#       Environment: DST
+- stage: Deploy_DST
+  dependsOn: Deploy_DAS
+  displayName: Deploy to DST
+  variables:
+  - group: DST das-payments-v2-earningevents
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      ServiceConnection: DCT-VSO
+      # ServiceFabricClusterConnection: DCOL-DST-ServiceFabric-WEU
+      SolutionBaseName: ${{ variables.SolutionBaseName }}
+      ArtifactName: $(ArtifactName)
+      Environment: DST
 
 # - stage: Deploy_SIT
 #   dependsOn: Deploy_DST
