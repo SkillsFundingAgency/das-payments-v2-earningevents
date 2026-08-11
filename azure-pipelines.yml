@@ -45,6 +45,7 @@ stages:
 - template: azure-pipelines-templates/deploy/stage/nuget-publish.yml
 
 - stage: Deploy_DAS
+  dependsOn: NuGetPublish
   displayName: Deploy to DAS
   variables:
   - group: DAS das-payments-v2-earningevents
@@ -58,7 +59,7 @@ stages:
       Environment: DAS
 
 - stage: Deploy_DST
-  dependsOn: Deploy_DAS
+  dependsOn: NuGetPublish
   displayName: Deploy to DST
   variables:
   - group: DST das-payments-v2-earningevents
@@ -72,7 +73,7 @@ stages:
       Environment: DST
 
 # - stage: Deploy_SIT
-#   dependsOn: Deploy_DST
+#   dependsOn: NuGetPublish
 #   displayName: Deploy to SIT
 #   variables:
 #   - group: SIT das-payments-v2-earningevents
@@ -86,7 +87,7 @@ stages:
 #       Environment: SIT
 
 # - stage: Deploy_ETE
-#   dependsOn: Deploy_SIT
+#   dependsOn: NuGetPublish
 #   displayName: Deploy to ETE
 #   variables:
 #   - group: ETE das-payments-v2-earningevents
@@ -100,7 +101,7 @@ stages:
 #       Environment: ETE
 
 # - stage: Deploy_MO
-#   dependsOn: Deploy_ETE
+#   dependsOn: NuGetPublish
 #   displayName: Deploy to MO
 #   variables:
 #   - group: MO das-payments-v2-earningevents
@@ -114,7 +115,7 @@ stages:
 #       Environment: MO
 
 # - stage: Deploy_PP
-#   dependsOn: Deploy_MO
+#   dependsOn: NuGetPublish
 #   displayName: Deploy to PP
 #   variables:
 #   - group: PP das-payments-v2-earningevents
@@ -128,7 +129,7 @@ stages:
 #       Environment: PP
 
 # - stage: Deploy_PD
-#   dependsOn: Deploy_PP
+#   dependsOn: NuGetPublish
 #   displayName: Deploy to PD
 #   variables:
 #   - group: PD das-payments-v2-earningevents
