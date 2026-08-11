@@ -15,9 +15,9 @@ variables:
   value: 'EarningBridge'
 - group: Release Management Resources
 - group: RELEASE das-payments-v2-earningevents
-- group: Common - Connection String
-- group: Common -  Storage Account
-- group: DCOL-DST - Environment Key Vault Secrets
+# - group: Common - Connection String
+# - group: Common -  Storage Account
+# - group: DCOL-DST - Environment Key Vault Secrets
 
 resources:
   repositories:
