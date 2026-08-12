@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
-    public interface IGSLApprenticeshipMapper
+    public interface IGSLApprenticeshipsMapper
     {
     }
 }

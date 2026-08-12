@@ -13,7 +13,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
         private ICalculateGSLPaymentsValidator _validator;
         private IGrowthAndSkillsMapper _growthAndSkillsMapper; 
         private IGSLShortCoursesMapper _shortCourseMapper; //temporary dependency before processor factory is implemented
-        private IGSLApprenticeshipMapper _apprenticeshipsMapper; //temporary dependency before processor factory is implemented
+        private IGSLApprenticeshipsMapper _apprenticeshipsMapper; //temporary dependency before processor factory is implemented
         private IEarningsRepository _repository;
         private IGSLEarningsService _gslEarningsService;
         private IPaymentsServiceBusPublisher _publisher;
@@ -24,7 +24,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             ICalculateGSLPaymentsValidator validator,
             IGrowthAndSkillsMapper growthAndSkillsMapper,
             IGSLShortCoursesMapper shortCourseMapper,
-            IGSLApprenticeshipMapper apprenticeshipsMapper,
+            IGSLApprenticeshipsMapper apprenticeshipsMapper,
             IEarningsRepository repository,
             IGSLEarningsService gslEarningsService,
             IPaymentsServiceBusPublisher publisher,

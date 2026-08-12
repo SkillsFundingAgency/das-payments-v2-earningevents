@@ -45,7 +45,7 @@ builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, op
 });
 
 builder.Services.AddScoped<IGrowthAndSkillsMapper, GrowthAndSkillsMapper>();
-builder.Services.AddScoped<IGSLApprenticeshipMapper, GSLApprenticeshipsMapper>();
+builder.Services.AddScoped<IGSLApprenticeshipsMapper, GSLApprenticeshipsMapper>();
 builder.Services.AddScoped<IGSLShortCoursesMapper, GSLShortCoursesMapper>();
 builder.Services.AddScoped<IGSLCalculatePaymentsHandler, GSLCalculatePaymentsHandler>();
 builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsValidator>();
