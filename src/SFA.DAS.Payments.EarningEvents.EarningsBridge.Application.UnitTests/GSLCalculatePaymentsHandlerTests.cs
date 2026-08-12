@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
@@ -26,6 +27,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
         private CalculateGSLPaymentsValidator _validator;
         private GrowthAndSkillsMapper _mapper;
+        private GSLShortCoursesMapper _shortCourseMapper;
+        private Mock<IGSLApprenticeshipMapper> _apprenticeshipsMapper; 
         private Mock<IEarningsRepository> _repository;
         private Mock<IPaymentsServiceBusPublisher> _publisher;
         private Mock<IGSLEarningsService> _gslService;
@@ -97,6 +100,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             _validator = new CalculateGSLPaymentsValidator();
             _mapper = new GrowthAndSkillsMapper();
+            _shortCourseMapper = new GSLShortCoursesMapper();
+            _apprenticeshipsMapper = new Mock<IGSLApprenticeshipMapper>();
             _repository = new Mock<IEarningsRepository>();
             _publisher = new Mock<IPaymentsServiceBusPublisher>();
             _collectionPeriodService = new Mock<ICollectionPeriodService>();
@@ -122,7 +127,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         {
             // Arrange
             _message.UKPRN = 0;
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object, 
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object, 
                                                           _collectionPeriodService.Object, _logger.Object);
             
             // Act 
@@ -152,7 +157,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         public async Task Earnings_are_sent_to_service_bus_and_stored_to_database_cache()
         {
             // Arrange          
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object, 
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object, 
                                                           _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -175,7 +180,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _message.Earnings.ToList()[0].AcademicYear = 2425;
             var collectionPeriods = new List<CollectionPeriodModel>();
             _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -263,7 +268,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 }
             };
 
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -371,7 +376,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             };
             _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
 
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
             
             // Act
@@ -407,7 +412,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             _message.EarningsId = oldGuid;
 
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -436,7 +441,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             _message.EarningsId = newGuid;
 
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -456,7 +461,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Throws(new Exception("Database error"));
 
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             // Act
@@ -476,7 +481,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var firstEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
             var secondEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
             var events = new List<GSLShortCourseEarningsEvent>();
-            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _shortCourseMapper, _apprenticeshipsMapper.Object, _repository.Object, _gslService.Object, _publisher.Object,
                 _collectionPeriodService.Object, _logger.Object);
 
             _publisher.Setup(x => x.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()))

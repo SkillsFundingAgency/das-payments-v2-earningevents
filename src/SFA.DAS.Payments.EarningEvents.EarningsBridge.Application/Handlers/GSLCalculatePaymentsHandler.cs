@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
@@ -10,7 +11,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
     public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
-        private IGrowthAndSkillsMapper _mapper;
+        private IGrowthAndSkillsMapper _growthAndSkillsMapper; 
+        private IGSLShortCoursesMapper _shortCourseMapper; //temporary dependency before processor factory is implemented
+        private IGSLApprenticeshipMapper _apprenticeshipsMapper; //temporary dependency before processor factory is implemented
         private IEarningsRepository _repository;
         private IGSLEarningsService _gslEarningsService;
         private IPaymentsServiceBusPublisher _publisher;
@@ -19,7 +22,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
         public GSLCalculatePaymentsHandler(
             ICalculateGSLPaymentsValidator validator,
-            IGrowthAndSkillsMapper mapper,
+            IGrowthAndSkillsMapper growthAndSkillsMapper,
+            IGSLShortCoursesMapper shortCourseMapper,
+            IGSLApprenticeshipMapper apprenticeshipsMapper,
             IEarningsRepository repository,
             IGSLEarningsService gslEarningsService,
             IPaymentsServiceBusPublisher publisher,
@@ -27,7 +32,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             ILogger<GSLCalculatePaymentsHandler> logger)
         {
             _validator = validator;
-            _mapper = mapper;
+            _growthAndSkillsMapper = growthAndSkillsMapper;
+            _shortCourseMapper = shortCourseMapper;
+            _apprenticeshipsMapper = apprenticeshipsMapper;
             _repository = repository;
             _gslEarningsService = gslEarningsService;
             _publisher = publisher;
@@ -72,7 +79,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             }
 
 
-            var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
+            var growthAndSkillsEarningModel = _growthAndSkillsMapper.MapToGrowthAndSkillsEarningModel(message);
 
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
@@ -90,9 +97,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 }
             }
 
-            var requiredPaymentsEvents = _mapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
+            var requiredPaymentsEvents = _shortCourseMapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
 
-            var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
+            var fundingSourceEvents = _growthAndSkillsMapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
 
 
             foreach (var requiredPaymentsEvent in requiredPaymentsEvents)
