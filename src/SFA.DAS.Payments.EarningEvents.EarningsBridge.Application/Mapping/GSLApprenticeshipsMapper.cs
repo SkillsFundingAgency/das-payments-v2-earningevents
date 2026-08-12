@@ -1,12 +1,182 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
+using System.Data.SqlTypes;
+using SFA.DAS.Payments.EarningEvents.Messages.Events;
+using SFA.DAS.Payments.EarningEvents.Messages.External;
+using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.Model;
+using SFA.DAS.Payments.Model.Core.Entities;
+using SFA.DAS.Payments.Model.Core.OnProgramme;
+using SFA.DAS.Payments.Model.Core.Incentives;
+using UUIDNext;
+using Common = SFA.DAS.Payments.Model.Core;
+using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
+using LearningType = SFA.DAS.Payments.Model.Core.Entities.LearningType;
+using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
+using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
     public class GSLApprenticeshipsMapper : GrowthAndSkillsMapper, IGSLApprenticeshipsMapper
     {
+        public IEnumerable<GSLApprenticeshipEarningsEvent> MapToApprenticeshipEarningEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
+        {
+            var earningEvents = new Dictionary<short, GSLApprenticeshipEarningsEvent>();
+            var collectionPeriods = openCollectionPeriods
+                .GroupBy(x => x.AcademicYear)
+                .ToDictionary(x => x.Key, x => x.First()); // shouldn't have duplicates
+
+            var earnings = source.Earnings.Where(e => collectionPeriods.ContainsKey(e.AcademicYear)).ToList();
+
+            //Generate blank earning event for each open collection period
+            if (!earnings.Any())
+            {
+                foreach (var collectionPeriod in collectionPeriods)
+                {
+                    var earningEvent = GenerateApprenticeshipEarningEvent(source, collectionPeriod.Key, openCollectionPeriods);
+                    earningEvents.Add(earningEvent.Key, earningEvent.Value);
+                }
+                return earningEvents.Values.ToList();
+            }
+
+            foreach (var earning in earnings)
+            {
+                if (!earningEvents.ContainsKey(earning.AcademicYear))
+                {
+                    var earningEvent = GenerateApprenticeshipEarningEvent(source, earning.AcademicYear, openCollectionPeriods);
+                    earningEvents.Add(earningEvent.Key, earningEvent.Value);
+                }
+            }
+
+            foreach (var collectionPeriod in openCollectionPeriods)
+            {
+                if (earningEvents.ContainsKey(collectionPeriod.AcademicYear))
+                {
+                    earningEvents[collectionPeriod.AcademicYear].OnProgrammeEarnings = MapToOnProgrammeEarnings(source, collectionPeriod.AcademicYear);
+                    earningEvents[collectionPeriod.AcademicYear].IncentiveEarnings = new List<IncentiveEarning>();
+                    earningEvents[collectionPeriod.AcademicYear].PriceEpisodes = MapToEarningEventPriceEpisodes(source, collectionPeriod.AcademicYear);
+                    earningEvents[collectionPeriod.AcademicYear].SfaContributionPercentage = MapPrimarySfaContributionPercentage(source, collectionPeriod.AcademicYear);
+                }
+            }
+
+            return earningEvents.Values.ToList();
+        }
+
+        private List<Common.PriceEpisode> MapToEarningEventPriceEpisodes(CalculateGrowthAndSkillsPayments source, short academicYear)
+        {
+            var priceEpisodes = new List<Common.PriceEpisode>();
+            foreach (var earning in source.Earnings.Where(x => x.AcademicYear == academicYear))
+                foreach (var pricePeriod in earning.PricePeriods)
+                    priceEpisodes.Add(new Common.PriceEpisode
+                    {
+                        Identifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate),
+                        AgreedPrice = pricePeriod.Price,
+                        CourseStartDate = source.Training.StartDate,
+                        StartDate = pricePeriod.StartDate,
+                        EffectiveTotalNegotiatedPriceStartDate = pricePeriod.StartDate,
+                        PlannedEndDate = source.Training.PlannedEndDate,
+                        ActualEndDate = source.Training.ActualEndDate,
+                        NumberOfInstalments = pricePeriod.NumberOfInstalments,
+                        InstalmentAmount = pricePeriod.InstalmentAmount,
+                        CompletionAmount = pricePeriod.CompletionAmount,
+                        Completed = (source.Training.TrainingStatus == TrainingStatus.Completed),
+                        FundingLineType = ""
+                    });
+            return priceEpisodes;
+        }
+
+        private List<OnProgrammeEarning> MapToOnProgrammeEarnings(CalculateGrowthAndSkillsPayments source, short academicYear)
+        {
+            // Only the Learning earning type is in scope; Completion, Balancing and incentive/additional payments are handled by future tickets.
+            var learningPeriods = new List<Common.EarningPeriod>();
+
+            foreach (var earning in source.Earnings.Where(x => x.AcademicYear == academicYear))
+                foreach (var pricePeriod in earning.PricePeriods)
+                    foreach (var period in pricePeriod.Periods.Where(p => p.EarningType == EarningType.Learning))
+                        learningPeriods.Add(new Common.EarningPeriod
+                        {
+                            PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate),
+                            Period = period.DeliveryPeriod,
+                            Amount = period.Amount,
+                            AccountId = period.Employer.AccountId,
+                            ApprenticeshipId = period.LearningId,
+                            ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
+                            SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType),
+                            TransferSenderAccountId = MapTransferSenderAccountId(period)
+                        });
+
+            if (!learningPeriods.Any())
+            {
+                return new List<OnProgrammeEarning>();
+            }
+
+            return new List<OnProgrammeEarning>
+            {
+                new OnProgrammeEarning
+                {
+                    Type = OnProgrammeEarningType.Learning,
+                    Periods = new ReadOnlyCollection<Common.EarningPeriod>(learningPeriods)
+                }
+            };
+        }
+
+        private decimal MapPrimarySfaContributionPercentage(CalculateGrowthAndSkillsPayments source, short academicYear)
+        {
+            var firstEmployerType = source.Earnings
+                .Where(x => x.AcademicYear == academicYear)
+                .SelectMany(x => x.PricePeriods)
+                .SelectMany(x => x.Periods)
+                .Select(x => (EmployerType?)x.Employer.EmployerType)
+                .FirstOrDefault();
+
+            return MapSfaContributionPercentage(firstEmployerType ?? EmployerType.Levy) ?? 1m;
+        }
+
+        private string BuildPriceEpisodeIdentifier(Training training, DateTime startDate) => $"{training.CourseCode}-{startDate}";
+
+        private decimal? MapSfaContributionPercentage(EmployerType employerType) =>
+            employerType == EmployerType.NonLevy ? 1m : 0.95m;
+
+        private KeyValuePair<short, GSLApprenticeshipEarningsEvent> GenerateApprenticeshipEarningEvent(
+            CalculateGrowthAndSkillsPayments source, short earningYear, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
+        {
+            return new KeyValuePair<short, GSLApprenticeshipEarningsEvent>
+            (
+                earningYear, new GSLApprenticeshipEarningsEvent
+                {
+                    JobId = 0,
+                    EventTime = DateTimeOffset.UtcNow,
+                    EventId = Uuid.NewDatabaseFriendly(Database.SqlServer),
+                    ExternalEarningsId = source.EarningsId,
+                    Ukprn = source.UKPRN,
+                    ContractType = ContractType.Act1,
+                    Learner = new Common.Learner { ReferenceNumber = source.Learner.Reference, Uln = source.Learner.ULN },
+                    LearningAim = new Common.LearningAim
+                    {
+                        Reference = source.Training.CourseReference,
+                        ProgrammeType = 0,
+                        StandardCode = 0,
+                        CourseCode = source.Training.CourseCode,
+                        FrameworkCode = 0,
+                        PathwayCode = 0,
+                        FundingLineType = "",
+                        SequenceNumber = 0,
+                        StartDate = source.Training.StartDate,
+                        LearningType = (LearningType)source.Training.LearningType
+                    },
+                    CollectionPeriod = new Common.CollectionPeriod
+                    {
+                        AcademicYear = earningYear,
+                        Period = openCollectionPeriods.First(x => x.AcademicYear == earningYear).Period
+                    },
+                    AgeAtStartOfLearning = source.Training.AgeAtStartOfTraining,
+                    FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService,
+                    IlrSubmissionDateTime = SqlDateTime.MinValue.Value,
+                    StartDate = source.Training.StartDate,
+                    SfaContributionPercentage = 1m,
+                    OnProgrammeEarnings = new List<OnProgrammeEarning>(),
+                    IncentiveEarnings = new List<IncentiveEarning>(),
+                    PriceEpisodes = new List<Common.PriceEpisode>()
+                });
+        }
     }
 }
