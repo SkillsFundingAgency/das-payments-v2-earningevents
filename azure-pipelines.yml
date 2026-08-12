@@ -86,19 +86,19 @@ stages:
       ArtifactName: $(ArtifactName)
       Environment: SIT
 
-# - stage: Deploy_ETE
-#   dependsOn: NuGetPublish
-#   displayName: Deploy to ETE
-#   variables:
-#   - group: ETE das-payments-v2-earningevents
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       ServiceConnection: DCT-VSO
-#       ServiceFabricClusterConnection: DCOL-ETE-ServiceFabric-WEU
-#       SolutionBaseName: ${{ variables.SolutionBaseName }}
-#       ArtifactName: $(ArtifactName)
-#       Environment: ETE
+- stage: Deploy_ETE
+  dependsOn: NuGetPublish
+  displayName: Deploy to ETE
+  variables:
+  - group: ETE das-payments-v2-earningevents
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      ServiceConnection: DCT-VSO
+      # ServiceFabricClusterConnection: DCOL-ETE-ServiceFabric-WEU
+      SolutionBaseName: ${{ variables.SolutionBaseName }}
+      ArtifactName: $(ArtifactName)
+      Environment: ETE
 
 # - stage: Deploy_MO
 #   dependsOn: NuGetPublish
