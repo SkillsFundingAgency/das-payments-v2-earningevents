@@ -72,19 +72,19 @@ stages:
       ArtifactName: $(ArtifactName)
       Environment: DST
 
-# - stage: Deploy_SIT
-#   dependsOn: NuGetPublish
-#   displayName: Deploy to SIT
-#   variables:
-#   - group: SIT das-payments-v2-earningevents
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       ServiceConnection: DCT-VSO
-#       ServiceFabricClusterConnection: DCOL-SIT-ServiceFabric-WEU
-#       SolutionBaseName: ${{ variables.SolutionBaseName }}
-#       ArtifactName: $(ArtifactName)
-#       Environment: SIT
+- stage: Deploy_SIT
+  dependsOn: NuGetPublish
+  displayName: Deploy to SIT
+  variables:
+  - group: SIT das-payments-v2-earningevents
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      ServiceConnection: DCT-VSO
+      # ServiceFabricClusterConnection: DCOL-SIT-ServiceFabric-WEU
+      SolutionBaseName: ${{ variables.SolutionBaseName }}
+      ArtifactName: $(ArtifactName)
+      Environment: SIT
 
 # - stage: Deploy_ETE
 #   dependsOn: NuGetPublish

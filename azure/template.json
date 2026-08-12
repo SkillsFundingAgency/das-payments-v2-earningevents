@@ -82,7 +82,7 @@
     "deploymentStorageContainerUri": "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/', parameters('deploymentContainerName'))]",
     "vnetName": "[concat('DCOL-', parameters('environmentName'), '-VNET-WEU')]",
     "functionAppSubnetId": "[resourceId(variables('vnetName'), 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'DCOL-FunctionApp-Integration-Subnet')]",
-    "defaultAppSettings": [
+    "appSettings": [
       {
         "name": "AzureWebJobsStorage",
         "value": "[parameters('azureWebJobsStorage')]"
@@ -110,9 +110,7 @@
       {
         "name": "ApplicationInsightsInstrumentationKey",
         "value": "[parameters('applicationInsightsInstrumentationKey')]"
-      }
-    ],
-    "additionalAppSettings": [
+      },
       {
         "name": "CollectionPeriodApiKey",
         "value": "[parameters('collectionPeriodApiKey')]"
@@ -141,8 +139,7 @@
         "name": "DcEarnings2627ConnectionString",
         "value": "[parameters('dcEarnings2627ConnectionString')]"
       }
-    ],
-    "appSettings": "[concat(variables('defaultAppSettings'), variables('additionalAppSettings'))]"
+    ]
   },
   "resources": [
     {
