@@ -64,7 +64,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 }
                 return earningEvents.Values.ToList();
             }
- 
+
+            //Generate earning events to be populated with earnings and price episodes
             foreach (var earning in earnings)
             {
                 if (!earningEvents.ContainsKey(earning.AcademicYear))
@@ -78,14 +79,25 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             {
                 if (earningEvents.ContainsKey(collectionPeriod.AcademicYear))
                 {
-                    earningEvents[collectionPeriod.AcademicYear].Earnings = MapToEarnings(source, collectionPeriod.AcademicYear);
+                    earningEvents[collectionPeriod.AcademicYear].Earnings = MapToEarnings(source, collectionPeriod);
                     earningEvents[collectionPeriod.AcademicYear].PriceEpisodes = MapToEarningEventPriceEpisodes(source, collectionPeriod.AcademicYear);
                 }
             }
 
+            // discard any earning events without earnings
+            var earningsToRemove = earningEvents
+                .Where(kvp => !kvp.Value.Earnings.Any())
+                .Select(kvp => kvp.Key)
+                .ToList();
+
+            foreach (var earningsKey in earningsToRemove)
+            {
+                earningEvents.Remove(earningsKey);
+            }
+
             return earningEvents.Values.ToList();
         }
-        
+
         public IEnumerable<CollectionPeriodModel> MapCollectionYearToCollectionPeriodModels(CollectionYear collectionYear)
         {
             var collectionPeriodModels = new List<CollectionPeriodModel>();
@@ -209,15 +221,15 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             return $"{training.CourseCode}-{startDate}";
         }
 
-        private IEnumerable<ShortCourseEarning> MapToEarnings(CalculateGrowthAndSkillsPayments source, short academicYear)
+        private IEnumerable<ShortCourseEarning> MapToEarnings(CalculateGrowthAndSkillsPayments source, CollectionPeriodModel collectionPeriod)
         {
             var shortCourseEarnings = new List<ShortCourseEarning>();
 
-            foreach (var earning in source.Earnings.Where(x => x.AcademicYear == academicYear))
+            foreach (var earning in source.Earnings.Where(x => x.AcademicYear == collectionPeriod.AcademicYear))
             {
                 foreach (var pricePeriod in earning.PricePeriods)
                 {
-                    foreach (var period in pricePeriod.Periods)
+                    foreach (var period in pricePeriod.Periods.Where(x => x.DeliveryPeriod <= collectionPeriod.Period))
                     {
                         shortCourseEarnings.Add(new ShortCourseEarning
                         {
@@ -236,7 +248,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                                         PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate)
                                     }
                                 }
-                            }
+                        }
                         );
                     }
                 }
@@ -310,4 +322,3 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
         }
     }
 }
-

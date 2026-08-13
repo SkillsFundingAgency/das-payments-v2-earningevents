@@ -18,6 +18,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         public long JobId { get; set; }
         public MessagingContext Pv2MessageContext { get; }
         public MessagingContext DASMessageContext { get; }
+        public MessagingContext DASEarningsReceivedEventContext { get; }
 
 
         public TestSession()
@@ -41,6 +42,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             JobId = GenerateId();
             Pv2MessageContext = new MessagingContext(TestRunBindings.PV2Endpoint);
             DASMessageContext = new MessagingContext(TestRunBindings.DASEndpoint);
+            DASEarningsReceivedEventContext = new MessagingContext(TestRunBindings.DASEarningsReceivedEventEndpoint);
         }
 
         public long GenerateId(int maxValue = 1000000)
@@ -112,6 +114,28 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 await Task.Delay(TimeToPause);
             }
             Assert.Fail($"{failText}  Time: {DateTime.Now:G}.  Ukprn: {Provider.Ukprn}. Job Id: {JobId}");
+        }
+
+        public async Task WaitForItAndFail(Func<bool> lookForIt, string failText)
+        {
+            var endTime = DateTime.Now.Add(TimeToWait);
+            var lastRun = false;
+
+            while (DateTime.Now < endTime || lastRun)
+            {
+                if (lookForIt())
+                {
+                    if (lastRun) return;
+                    lastRun = true;
+                    Assert.Fail($"{failText}  Time: {DateTime.Now:G}.  Ukprn: {Provider.Ukprn}. Job Id: {JobId}");
+                }
+                else
+                {
+                    if (lastRun) break;
+                }
+
+                await Task.Delay(TimeToPause);
+            }
         }
     }
 }
