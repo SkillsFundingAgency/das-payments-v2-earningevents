@@ -1,6 +1,6 @@
 parameters:
   TargetProjects: 'src/**/*.csproj'
-  
+
 jobs:
 - job: CodeBuild
   pool:
@@ -44,7 +44,7 @@ jobs:
       createLogFile: true
       continueOnError: true
       clean: true
-      
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build UnitTest Projects'
     inputs:
@@ -75,7 +75,7 @@ jobs:
     inputs:
       projects: src/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function/SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.csproj
       arguments: '--configuration $(BuildConfiguration)'
-  
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet publish'
     inputs:
@@ -84,7 +84,7 @@ jobs:
       projects: src/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function/SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.csproj
       arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\EarningBridge'
       modifyOutputPath: false
-  
+
   - task: PublishPipelineArtifact@1
     displayName: 'Publish Pipeline Artifact'
     inputs:
@@ -110,14 +110,14 @@ jobs:
     displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
     inputs:
       Contents: |
-        pipeline-templates/scripts/**    
+        pipeline-templates/scripts/**
       TargetFolder: '$(build.artifactstagingdirectory)/publish'
       OverWrite: true
       CleanTargetFolder: true
-      flattenFolders: true  
+      flattenFolders: true
       continueOnError: true
 
-  - task: CopyFiles@2 
+  - task: CopyFiles@2
     displayName: 'Copy Nuget Files to: Artifact Nuget Directory'
     inputs:
      Contents: |
@@ -163,4 +163,3 @@ jobs:
         src/SFA.DAS.Payments.EarningEvents.Messages/SFA.DAS.Payments.EarningEvents.Messages.csproj;
         src/SFA.DAS.Payments.EarningEvents.Messages.Internal/SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj;
         src/SFA.DAS.Payments.EarningEvents.Messages.External/SFA.DAS.Payments.EarningEvents.Messages.External.csproj;
-        
