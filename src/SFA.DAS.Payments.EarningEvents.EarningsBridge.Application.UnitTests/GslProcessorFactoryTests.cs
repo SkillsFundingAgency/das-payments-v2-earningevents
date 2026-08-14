@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
@@ -14,6 +15,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private GslProcessorFactory _sut;
         private GslApprenticeshipPaymentsProcessor _apprenticeshipProcessor;
         private GslShortCoursePaymentsProcessor _shortCourseProcessor;
+        private Mock<IServiceProvider> _serviceProvider;
 
         [SetUp]
         public void SetUp()
@@ -26,7 +28,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Mock.Of<IGslShortCoursesMapper>(),
                 Mock.Of<IPaymentsServiceBusPublisher>()).Object;
 
-            _sut = new GslProcessorFactory(_apprenticeshipProcessor, _shortCourseProcessor);
+            _serviceProvider = new Mock<IServiceProvider>();
+
+            _serviceProvider
+                .Setup(x => x.GetService(typeof(GslApprenticeshipPaymentsProcessor)))
+                .Returns(_apprenticeshipProcessor);
+
+            _serviceProvider
+                .Setup(x => x.GetService(typeof(GslShortCoursePaymentsProcessor)))
+                .Returns(_shortCourseProcessor);
+
+            _sut = new GslProcessorFactory(_serviceProvider.Object);
         }
 
         [Test]
