@@ -9,5 +9,6 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.Events
         public Guid ExternalEarningsId { get; set; }
         public ContractType ContractType { get; set; }
         public FundingPlatformType FundingPlatformType { get; set; }
+        public string AgreementId { get; set; }
     }
 }
