@@ -8,7 +8,6 @@ using SFA.DAS.Payments.Model.Core.OnProgramme;
 using SFA.DAS.Payments.Model.Core.Incentives;
 using UUIDNext;
 using Common = SFA.DAS.Payments.Model.Core;
-using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.Model.Core.Entities.LearningType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
@@ -17,6 +16,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
     public class GSLApprenticeshipsMapper : GrowthAndSkillsMapper, IGSLApprenticeshipsMapper
     {
+        private const int FundingRules2024AgeThreshold = 22;
+        private const int FundingRules2026AgeThreshold = 25;
+        private const decimal DefaultSfaContribution = 0.95m;
+        private static readonly DateTime FundingRules2024EligibilityDate = new(2024, 4, 1);
+        private static readonly DateTime FundingRules2026EligibilityDate = new(2026, 8, 1);
+
         public IEnumerable<GSLApprenticeshipEarningsEvent> MapToApprenticeshipEarningEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
         {
             var earningEvents = new Dictionary<short, GSLApprenticeshipEarningsEvent>();
@@ -53,7 +58,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                     earningEvents[collectionPeriod.AcademicYear].OnProgrammeEarnings = MapToOnProgrammeEarnings(source, collectionPeriod.AcademicYear);
                     earningEvents[collectionPeriod.AcademicYear].IncentiveEarnings = new List<IncentiveEarning>();
                     earningEvents[collectionPeriod.AcademicYear].PriceEpisodes = MapToEarningEventPriceEpisodes(source, collectionPeriod.AcademicYear);
-                    earningEvents[collectionPeriod.AcademicYear].SfaContributionPercentage = MapPrimarySfaContributionPercentage(source, collectionPeriod.AcademicYear);
                 }
             }
 
@@ -99,7 +103,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                             AccountId = period.Employer.AccountId,
                             ApprenticeshipId = period.LearningId,
                             ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
-                            SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType),
+                            SfaContributionPercentage = CalculateSfaContributionPercentage(source.Training, (ApprenticeshipEmployerType)period.Employer.EmployerType),
                             TransferSenderAccountId = MapTransferSenderAccountId(period)
                         });
 
@@ -118,22 +122,38 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
             };
         }
 
-        private decimal MapPrimarySfaContributionPercentage(CalculateGrowthAndSkillsPayments source, short academicYear)
-        {
-            var firstEmployerType = source.Earnings
-                .Where(x => x.AcademicYear == academicYear)
-                .SelectMany(x => x.PricePeriods)
-                .SelectMany(x => x.Periods)
-                .Select(x => (EmployerType?)x.Employer.EmployerType)
-                .FirstOrDefault();
-
-            return MapSfaContributionPercentage(firstEmployerType ?? EmployerType.Levy) ?? 1m;
-        }
-
         private string BuildPriceEpisodeIdentifier(Training training, DateTime startDate) => $"{training.CourseCode}-{startDate}";
 
-        private decimal? MapSfaContributionPercentage(EmployerType employerType) =>
-            employerType == EmployerType.NonLevy ? 1m : 0.95m;
+        private decimal CalculateSfaContributionPercentage(Training training, ApprenticeshipEmployerType employerType)
+        {
+            int ageAtStartOfLearning = training.AgeAtStartOfTraining;
+            var startDate = training.StartDate;
+
+            // Levy employers on earnings that started before the 2026 funding rules aren't eligible for recalculation.
+            if (startDate < FundingRules2026EligibilityDate && employerType == ApprenticeshipEmployerType.Levy)
+            {
+                return DefaultSfaContribution;
+            }
+
+            var meets2024FullEligibilityCriteria = startDate >= FundingRules2024EligibilityDate
+                                                    && ageAtStartOfLearning < FundingRules2024AgeThreshold;
+
+            var meets2026FullEligibilityCriteria = startDate >= FundingRules2026EligibilityDate
+                                                    && ageAtStartOfLearning < FundingRules2026AgeThreshold;
+
+            if (meets2024FullEligibilityCriteria || meets2026FullEligibilityCriteria)
+            {
+                return 1m;
+            }
+
+            if (startDate >= FundingRules2026EligibilityDate && ageAtStartOfLearning >= FundingRules2026AgeThreshold
+                                                              && employerType == ApprenticeshipEmployerType.Levy)
+            {
+                return 0.75m;
+            }
+
+            return DefaultSfaContribution;
+        }
 
         private KeyValuePair<short, GSLApprenticeshipEarningsEvent> GenerateApprenticeshipEarningEvent(
             CalculateGrowthAndSkillsPayments source, short earningYear, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
