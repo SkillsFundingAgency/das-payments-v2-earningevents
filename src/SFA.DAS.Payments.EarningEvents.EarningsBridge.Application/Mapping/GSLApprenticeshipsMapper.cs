@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
-    public class GSLApprenticeshipsMapper : GrowthAndSkillsMapper, IGSLApprenticeshipsMapper
+    public class GslApprenticeshipsMapper : GrowthAndSkillsMapper, IGslApprenticeshipsMapper
     {
+
     }
 }
