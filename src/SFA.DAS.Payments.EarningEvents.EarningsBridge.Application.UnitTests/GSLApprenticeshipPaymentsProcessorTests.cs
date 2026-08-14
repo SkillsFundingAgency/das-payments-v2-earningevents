@@ -16,7 +16,7 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     [TestFixture]
-    public class GSLApprenticeshipPaymentsProcessorTests
+    public class GslApprenticeshipPaymentsProcessorTests
     {
         private CalculateGrowthAndSkillsPayments _message;
         private List<CollectionPeriodModel> _openCollectionPeriods;
