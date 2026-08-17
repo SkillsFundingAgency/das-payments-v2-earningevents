@@ -8,7 +8,9 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.Payments.EarningEvents.Data;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructure.Configuration;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
@@ -44,9 +46,16 @@ builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, op
 });
 
 builder.Services.AddScoped<IGrowthAndSkillsMapper, GrowthAndSkillsMapper>();
-builder.Services.AddScoped<IGSLCalculatePaymentsHandler, GSLCalculatePaymentsHandler>();
+builder.Services.AddScoped<IGslApprenticeshipsMapper, GslApprenticeshipsMapper>();
+builder.Services.AddScoped<IGslShortCoursesMapper, GslShortCoursesMapper>();
+builder.Services.AddScoped<IGslCalculatePaymentsHandler, GslCalculatePaymentsHandler>();
 builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsValidator>();
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
+builder.Services.AddScoped<GslApprenticeshipPaymentsProcessor>();
+builder.Services.AddScoped<GslShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<IGslProcessor,GslApprenticeshipPaymentsProcessor>();
+builder.Services.AddScoped<IGslProcessor, GslShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<IGslProcessorFactory, GslProcessorFactory>();
 
 
 builder.Services.AddHttpClient<ICollectionPeriodApiClient, CollectionPeriodApiClient>((sp, client) =>
