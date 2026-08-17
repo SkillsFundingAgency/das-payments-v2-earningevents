@@ -51,6 +51,8 @@ builder.Services.AddScoped<IGslShortCoursesMapper, GslShortCoursesMapper>();
 builder.Services.AddScoped<IGslCalculatePaymentsHandler, GslCalculatePaymentsHandler>();
 builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsValidator>();
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
+builder.Services.AddScoped<GslApprenticeshipPaymentsProcessor>();
+builder.Services.AddScoped<GslShortCoursePaymentsProcessor>();
 builder.Services.AddScoped<IGslProcessor,GslApprenticeshipPaymentsProcessor>();
 builder.Services.AddScoped<IGslProcessor, GslShortCoursePaymentsProcessor>();
 builder.Services.AddScoped<IGslProcessorFactory, GslProcessorFactory>();
