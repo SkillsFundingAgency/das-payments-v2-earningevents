@@ -16,6 +16,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
     public class GSLApprenticeshipsMapper : GrowthAndSkillsMapper, IGSLApprenticeshipsMapper
     {
+        private const int ApprenticeshipFundingAge19 = 19;
+        private const string FundingLineType16To18 = "16-18 Apprenticeship (Employer on App Service)";
+        private const string FundingLineType19Plus = "19+ Apprenticeship (Employer on App Service)";
         private const int FundingRules2024AgeThreshold = 22;
         private const int FundingRules2026AgeThreshold = 25;
         private const decimal DefaultSfaContribution = 0.95m;
@@ -82,7 +85,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                         InstalmentAmount = pricePeriod.InstalmentAmount,
                         CompletionAmount = pricePeriod.CompletionAmount,
                         Completed = (source.Training.TrainingStatus == TrainingStatus.Completed),
-                        FundingLineType = ""
+                        FundingLineType = MapFundingLineTypeForApprenticeship(source.Training.AgeAtStartOfTraining)
                     });
             return priceEpisodes;
         }
@@ -155,6 +158,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
             return DefaultSfaContribution;
         }
 
+        private static string MapFundingLineTypeForApprenticeship(int ageAtStartOfTraining)
+        {
+            return ageAtStartOfTraining < ApprenticeshipFundingAge19
+                ? FundingLineType16To18
+                : FundingLineType19Plus;
+        }
+
         private KeyValuePair<short, GSLApprenticeshipEarningsEvent> GenerateApprenticeshipEarningEvent(
             CalculateGrowthAndSkillsPayments source, short earningYear, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
         {
@@ -177,7 +187,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                         CourseCode = source.Training.CourseCode,
                         FrameworkCode = 0,
                         PathwayCode = 0,
-                        FundingLineType = "",
+                        FundingLineType = MapFundingLineTypeForApprenticeship(source.Training.AgeAtStartOfTraining),
                         SequenceNumber = 0,
                         StartDate = source.Training.StartDate,
                         LearningType = (LearningType)source.Training.LearningType
