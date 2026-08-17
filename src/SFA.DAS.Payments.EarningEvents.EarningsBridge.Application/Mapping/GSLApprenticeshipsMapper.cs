@@ -19,11 +19,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
         private const int ApprenticeshipFundingAge19 = 19;
         private const string FundingLineType16To18 = "16-18 Apprenticeship (Employer on App Service)";
         private const string FundingLineType19Plus = "19+ Apprenticeship (Employer on App Service)";
-        private const int FundingRules2024AgeThreshold = 22;
         private const int FundingRules2026AgeThreshold = 25;
         private const decimal DefaultSfaContribution = 0.95m;
-        private static readonly DateTime FundingRules2024EligibilityDate = new(2024, 4, 1);
-        private static readonly DateTime FundingRules2026EligibilityDate = new(2026, 8, 1);
 
         public IEnumerable<GSLApprenticeshipEarningsEvent> MapToApprenticeshipEarningEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
         {
@@ -130,27 +127,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
         private decimal CalculateSfaContributionPercentage(Training training, ApprenticeshipEmployerType employerType)
         {
             int ageAtStartOfLearning = training.AgeAtStartOfTraining;
-            var startDate = training.StartDate;
 
-            // Levy employers on earnings that started before the 2026 funding rules aren't eligible for recalculation.
-            if (startDate < FundingRules2026EligibilityDate && employerType == ApprenticeshipEmployerType.Levy)
-            {
-                return DefaultSfaContribution;
-            }
-
-            var meets2024FullEligibilityCriteria = startDate >= FundingRules2024EligibilityDate
-                                                    && ageAtStartOfLearning < FundingRules2024AgeThreshold;
-
-            var meets2026FullEligibilityCriteria = startDate >= FundingRules2026EligibilityDate
-                                                    && ageAtStartOfLearning < FundingRules2026AgeThreshold;
-
-            if (meets2024FullEligibilityCriteria || meets2026FullEligibilityCriteria)
+            if (ageAtStartOfLearning < FundingRules2026AgeThreshold)
             {
                 return 1m;
             }
 
-            if (startDate >= FundingRules2026EligibilityDate && ageAtStartOfLearning >= FundingRules2026AgeThreshold
-                                                              && employerType == ApprenticeshipEmployerType.Levy)
+            if (employerType == ApprenticeshipEmployerType.Levy)
             {
                 return 0.75m;
             }
