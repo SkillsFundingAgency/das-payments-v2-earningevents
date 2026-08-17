@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
@@ -8,37 +9,31 @@ using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
-    public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
+    public class GslCalculatePaymentsHandler : IGslCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
         private IGrowthAndSkillsMapper _growthAndSkillsMapper; 
-        private IGSLShortCoursesMapper _shortCourseMapper; //temporary dependency before processor factory is implemented
-        private IGSLApprenticeshipsMapper _apprenticeshipsMapper; //temporary dependency before processor factory is implemented
         private IEarningsRepository _repository;
         private IGSLEarningsService _gslEarningsService;
-        private IPaymentsServiceBusPublisher _publisher;
         private ICollectionPeriodService _collectionPeriodService;
-        private ILogger<GSLCalculatePaymentsHandler> _logger;
+        private IGslProcessorFactory _gslProcessorFactory;
+        private ILogger<GslCalculatePaymentsHandler> _logger;
 
-        public GSLCalculatePaymentsHandler(
+        public GslCalculatePaymentsHandler(
             ICalculateGSLPaymentsValidator validator,
             IGrowthAndSkillsMapper growthAndSkillsMapper,
-            IGSLShortCoursesMapper shortCourseMapper,
-            IGSLApprenticeshipsMapper apprenticeshipsMapper,
             IEarningsRepository repository,
             IGSLEarningsService gslEarningsService,
-            IPaymentsServiceBusPublisher publisher,
             ICollectionPeriodService collectionPeriodService,
-            ILogger<GSLCalculatePaymentsHandler> logger)
+            IGslProcessorFactory processorFactory,
+            ILogger<GslCalculatePaymentsHandler> logger)
         {
             _validator = validator;
             _growthAndSkillsMapper = growthAndSkillsMapper;
-            _shortCourseMapper = shortCourseMapper;
-            _apprenticeshipsMapper = apprenticeshipsMapper;
             _repository = repository;
             _gslEarningsService = gslEarningsService;
-            _publisher = publisher;
             _collectionPeriodService = collectionPeriodService;
+            _gslProcessorFactory = processorFactory;
             _logger = logger;
         }
         
@@ -83,7 +78,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
-            if(!openCollectionPeriods.Any())
+            if (!openCollectionPeriods.Any())
             {
                 await _repository.SaveEarnings(growthAndSkillsEarningModel);
                 return;
@@ -97,21 +92,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 }
             }
 
-            var requiredPaymentsEvents = _shortCourseMapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
-
-            var fundingSourceEvents = _growthAndSkillsMapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
-
-
-            foreach (var requiredPaymentsEvent in requiredPaymentsEvents)
-            {
-                await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
-            }
-
-            foreach (var fundingSourceEvent in fundingSourceEvents)
-            {
-                await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
-            }
-            
+            var processor = _gslProcessorFactory.CreateGslProcessor(growthAndSkillsEarningModel.LearningType);
+            await processor.Process(message, openCollectionPeriods);
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }

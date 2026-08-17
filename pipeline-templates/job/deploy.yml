@@ -1,0 +1,155 @@
+parameters:
+  ServiceConnection:
+  # ServiceFabricClusterConnection:
+  SolutionBaseName:
+  Environment:
+  ArtifactName:
+  # EarningEventsDropArtifactName: 'earningevents-drop'
+
+jobs:
+- deployment: Deploy${{ replace(parameters.SolutionBaseName, '.', '') }}
+  pool:
+    name: DCT
+    demands:
+    - Cmd
+    - ReleaseEnvironment -equals ${{ parameters.Environment }}
+  environment: ${{ parameters.Environment }}
+  workspace:
+    clean: all
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: self
+          clean: true
+        - checkout: DevOps-Utilities
+
+        - task: PowerShell@2
+          displayName: 'Ensure PowerShell 7 (pwsh) is installed'
+          inputs:
+            targetType: inline
+            pwsh: false
+            script: |
+              $ErrorActionPreference = 'Stop'
+              $dir = Join-Path $env:LOCALAPPDATA 'pwsh7'
+
+              if (-not (Test-Path "$dir\pwsh.exe")) {
+                $zip = Join-Path $env:TEMP 'pwsh.zip'
+                Invoke-WebRequest 'https://github.com/PowerShell/PowerShell/releases/download/v7.4.6/PowerShell-7.4.6-win-x64.zip' -OutFile $zip
+                Expand-Archive $zip $dir -Force
+                Remove-Item $zip -Force
+              }
+
+              Write-Host "##vso[task.prependpath]$dir"
+
+        - template: azure-pipelines-templates/deploy/step/wait-azure-devops-deployment.yml@das-platform-building-blocks
+          parameters:
+            EnvironmentId: $(Environment.Id)
+            PipelineName: $(Build.DefinitionName)
+            RunId: $(Build.BuildId)
+
+        - template: azure-pipelines-templates/deploy/step/arm-deploy.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            SubscriptionId: $(SubscriptionId)
+            Location: $(ResourceGroupLocation)
+            Scope: 'Resource Group'
+            ResourceGroupName: $(ResourceGroupName)
+            Environment: ${{ parameters.Environment }}
+            TemplatePath: $(Build.SourcesDirectory)/das-payments-v2-earningevents/azure/template.json
+            ParametersPath: $(Build.SourcesDirectory)/das-payments-v2-earningevents/azure/template.parameters.json
+            IsMultiRepoCheckout: true
+            TemplateSecrets:
+              azureWebJobsStorage: $(StorageConnectionString)
+              paymentsConnectionString: $(PaymentsConnectionString)
+              paymentsMetricsConnectionString: $(PaymentsMetricsConnectionString)
+              serviceBusConnectionString: $(ServiceBusConnectionString)
+              dasServiceBusConnectionString: $(DASServiceBusConnectionString)
+              dcEarnings2526ConnectionString: $(DcEarnings2526ConnectionString)
+              dcEarnings2627ConnectionString: $(DcEarnings2627ConnectionString)
+              collectionPeriodApiKey: $(CollectionPeriodApiKey)
+              applicationInsightsConnectionString: $(ApplicationInsightsConnectionString)
+              applicationInsightsInstrumentationKey: $(ApplicationInsightsInstrumentationKey)
+
+        # - task: TotalALM.totalalm-tokenization.tokenization-build-task.Tokenization@2
+        #   displayName: 'Tokenization: Transform ApplicationParameters file Cloud.xml'
+        #   inputs:
+        #     SourcePath: '$(Pipeline.Workspace)\${{ parameters.EarningEventsDropArtifactName }}\**'
+        #     TargetFileNames: Cloud.xml
+        #     RequireVariable: true
+
+        # - task: PowerShell@2
+        #   displayName: 'Ensure Service Fabric SDK is installed'
+        #   inputs:
+        #     targetType: inline
+        #     pwsh: false
+        #     script: |
+        #       $ErrorActionPreference = 'Stop'
+        #       $workDir = Join-Path $env:TEMP 'sf-sdk-install'
+        #       New-Item -ItemType Directory -Path $workDir -Force | Out-Null
+
+        #       if (Test-Path 'C:\Program Files\Microsoft SDKs\Service Fabric') {
+        #         Write-Host "Service Fabric SDK already installed, skipping install."
+        #       }
+        #       else {
+        #         Write-Host "Installing Service Fabric runtime..."
+        #         $runtimeExe = Join-Path $workDir 'MicrosoftServiceFabric.exe'
+        #         Invoke-WebRequest -Uri 'https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabric.11.6.235.1.exe' -OutFile $runtimeExe
+        #         $runtimeProcess = Start-Process -FilePath $runtimeExe -ArgumentList '/accepteula' -Wait -PassThru
+        #         Write-Host "Runtime installer exit code: $($runtimeProcess.ExitCode)"
+        #         if ($runtimeProcess.ExitCode -ne 0) {
+        #           throw "Service Fabric runtime install failed with exit code $($runtimeProcess.ExitCode)"
+        #         }
+
+        #         Write-Host "Installing Service Fabric SDK..."
+        #         $sdkMsi = Join-Path $workDir 'MicrosoftServiceFabricSDK.msi'
+        #         Invoke-WebRequest -Uri 'https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabricSDK.8.6.235.msi' -OutFile $sdkMsi
+        #         $sdkLog = Join-Path $workDir 'sdk-install.log'
+        #         $sdkProcess = Start-Process -FilePath msiexec.exe -ArgumentList "/i `"$sdkMsi`" /quiet /norestart /l*v `"$sdkLog`"" -Wait -PassThru
+        #         Write-Host "SDK installer exit code: $($sdkProcess.ExitCode)"
+        #         if ($sdkProcess.ExitCode -ne 0) {
+        #           Write-Host "---- msiexec log tail ----"
+        #           Get-Content $sdkLog -Tail 60 -ErrorAction SilentlyContinue | Write-Host
+        #           throw "Service Fabric SDK install failed with exit code $($sdkProcess.ExitCode)"
+        #         }
+        #       }
+
+        #       Remove-Item $workDir -Recurse -Force -ErrorAction SilentlyContinue
+
+        #       # Stale PATH again - without this the ServiceFabric module can't load native
+        #       # FabricCommon.dll. Runs every time; prependpath only lasts for this job.
+        #       $fabricCommon = Get-ChildItem 'C:\Program Files\Microsoft Service Fabric' -Recurse -Filter 'FabricCommon.dll' -ErrorAction SilentlyContinue | Select-Object -First 1
+        #       if ($fabricCommon) {
+        #         Write-Host "Found FabricCommon.dll at: $($fabricCommon.FullName)"
+        #         Write-Host "##vso[task.prependpath]$($fabricCommon.DirectoryName)"
+        #         Write-Host "##vso[task.setvariable variable=FabricCodePath]$($fabricCommon.DirectoryName)"
+        #       }
+        #       else {
+        #         throw "FabricCommon.dll not found - the Service Fabric runtime does not appear to be installed."
+        #       }
+
+        # - task: ServiceFabricPowerShell@1
+        #   displayName: 'Remove DAS Payments - Earning Events'
+        #   inputs:
+        #     clusterConnection: ${{ parameters.ServiceFabricClusterConnection }}
+        #     ScriptType: FilePath
+        #     ScriptPath: $(Pipeline.Workspace)/s/DevOps-Utilities/DASServiceFabricUtils/RemoveServiceFabricApps.ps1
+        #     Arguments: '-applicationFilter $(PEAppFilter)'
+
+        # - task: ServiceFabricDeploy@1
+        #   displayName: 'Deploy Service Fabric Application - DAS_Payment - Earning Events'
+        #   inputs:
+        #     serviceConnectionName: ${{ parameters.ServiceFabricClusterConnection }}
+        #     applicationPackagePath: $(Pipeline.Workspace)/${{ parameters.EarningEventsDropArtifactName }}/ApplicationPackage
+        #     publishProfilePath: $(Pipeline.Workspace)/${{ parameters.EarningEventsDropArtifactName }}/PublishProfiles/Cloud.xml
+        #     applicationParameterPath: $(Pipeline.Workspace)/${{ parameters.EarningEventsDropArtifactName }}/ApplicationParameters/Cloud.xml
+        #     overrideApplicationParameter: true
+
+        - task: AzureFunctionApp@2
+          displayName: 'Azure Function App Deploy - $(FunctionAppName)'
+          inputs:
+            azureSubscription: ${{ parameters.ServiceConnection }}
+            appType: functionAppLinux
+            isFlexConsumption: true
+            appName: $(FunctionAppName)
+            package: $(Pipeline.Workspace)/${{ parameters.ArtifactName }}/${{ parameters.ArtifactName }}.zip

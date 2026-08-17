@@ -11,9 +11,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
     public class DASEarningsReceiver
     {
         private readonly ILogger<DASEarningsReceiver> _logger;
-        private readonly IGSLCalculatePaymentsHandler _gslCalculatePaymentsHandler;
+        private readonly IGslCalculatePaymentsHandler _gslCalculatePaymentsHandler;
 
-        public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGSLCalculatePaymentsHandler gslCalculatePaymentsHandler)
+        public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGslCalculatePaymentsHandler gslCalculatePaymentsHandler)
         {
             _logger = logger;
             _gslCalculatePaymentsHandler = gslCalculatePaymentsHandler;
