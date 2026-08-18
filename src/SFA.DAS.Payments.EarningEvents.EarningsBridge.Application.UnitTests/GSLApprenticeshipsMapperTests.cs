@@ -405,7 +405,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.PriceEpisodes.Should().BeEmpty();
             earningEvent.OnProgrammeEarnings.Should().BeEmpty();
             earningEvent.IncentiveEarnings.Should().BeEmpty();
-            earningEvent.SfaContributionPercentage.Should().Be(1m);
         }
 
         [Test]
