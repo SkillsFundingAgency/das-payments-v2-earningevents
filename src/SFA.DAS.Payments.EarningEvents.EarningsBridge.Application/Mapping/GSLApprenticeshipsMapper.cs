@@ -16,6 +16,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
     public class GSLApprenticeshipsMapper : GrowthAndSkillsMapper, IGslApprenticeshipsMapper
     {
+        private const int ApprenticeshipProgrammeType = 25;
         private const int ApprenticeshipFundingAge19 = 19;
         private const string FundingLineType16To18 = "16-18 Apprenticeship (Employer on App Service)";
         private const string FundingLineType19Plus = "19+ Apprenticeship (Employer on App Service)";
@@ -165,6 +166,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                     LearningAim = new Common.LearningAim
                     {
                         Reference = source.Training.CourseReference,
+                        ProgrammeType = ApprenticeshipProgrammeType,
                         StandardCode = int.TryParse(source.Training.CourseCode, out var courseCode) ? courseCode : 0,
                         CourseCode = source.Training.CourseCode,
                         FrameworkCode = 0,
@@ -183,7 +185,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                     FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService,
                     IlrSubmissionDateTime = SqlDateTime.MinValue.Value,
                     StartDate = source.Training.StartDate,
-                    SfaContributionPercentage = 1m,
                     OnProgrammeEarnings = new List<OnProgrammeEarning>(),
                     IncentiveEarnings = new List<IncentiveEarning>(),
                     PriceEpisodes = new List<Common.PriceEpisode>()
