@@ -15,6 +15,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private GslProcessorFactory _sut;
         private GslApprenticeshipPaymentsProcessor _apprenticeshipProcessor;
         private GslShortCoursePaymentsProcessor _shortCourseProcessor;
+        private UnsupportedLearningTypeProcessor _unsupportedProcessor;
         private Mock<IServiceProvider> _serviceProvider;
 
         [SetUp]
@@ -28,6 +29,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Mock.Of<IGslShortCoursesMapper>(),
                 Mock.Of<IPaymentsServiceBusPublisher>()).Object;
 
+            _unsupportedProcessor = new UnsupportedLearningTypeProcessor();
+
             _serviceProvider = new Mock<IServiceProvider>();
 
             _serviceProvider
@@ -37,6 +40,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _serviceProvider
                 .Setup(x => x.GetService(typeof(GslShortCoursePaymentsProcessor)))
                 .Returns(_shortCourseProcessor);
+
+            _serviceProvider
+                .Setup(x => x.GetService(typeof(UnsupportedLearningTypeProcessor)))
+                .Returns(_unsupportedProcessor);
 
             _sut = new GslProcessorFactory(_serviceProvider.Object);
         }
@@ -57,14 +64,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             result.Should().Be(_shortCourseProcessor);
         }
 
-        [Test]
-        public void CreateGSLProcessor_ThrowsForUnsupportedLearningType()
+        [TestCase(default(LearningType))]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.MathsAndEnglish)]
+        public void CreateGSLProcessor_ReturnsUnsupportedLearningTypeProcessor_ForUnsupportedLearningType(LearningType learningType)
         {
-            var unsupportedLearningType = default(LearningType);
-            var act = () => _sut.CreateGslProcessor(unsupportedLearningType);
+            var result = _sut.CreateGslProcessor(learningType);
 
-            act.Should().Throw<NotSupportedException>()
-                .WithMessage("Unsupported learning type: 0");
+            result.Should().Be(_unsupportedProcessor);
         }
     }
 }
