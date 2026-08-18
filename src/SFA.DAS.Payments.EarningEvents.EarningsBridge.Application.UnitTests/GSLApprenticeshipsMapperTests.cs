@@ -408,6 +408,42 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.SfaContributionPercentage.Should().Be(1m);
         }
 
+        [Test]
+        public void FundingLineType_Is_16To18_When_Age_At_Start_Of_Training_Is_Under_19()
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
+            };
+
+            _message.Training.AgeAtStartOfTraining = 18;
+
+            var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
+
+            earningEvents.First()
+                .PriceEpisodes.Single()
+                .FundingLineType
+                .Should().Be("16-18 Apprenticeship (Employer on App Service)");
+        }
+
+        [Test]
+        public void FundingLineType_Is_19Plus_When_Age_At_Start_Of_Training_Is_19()
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
+            };
+
+            _message.Training.AgeAtStartOfTraining = 19;
+
+            var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
+
+            earningEvents.First()
+            .PriceEpisodes.Single()
+            .FundingLineType
+            .Should().Be("19+ Apprenticeship (Employer on App Service)");
+        }
+
         private void VerifyEarningEvent(GSLApprenticeshipEarningsEvent? earningEvent, byte collectionPeriod, short academicYear)
         {
             earningEvent.JobId.Should().Be(0);
