@@ -64,12 +64,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             result.Should().Be(_shortCourseProcessor);
         }
 
-        [Test]
-        public void CreateGSLProcessor_ReturnsUnsupportedLearningTypeProcessor_ForUnsupportedLearningType()
+        [TestCase(default(LearningType))]
+        [TestCase(LearningType.FoundationApprenticeship)]
+        [TestCase(LearningType.MathsAndEnglish)]
+        public void CreateGSLProcessor_ReturnsUnsupportedLearningTypeProcessor_ForUnsupportedLearningType(LearningType learningType)
         {
-            var unsupportedLearningType = default(LearningType); //which is 0 and currently has no associated LearningType
-
-            var result = _sut.CreateGslProcessor(unsupportedLearningType);
+            var result = _sut.CreateGslProcessor(learningType);
 
             result.Should().Be(_unsupportedProcessor);
         }
