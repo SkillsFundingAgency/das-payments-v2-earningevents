@@ -4,7 +4,6 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
-using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.Model.Core.OnProgramme;
 using Common = SFA.DAS.Payments.Model.Core;
@@ -265,7 +264,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void SfaContributionPercentage_Defaults_To_95_Percent_For_A_Levy_Employer_Before_The_2026_Funding_Rules()
+        public void SfaContributionPercentage_Defaults_To_75_Percent_For_A_Levy_Employer_Funding_Rules()
         {
             // Default _message setup: Training.StartDate = 2026-01-01 (before the 2026 rules), Age = 25, employer = Levy.
             var collectionPeriods = new List<CollectionPeriodModel>
@@ -275,7 +274,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
-            earningEvents.First().OnProgrammeEarnings.Single().Periods.Single().SfaContributionPercentage.Should().Be(0.95m);
+            earningEvents.First().OnProgrammeEarnings.Single().Periods.Single().SfaContributionPercentage.Should().Be(0.75m);
         }
 
         [Test]
@@ -430,7 +429,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             priceEpisode.NumberOfInstalments.Should().Be(pricePeriod.NumberOfInstalments);
             priceEpisode.InstalmentAmount.Should().Be(pricePeriod.InstalmentAmount);
             priceEpisode.CompletionAmount.Should().Be(pricePeriod.CompletionAmount);
-            priceEpisode.FundingLineType.Should().Be("");
+            priceEpisode.FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
 
             var learningEarningPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Learning);
             var onProgrammeEarning = earningEvent.OnProgrammeEarnings.Single();
@@ -442,7 +441,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             mappedPeriod.AccountId.Should().Be(learningEarningPeriod.Employer.AccountId);
             mappedPeriod.ApprenticeshipId.Should().Be(learningEarningPeriod.LearningId);
             ((int)mappedPeriod.ApprenticeshipEmployerType).Should().Be((int)learningEarningPeriod.Employer.EmployerType);
-            mappedPeriod.SfaContributionPercentage.Should().Be(0.95m);
+            mappedPeriod.SfaContributionPercentage.Should().Be(0.75m);
             mappedPeriod.TransferSenderAccountId.Should().BeNull();
 
             earningEvent.IncentiveEarnings.Should().BeEmpty();
