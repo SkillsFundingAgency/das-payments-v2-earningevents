@@ -53,6 +53,7 @@ builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsV
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
 builder.Services.AddScoped<GslApprenticeshipPaymentsProcessor>();
 builder.Services.AddScoped<GslShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<UnsupportedLearningTypeProcessor>();
 builder.Services.AddScoped<IGslProcessor,GslApprenticeshipPaymentsProcessor>();
 builder.Services.AddScoped<IGslProcessor, GslShortCoursePaymentsProcessor>();
 builder.Services.AddScoped<IGslProcessorFactory, GslProcessorFactory>();
