@@ -21,7 +21,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
                 case LearningType.ApprenticeshipUnit:
                     return _serviceProvider.GetRequiredService<GslShortCoursePaymentsProcessor>();
                 default:
-                    throw new NotSupportedException($"Unsupported learning type: {learningType}");
+                    // Route unsupported learning types to a pass-through processor so message handling can continue safely
+                    return _serviceProvider.GetRequiredService<UnsupportedLearningTypeProcessor>();
             }
         }
     }

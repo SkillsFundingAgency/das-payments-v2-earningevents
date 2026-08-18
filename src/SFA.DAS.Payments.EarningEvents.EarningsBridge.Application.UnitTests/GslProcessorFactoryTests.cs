@@ -15,6 +15,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private GslProcessorFactory _sut;
         private GslApprenticeshipPaymentsProcessor _apprenticeshipProcessor;
         private GslShortCoursePaymentsProcessor _shortCourseProcessor;
+        private UnsupportedLearningTypeProcessor _unsupportedProcessor;
         private Mock<IServiceProvider> _serviceProvider;
 
         [SetUp]
@@ -28,6 +29,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Mock.Of<IGslShortCoursesMapper>(),
                 Mock.Of<IPaymentsServiceBusPublisher>()).Object;
 
+            _unsupportedProcessor = new UnsupportedLearningTypeProcessor();
+
             _serviceProvider = new Mock<IServiceProvider>();
 
             _serviceProvider
@@ -37,6 +40,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _serviceProvider
                 .Setup(x => x.GetService(typeof(GslShortCoursePaymentsProcessor)))
                 .Returns(_shortCourseProcessor);
+
+            _serviceProvider
+                .Setup(x => x.GetService(typeof(UnsupportedLearningTypeProcessor)))
+                .Returns(_unsupportedProcessor);
 
             _sut = new GslProcessorFactory(_serviceProvider.Object);
         }
@@ -58,13 +65,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void CreateGSLProcessor_ThrowsForUnsupportedLearningType()
+        public void CreateGSLProcessor_ReturnsUnsupportedLearningTypeProcessor_ForUnsupportedLearningType()
         {
-            var unsupportedLearningType = default(LearningType);
-            var act = () => _sut.CreateGslProcessor(unsupportedLearningType);
+            var unsupportedLearningType = default(LearningType); //which is 0 and currently has no associated LearningType
 
-            act.Should().Throw<NotSupportedException>()
-                .WithMessage("Unsupported learning type: 0");
+            var result = _sut.CreateGslProcessor(unsupportedLearningType);
+
+            result.Should().Be(_unsupportedProcessor);
         }
     }
 }
