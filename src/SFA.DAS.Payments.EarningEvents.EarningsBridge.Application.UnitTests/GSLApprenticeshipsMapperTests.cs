@@ -264,50 +264,64 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void SfaContributionPercentage_Defaults_To_75_Percent_For_A_Levy_Employer_Funding_Rules()
+        public void SfaContributionPercentage_Is_75_Percent_For_Levy_Employers_When_Apprentice_Is_25_Or_Over()
         {
-            // Default _message setup: Training.StartDate = 2026-01-01 (before the 2026 rules), Age = 25, employer = Levy.
             var collectionPeriods = new List<CollectionPeriodModel>
             {
                 new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
             };
+
+            _message.Training.AgeAtStartOfTraining = 25;
 
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
-            earningEvents.First().OnProgrammeEarnings.Single().Periods.Single().SfaContributionPercentage.Should().Be(0.75m);
+            earningEvents.First()
+                .OnProgrammeEarnings.Single()
+                .Periods.Single()
+                .SfaContributionPercentage
+                .Should().Be(0.75m);
         }
 
         [Test]
-        public void SfaContributionPercentage_Is_100_Percent_For_Apprentices_Under_22_Starting_After_The_2024_Funding_Rules()
-        {
-            // Levy employers before the 2026 funding rules always default to 95%, so the 2024-rules
-            // full-funding eligibility can only be reached by a Non-Levy employer.
-            var collectionPeriods = new List<CollectionPeriodModel>
-            {
-                new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
-            };
-            _message.Training.StartDate = new DateTime(2024, 4, 1);
-            _message.Training.AgeAtStartOfTraining = 21;
-            _message.Earnings.First().PricePeriods.First().Periods.Single(p => p.EarningType == EarningType.Learning).Employer.EmployerType = EmployerType.NonLevy;
-
-            var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
-
-            earningEvents.First().OnProgrammeEarnings.Single().Periods.Single().SfaContributionPercentage.Should().Be(1m);
-        }
-
-        [Test]
-        public void SfaContributionPercentage_Is_100_Percent_For_Apprentices_Under_25_Starting_After_The_2026_Funding_Rules()
+        public void SfaContributionPercentage_Is_100_Percent_For_Apprentices_Under_25()
         {
             var collectionPeriods = new List<CollectionPeriodModel>
             {
                 new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
             };
+
             _message.Training.StartDate = new DateTime(2026, 8, 1);
             _message.Training.AgeAtStartOfTraining = 24;
 
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
-            earningEvents.First().OnProgrammeEarnings.Single().Periods.Single().SfaContributionPercentage.Should().Be(1m);
+            earningEvents.First()
+                .OnProgrammeEarnings.Single()
+                .Periods.Single()
+                .SfaContributionPercentage
+                .Should().Be(1m);
+        }
+
+        [Test]
+        public void SfaContributionPercentage_Is_95_Percent_For_NonLevy_Employers_When_Apprentice_Is_25_Or_Over()
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
+            };
+
+            _message.Training.StartDate = new DateTime(2026, 8, 1);
+            _message.Training.AgeAtStartOfTraining = 25;
+            _message.Earnings.First().PricePeriods.First().Periods.Single(p => p.EarningType == EarningType.Learning)
+                .Employer.EmployerType = EmployerType.NonLevy;
+
+            var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
+
+            earningEvents.First()
+                .OnProgrammeEarnings.Single()
+                .Periods.Single()
+                .SfaContributionPercentage
+                .Should().Be(0.95m);
         }
 
         [Test]
