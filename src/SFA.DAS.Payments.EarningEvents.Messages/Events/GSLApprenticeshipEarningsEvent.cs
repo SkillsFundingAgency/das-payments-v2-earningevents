@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SFA.DAS.Payments.Messages.Common.Events;
 using SFA.DAS.Payments.Model.Core.Entities;
 
