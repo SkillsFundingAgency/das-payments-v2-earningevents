@@ -4,7 +4,7 @@ using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
-    public interface IGslShortCoursesMapper : IGrowthAndSkillsMapper
+    public interface IGSLShortCoursesMapper : IGrowthAndSkillsMapper
     {
         IEnumerable<GSLShortCourseEarningsEvent> MapToShortCourseEarningEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods);
 

@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Linq;
 using FluentAssertions;
+using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
@@ -16,7 +20,7 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     [TestFixture]
-    public class GslApprenticeshipsMapperTests
+    public class GSLApprenticeshipsMapperTests
     {
         private CalculateGrowthAndSkillsPayments _message;
         private GSLApprenticeshipsMapper _sut;

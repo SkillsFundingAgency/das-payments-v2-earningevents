@@ -14,7 +14,7 @@ using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
-    public class GSLApprenticeshipsMapper : GrowthAndSkillsMapper, IGslApprenticeshipsMapper
+    public class GSLApprenticeshipsMapper : GrowthAndSkillsMapper, IGSLApprenticeshipsMapper
     {
         private const int ApprenticeshipProgrammeType = 25;
         private const int ApprenticeshipFundingAge19 = 19;

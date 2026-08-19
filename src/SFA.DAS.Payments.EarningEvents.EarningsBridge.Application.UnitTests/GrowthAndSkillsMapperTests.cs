@@ -1,5 +1,9 @@
 ﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
+using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;

@@ -2,8 +2,8 @@
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
 {
-    public interface IGslProcessorFactory
+    public interface IGSLProcessorFactory
     {
-        IGslProcessor CreateGslProcessor(LearningType learningType);
+        IGSLProcessor CreateGSLProcessor(LearningType learningType);
     }
 }

@@ -11,9 +11,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
     public class DASEarningsReceiver
     {
         private readonly ILogger<DASEarningsReceiver> _logger;
-        private readonly IGslCalculatePaymentsHandler _gslCalculatePaymentsHandler;
+        private readonly IGSLCalculatePaymentsHandler _gslCalculatePaymentsHandler;
 
-        public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGslCalculatePaymentsHandler gslCalculatePaymentsHandler)
+        public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGSLCalculatePaymentsHandler gslCalculatePaymentsHandler)
         {
             _logger = logger;
             _gslCalculatePaymentsHandler = gslCalculatePaymentsHandler;
@@ -30,7 +30,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
             _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
 
             var growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
-            await _gslCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
+            await _gslCalculatePaymentsHandler.HandleGSLCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
 
             await messageActions.CompleteMessageAsync(message);
         }

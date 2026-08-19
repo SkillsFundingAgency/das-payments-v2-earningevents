@@ -6,13 +6,13 @@ using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
 {
-    public class GslApprenticeshipPaymentsProcessor : IGslProcessor
+    public class GSLApprenticeshipPaymentsProcessor : IGSLProcessor
     {
-        private readonly IGslApprenticeshipsMapper _mapper;
+        private readonly IGSLApprenticeshipsMapper _mapper;
         private readonly IPaymentsServiceBusPublisher _publisher;
 
-        public GslApprenticeshipPaymentsProcessor(
-            IGslApprenticeshipsMapper mapper,
+        public GSLApprenticeshipPaymentsProcessor(
+            IGSLApprenticeshipsMapper mapper,
             IPaymentsServiceBusPublisher publisher)
         {
             _mapper = mapper;

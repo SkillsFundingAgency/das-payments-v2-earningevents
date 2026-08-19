@@ -3,7 +3,7 @@ using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
 {
-    public class UnsupportedLearningTypeProcessor : IGslProcessor
+    public class UnsupportedLearningTypeProcessor : IGSLProcessor
     {
         public Task Process(CalculateGrowthAndSkillsPayments message, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
         {

@@ -1,5 +1,9 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
@@ -16,13 +20,13 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     [TestFixture]
-    public class GslApprenticeshipPaymentsProcessorTests
+    public class GSLApprenticeshipPaymentsProcessorTests
     {
         private CalculateGrowthAndSkillsPayments _message;
         private List<CollectionPeriodModel> _openCollectionPeriods;
-        private Mock<IGslApprenticeshipsMapper> _mapper;
+        private Mock<IGSLApprenticeshipsMapper> _mapper;
         private Mock<IPaymentsServiceBusPublisher> _publisher;
-        private GslApprenticeshipPaymentsProcessor _sut;
+        private GSLApprenticeshipPaymentsProcessor _sut;
 
         [SetUp]
         public void SetUp()
@@ -97,9 +101,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 }
             };
 
-            _mapper = new Mock<IGslApprenticeshipsMapper>();
+            _mapper = new Mock<IGSLApprenticeshipsMapper>();
             _publisher = new Mock<IPaymentsServiceBusPublisher>();
-            _sut = new GslApprenticeshipPaymentsProcessor(_mapper.Object, _publisher.Object);
+            _sut = new GSLApprenticeshipPaymentsProcessor(_mapper.Object, _publisher.Object);
         }
 
         [Test]

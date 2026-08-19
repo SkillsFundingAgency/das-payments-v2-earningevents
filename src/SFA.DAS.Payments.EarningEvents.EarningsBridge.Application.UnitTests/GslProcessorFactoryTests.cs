@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -10,23 +11,23 @@ using SFA.DAS.Payments.EarningEvents.Model;
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     [TestFixture]
-    public class GslProcessorFactoryTests
+    public class GSLProcessorFactoryTests
     {
-        private GslProcessorFactory _sut;
-        private GslApprenticeshipPaymentsProcessor _apprenticeshipProcessor;
-        private GslShortCoursePaymentsProcessor _shortCourseProcessor;
+        private GSLProcessorFactory _sut;
+        private GSLApprenticeshipPaymentsProcessor _apprenticeshipProcessor;
+        private GSLShortCoursePaymentsProcessor _shortCourseProcessor;
         private UnsupportedLearningTypeProcessor _unsupportedProcessor;
         private Mock<IServiceProvider> _serviceProvider;
 
         [SetUp]
         public void SetUp()
         {
-            _apprenticeshipProcessor = new Mock<GslApprenticeshipPaymentsProcessor>(
-                Mock.Of<IGslApprenticeshipsMapper>(),
+            _apprenticeshipProcessor = new Mock<GSLApprenticeshipPaymentsProcessor>(
+                Mock.Of<IGSLApprenticeshipsMapper>(),
                 Mock.Of<IPaymentsServiceBusPublisher>()).Object;
 
-            _shortCourseProcessor = new Mock<GslShortCoursePaymentsProcessor>(
-                Mock.Of<IGslShortCoursesMapper>(),
+            _shortCourseProcessor = new Mock<GSLShortCoursePaymentsProcessor>(
+                Mock.Of<IGSLShortCoursesMapper>(),
                 Mock.Of<IPaymentsServiceBusPublisher>()).Object;
 
             _unsupportedProcessor = new UnsupportedLearningTypeProcessor();
@@ -34,32 +35,32 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _serviceProvider = new Mock<IServiceProvider>();
 
             _serviceProvider
-                .Setup(x => x.GetService(typeof(GslApprenticeshipPaymentsProcessor)))
+                .Setup(x => x.GetService(typeof(GSLApprenticeshipPaymentsProcessor)))
                 .Returns(_apprenticeshipProcessor);
 
             _serviceProvider
-                .Setup(x => x.GetService(typeof(GslShortCoursePaymentsProcessor)))
+                .Setup(x => x.GetService(typeof(GSLShortCoursePaymentsProcessor)))
                 .Returns(_shortCourseProcessor);
 
             _serviceProvider
                 .Setup(x => x.GetService(typeof(UnsupportedLearningTypeProcessor)))
                 .Returns(_unsupportedProcessor);
 
-            _sut = new GslProcessorFactory(_serviceProvider.Object);
+            _sut = new GSLProcessorFactory(_serviceProvider.Object);
         }
 
         [Test]
-        public void CreateGSLProcessor_ReturnsApprenticeshipProcessor_ForApprenticeshipLearningType()
+        public void CreateGSLProcessor_Returns_ApprenticeshipProcessor_For_Apprenticeship_LearningType()
         {
-            var result = _sut.CreateGslProcessor(LearningType.Apprenticeship);
+            var result = _sut.CreateGSLProcessor(LearningType.Apprenticeship);
 
             result.Should().Be(_apprenticeshipProcessor);
         }
 
         [Test]
-        public void CreateGSLProcessor_ReturnsShortCourseProcessor_ForApprenticeshipUnitLearningType()
+        public void CreateGSLProcessor_Returns_ShortCourseProcessor_For_ApprenticeshipUnit_LearningType()
         {
-            var result = _sut.CreateGslProcessor(LearningType.ApprenticeshipUnit);
+            var result = _sut.CreateGSLProcessor(LearningType.ApprenticeshipUnit);
 
             result.Should().Be(_shortCourseProcessor);
         }
@@ -67,9 +68,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         [TestCase(default(LearningType))]
         [TestCase(LearningType.FoundationApprenticeship)]
         [TestCase(LearningType.MathsAndEnglish)]
-        public void CreateGSLProcessor_ReturnsUnsupportedLearningTypeProcessor_ForUnsupportedLearningType(LearningType learningType)
+        public void CreateGSLProcessor_Returns_UnsupportedLearningTypeProcessor_For_Unsupported_LearningType(LearningType learningType)
         {
-            var result = _sut.CreateGslProcessor(learningType);
+            var result = _sut.CreateGSLProcessor(learningType);
 
             result.Should().Be(_unsupportedProcessor);
         }

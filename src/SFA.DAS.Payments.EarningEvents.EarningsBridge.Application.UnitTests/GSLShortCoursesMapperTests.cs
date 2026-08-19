@@ -1,5 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Linq;
+using System.Threading;
 using FluentAssertions;
+using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
@@ -17,15 +22,15 @@ using UUIDNext.Tools;
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     [TestFixture]
-    public class GslShortCoursesMapperTests
+    public class GSLShortCoursesMapperTests
     {
         private CalculateGrowthAndSkillsPayments _message;
-        private GslShortCoursesMapper _sut;
+        private GSLShortCoursesMapper _sut;
 
         [SetUp]
         public void Setup()
         {
-            _sut = new GslShortCoursesMapper();
+            _sut = new GSLShortCoursesMapper();
 
             _message = new CalculateGrowthAndSkillsPayments
             {

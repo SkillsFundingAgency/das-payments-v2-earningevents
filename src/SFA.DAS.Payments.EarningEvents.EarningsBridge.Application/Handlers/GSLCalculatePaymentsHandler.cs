@@ -9,24 +9,24 @@ using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
-    public class GslCalculatePaymentsHandler : IGslCalculatePaymentsHandler
+    public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
         private IGrowthAndSkillsMapper _growthAndSkillsMapper; 
         private IEarningsRepository _repository;
         private IGSLEarningsService _gslEarningsService;
         private ICollectionPeriodService _collectionPeriodService;
-        private IGslProcessorFactory _gslProcessorFactory;
-        private ILogger<GslCalculatePaymentsHandler> _logger;
+        private IGSLProcessorFactory _gslProcessorFactory;
+        private ILogger<GSLCalculatePaymentsHandler> _logger;
 
-        public GslCalculatePaymentsHandler(
+        public GSLCalculatePaymentsHandler(
             ICalculateGSLPaymentsValidator validator,
             IGrowthAndSkillsMapper growthAndSkillsMapper,
             IEarningsRepository repository,
             IGSLEarningsService gslEarningsService,
             ICollectionPeriodService collectionPeriodService,
-            IGslProcessorFactory processorFactory,
-            ILogger<GslCalculatePaymentsHandler> logger)
+            IGSLProcessorFactory processorFactory,
+            ILogger<GSLCalculatePaymentsHandler> logger)
         {
             _validator = validator;
             _growthAndSkillsMapper = growthAndSkillsMapper;
@@ -37,7 +37,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _logger = logger;
         }
         
-        public async Task HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
+        public async Task HandleGSLCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 }
             }
 
-            var processor = _gslProcessorFactory.CreateGslProcessor(growthAndSkillsEarningModel.LearningType);
+            var processor = _gslProcessorFactory.CreateGSLProcessor(growthAndSkillsEarningModel.LearningType);
             await processor.Process(message, openCollectionPeriods);
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);

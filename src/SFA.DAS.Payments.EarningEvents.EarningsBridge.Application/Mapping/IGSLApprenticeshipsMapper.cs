@@ -9,7 +9,7 @@ using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
-    public interface IGslApprenticeshipsMapper : IGrowthAndSkillsMapper
+    public interface IGSLApprenticeshipsMapper : IGrowthAndSkillsMapper
     {
         IEnumerable<GSLApprenticeshipEarningsEvent> MapToApprenticeshipEarningEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods);
     }

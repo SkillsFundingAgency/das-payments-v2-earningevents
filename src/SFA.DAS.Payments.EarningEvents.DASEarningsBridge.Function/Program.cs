@@ -46,17 +46,17 @@ builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, op
 });
 
 builder.Services.AddScoped<IGrowthAndSkillsMapper, GrowthAndSkillsMapper>();
-builder.Services.AddScoped<IGslApprenticeshipsMapper, GSLApprenticeshipsMapper>();
-builder.Services.AddScoped<IGslShortCoursesMapper, GslShortCoursesMapper>();
-builder.Services.AddScoped<IGslCalculatePaymentsHandler, GslCalculatePaymentsHandler>();
+builder.Services.AddScoped<IGSLApprenticeshipsMapper, GSLApprenticeshipsMapper>();
+builder.Services.AddScoped<IGSLShortCoursesMapper, GSLShortCoursesMapper>();
+builder.Services.AddScoped<IGSLCalculatePaymentsHandler, GSLCalculatePaymentsHandler>();
 builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsValidator>();
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
-builder.Services.AddScoped<GslApprenticeshipPaymentsProcessor>();
-builder.Services.AddScoped<GslShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<GSLApprenticeshipPaymentsProcessor>();
+builder.Services.AddScoped<GSLShortCoursePaymentsProcessor>();
 builder.Services.AddScoped<UnsupportedLearningTypeProcessor>();
-builder.Services.AddScoped<IGslProcessor,GslApprenticeshipPaymentsProcessor>();
-builder.Services.AddScoped<IGslProcessor, GslShortCoursePaymentsProcessor>();
-builder.Services.AddScoped<IGslProcessorFactory, GslProcessorFactory>();
+builder.Services.AddScoped<IGSLProcessor,GSLApprenticeshipPaymentsProcessor>();
+builder.Services.AddScoped<IGSLProcessor, GSLShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<IGSLProcessorFactory, GSLProcessorFactory>();
 
 
 builder.Services.AddHttpClient<ICollectionPeriodApiClient, CollectionPeriodApiClient>((sp, client) =>

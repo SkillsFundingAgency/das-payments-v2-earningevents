@@ -1,6 +1,11 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
@@ -21,18 +26,18 @@ using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.Training
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
-    public class GslCalculatePaymentsHandlerTests
+    public class GSLCalculatePaymentsHandlerTests
     {
         private CalculateGrowthAndSkillsPayments _message;
 
         private CalculateGSLPaymentsValidator _validator;
         private GrowthAndSkillsMapper _mapper;
-        private Mock<IGslProcessor> _gslProcessor;
+        private Mock<IGSLProcessor> _gslProcessor;
         private Mock<IEarningsRepository> _repository;
         private Mock<IGSLEarningsService> _gslService;
         private Mock<ICollectionPeriodService> _collectionPeriodService;
-        private Mock<IGslProcessorFactory> _processorFactory;
-        private Mock<ILogger<GslCalculatePaymentsHandler>> _logger;
+        private Mock<IGSLProcessorFactory> _processorFactory;
+        private Mock<ILogger<GSLCalculatePaymentsHandler>> _logger;
         
         [SetUp]
         public void SetUp()
@@ -100,12 +105,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _validator = new CalculateGSLPaymentsValidator();
             _mapper = new GrowthAndSkillsMapper();
             _repository = new Mock<IEarningsRepository>();
-            _gslProcessor = new Mock<IGslProcessor>();
+            _gslProcessor = new Mock<IGSLProcessor>();
             _collectionPeriodService = new Mock<ICollectionPeriodService>();
-            _processorFactory = new Mock<IGslProcessorFactory>();
-            _logger = new Mock<ILogger<GslCalculatePaymentsHandler>>();
+            _processorFactory = new Mock<IGSLProcessorFactory>();
+            _logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
             _gslService = new Mock<IGSLEarningsService>();
-            _processorFactory.Setup(x => x.CreateGslProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()))
+            _processorFactory.Setup(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()))
                 .Returns(_gslProcessor.Object);
 
             _repository.Setup(x => x.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>())).ReturnsAsync(new List<GrowthAndSkillsEarningModel>());
@@ -127,11 +132,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         {
             // Arrange
             _message.UKPRN = 0;
-            var handler = new GslCalculatePaymentsHandler(_validator, _mapper,_repository.Object, _gslService.Object, 
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper,_repository.Object, _gslService.Object, 
                                                           _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
             
             // Act 
-            Func<Task> act = async () => await handler.HandleGslCalculatePaymentsMessage(_message);
+            Func<Task> act = async () => await handler.HandleGSLCalculatePaymentsMessage(_message);
             act.Should().Throw<ArgumentException>()
                 .WithMessage("UKPRN is required");
 
@@ -146,7 +151,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Times.Once);
 
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
-            _processorFactory.Verify(x => x.CreateGslProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
         }
@@ -164,15 +169,15 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 })
                 .Returns(Task.CompletedTask);
 
-            var handler = new GslCalculatePaymentsHandler(_validator, _mapper,_repository.Object, _gslService.Object, 
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper,_repository.Object, _gslService.Object, 
                                                           _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGslCalculatePaymentsMessage(_message);
+            await handler.HandleGSLCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
-            _processorFactory.Verify(x => x.CreateGslProcessor(SFA.DAS.Payments.EarningEvents.Model.LearningType.ApprenticeshipUnit), Times.Once);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(SFA.DAS.Payments.EarningEvents.Model.LearningType.ApprenticeshipUnit), Times.Once);
             _gslProcessor.Verify(x => x.Process(_message, It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
             passedCollectionPeriods.Should().BeEquivalentTo(new[]
             {
@@ -194,17 +199,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _message.Earnings.ToList()[0].AcademicYear = 2425;
             var collectionPeriods = new List<CollectionPeriodModel>();
             _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
-            var handler = new GslCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGslCalculatePaymentsMessage(_message);
+            await handler.HandleGSLCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.All(p => p.ProcessedOn == null))), Times.Once);
-            _processorFactory.Verify(x => x.CreateGslProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
         }
 
@@ -280,11 +285,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 }
             };
 
-            var handler = new GslCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGslCalculatePaymentsMessage(_message);
+            await handler.HandleGSLCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
@@ -294,7 +299,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.Where(x => x.AcademicYear == 2526)
                     .All(p => p.ProcessedOn != null))), Times.Once);
-            _processorFactory.Verify(x => x.CreateGslProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
         }
 
@@ -386,15 +391,15 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             };
             _collectionPeriodService.Setup(x => x.GetOpenCollectionPeriods()).ReturnsAsync(collectionPeriods);
 
-            var handler = new GslCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
             
             // Act
-            await handler.HandleGslCalculatePaymentsMessage(_message);
+            await handler.HandleGSLCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
-            _processorFactory.Verify(x => x.CreateGslProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.Count == 2
@@ -414,16 +419,16 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                        .Returns(false); // Simulate that the earnings are older than the latest in DB
 
 
-            var handler = new GslCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGslCalculatePaymentsMessage(_message);
+            await handler.HandleGSLCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
-            _processorFactory.Verify(x => x.CreateGslProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
         }
 
@@ -438,15 +443,15 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _gslService.Setup(service => service.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>()))
                        .Returns(true); // Simulate that the earnings are the latest in DB
 
-            var handler = new GslCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGslCalculatePaymentsMessage(_message);
+            await handler.HandleGSLCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
-            _processorFactory.Verify(x => x.CreateGslProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(model => model.PricePeriods.Any())), Times.Once);
         }
@@ -458,15 +463,15 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _repository.Setup(repo => repo.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Throws(new Exception("Database error"));
 
-            var handler = new GslCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            Assert.ThrowsAsync<Exception>(async () => await handler.HandleGslCalculatePaymentsMessage(_message));
+            Assert.ThrowsAsync<Exception>(async () => await handler.HandleGSLCalculatePaymentsMessage(_message));
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
-            _processorFactory.Verify(x => x.CreateGslProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
             _logger.Verify(
