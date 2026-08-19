@@ -1,5 +1,10 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
@@ -156,6 +161,71 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             period2526.AcademicYear.Should().Be(2526);
             period2526.Period.Should().Be(1);
             period2526.Status.Should().Be(CollectionPeriodStatus.Open);
+
+
+            _collectionPeriodApiClient.Verify(x => x.GetOpenCollectionYears(), Times.Once);
+            _collectionPeriodApiClient.Verify(x => x.GetOpenCollectionPeriods("2425"), Times.Once);
+            _collectionPeriodApiClient.Verify(x => x.GetOpenCollectionPeriods("2526"), Times.Once);
+        }
+
+        [Test]
+        public async Task check_that_a_collection_year_with_no_open_periods_is_ignored_when_the_api_returns_no_content()
+        {
+            //Arrange
+            var collectionYears = new List<CollectionYear>
+            {
+                new()
+                {
+                    Year = 2425,
+                    Status = CollectionPeriodStatus.Open,
+                },
+                new()
+                {
+                    Year = 2526,
+                    Status = CollectionPeriodStatus.Open,
+                },
+            };
+
+            var collectionYear2425 = new CollectionYear
+            {
+                Year = 2425,
+                Status = CollectionPeriodStatus.Open,
+                Periods = new[]
+                {
+                    new CollectionPeriod
+                    {
+                        Id = 1234,
+                        Period = 13,
+                        CalendarMonth = 8,
+                        CalendarYear = 2025,
+                        Status = CollectionPeriodStatus.Open
+                    },
+                },
+            };
+
+            _collectionPeriodApiClient.Setup(x => x.GetOpenCollectionYears())
+                .ReturnsAsync(collectionYears);
+
+            _collectionPeriodApiClient.Setup(x => x.GetOpenCollectionPeriods("2425"))
+                .ReturnsAsync(collectionYear2425);
+
+            _collectionPeriodApiClient.Setup(x => x.GetOpenCollectionPeriods("2526"))
+                .ReturnsAsync((CollectionYear)null);
+
+            var collectionPeriodService = new CollectionPeriodService(_collectionPeriodApiClient.Object, _mapper);
+
+            IEnumerable<CollectionPeriodModel> result = null;
+            Func<Task> act = async () => result = await collectionPeriodService.GetOpenCollectionPeriods();
+
+            //Assert
+            await act.Should().NotThrowAsync();
+            result.Should().HaveCount(1);
+
+            var period2425 = result.Single();
+            period2425.Id.Should().Be(1234);
+            period2425.AcademicYear.Should().Be(2425);
+            period2425.Period.Should().Be(13);
+            period2425.Status.Should().Be(CollectionPeriodStatus.Open);
 
 
             _collectionPeriodApiClient.Verify(x => x.GetOpenCollectionYears(), Times.Once);
