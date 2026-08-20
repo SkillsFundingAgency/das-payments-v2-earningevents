@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Reqnroll;
 using SFA.DAS.Payments.EarningEvents.Data;
+using SFA.DAS.Payments.EarningEvents.Messages;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
@@ -19,12 +20,12 @@ using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningTy
 namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
 {
     [Binding]
-    public class GslApprenticeshipEarningsStepDefinitions
+    public class GSLApprenticeshipEarningsStepDefinitions
     {
         private TestSession testSession;
         private EarningsDataContext earningsDataContext;
         private CalculateGrowthAndSkillsPayments message;
-        private List<GSLApprenticeshipEarningsEvent> lastReceivedEvents = new();
+        private List<EarningEvent> lastReceivedEvents = new();
 
         [BeforeScenario("gslApprenticeship")]
         public async Task BeforeScenario()
@@ -49,7 +50,18 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         [Given("the payments service receives a CalculateGrowthAndSkillsPayments event for apprenticeship payments")]
         public void GivenThePaymentsServiceReceivesACalculateGrowthAndSkillsPaymentsEventForApprenticeshipPayments()
         {
-            message = new CalculateGrowthAndSkillsPayments
+            message = BuildMessage(LearningType.Apprenticeship, CourseType.Apprenticeship);
+        }
+
+        [Given("the payments service receives a CalculateGrowthAndSkillsPayments event for apprenticeship unit payments")]
+        public void GivenThePaymentsServiceReceivesACalculateGrowthAndSkillsPaymentsEventForApprenticeshipUnitPayments()
+        {
+            message = BuildMessage(LearningType.ApprenticeshipUnit, CourseType.ShortCourse);
+        }
+
+        private CalculateGrowthAndSkillsPayments BuildMessage(LearningType learningType, CourseType courseType)
+        {
+            return new CalculateGrowthAndSkillsPayments
             {
                 EarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer),
                 UKPRN = testSession.Provider.Ukprn,
@@ -64,8 +76,8 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 {
                     CourseCode = "APPR001",
                     CourseReference = "APPR001",
-                    CourseType = CourseType.Apprenticeship,
-                    LearningType = LearningType.Apprenticeship,
+                    CourseType = courseType,
+                    LearningType = learningType,
                     AgeAtStartOfTraining = 25,
                     StartDate = DateTime.Today.AddMonths(-6),
                     PlannedEndDate = DateTime.Today.AddMonths(18),
@@ -157,14 +169,15 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 () => GSLApprenticeshipEarningsEventHandler.GetEvents(testSession.Learner).Count() >= expectedGroups.Count,
                 "Timed out waiting for the expected GSL Apprenticeship Earnings Event(s) to be published");
 
-            lastReceivedEvents = GSLApprenticeshipEarningsEventHandler.GetEvents(testSession.Learner).ToList();
+            var receivedEvents = GSLApprenticeshipEarningsEventHandler.GetEvents(testSession.Learner).ToList();
+            lastReceivedEvents = receivedEvents.Cast<EarningEvent>().ToList();
 
             foreach (var group in expectedGroups)
             {
                 var period = byte.Parse(group.Key.CollectionPeriod.TrimStart('R', 'r'));
                 var academicYear = short.Parse(group.Key.AcademicYear);
 
-                var matchingEvent = lastReceivedEvents.SingleOrDefault(e =>
+                var matchingEvent = receivedEvents.SingleOrDefault(e =>
                     e.CollectionPeriod.AcademicYear == academicYear && e.CollectionPeriod.Period == period);
 
                 Assert.That(matchingEvent, Is.Not.Null,
@@ -181,6 +194,46 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
 
                     Assert.That(learningEarnings.Periods.Any(p => p.Period == deliveryPeriod && p.Amount == amount), Is.True,
                         $"Expected a Learning earning of {amount} for delivery period {deliveryPeriod} in collection period {group.Key.CollectionPeriod} {academicYear}");
+                }
+            }
+        }
+
+        [Then("the following outgoing GSL Short Course Earnings Event is published")]
+        [Then("the following outgoing GSL Short Course Earnings Events are published")]
+        public async Task ThenTheFollowingOutgoingGSLShortCourseEarningsEventsArePublished(Table table)
+        {
+            var expectedGroups = table.Rows.GroupBy(row => (CollectionPeriod: row["Collection Period"], AcademicYear: row["Academic Year"])).ToList();
+
+            await testSession.WaitForIt(
+                () => GSLShortCourseEarningsEventHandler.GetEvents(testSession.Learner).Count() >= expectedGroups.Count,
+                "Timed out waiting for the expected GSL Short Course Earnings Event(s) to be published");
+
+            var receivedEvents = GSLShortCourseEarningsEventHandler.GetEvents(testSession.Learner).ToList();
+            lastReceivedEvents = receivedEvents.Cast<EarningEvent>().ToList();
+
+            foreach (var group in expectedGroups)
+            {
+                var period = byte.Parse(group.Key.CollectionPeriod.TrimStart('R', 'r'));
+                var academicYear = short.Parse(group.Key.AcademicYear);
+
+                var matchingEvent = receivedEvents.SingleOrDefault(e =>
+                    e.CollectionPeriod.AcademicYear == academicYear && e.CollectionPeriod.Period == period);
+
+                Assert.That(matchingEvent, Is.Not.Null,
+                    $"Expected a GSL Short Course Earnings Event for collection period {group.Key.CollectionPeriod} {academicYear}");
+
+                foreach (var row in group)
+                {
+                    var deliveryPeriod = byte.Parse(row["Delivery Period"]);
+                    var transactionType = Enum.Parse<ShortCourseEarningType>(row["Transaction Type"]);
+                    var amount = decimal.Parse(row["Amount"]);
+
+                    var matchingEarning = matchingEvent.Earnings.SingleOrDefault(e => e.Type == transactionType);
+                    Assert.That(matchingEarning, Is.Not.Null,
+                        $"Expected {transactionType} earnings on the event for collection period {group.Key.CollectionPeriod} {academicYear}");
+
+                    Assert.That(matchingEarning.Periods.Any(p => p.Period == deliveryPeriod && p.Amount == amount), Is.True,
+                        $"Expected a {transactionType} earning of {amount} for delivery period {deliveryPeriod} in collection period {group.Key.CollectionPeriod} {academicYear}");
                 }
             }
         }
