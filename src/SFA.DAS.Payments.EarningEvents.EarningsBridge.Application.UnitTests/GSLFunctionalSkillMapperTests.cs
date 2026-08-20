@@ -159,6 +159,26 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
+        public void Maps_Age_At_Start_Of_Training()
+        {
+            // Arrange
+            var collectionPeriod = new CollectionPeriodModel
+            {
+                AcademicYear = 2627,
+                Period = 1,
+                Status = CollectionPeriodStatus.Open
+            };
+
+            var destinationMessage = new GSLFunctionalSkillEarningsEvent();
+
+            // Act
+            mapper.Map(sourceMessage, collectionPeriod, destinationMessage);
+
+            // Assert
+            destinationMessage.AgeAtStartOfLearning.Should().Be(sourceMessage.Training.AgeAtStartOfTraining);
+        }
+
+        [Test]
         public void Does_Not_Map_Job_Id()
         {
             // Arrange
@@ -286,7 +306,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             destinationMessage.LearningAim.PathwayCode.Should().Be(0);
             destinationMessage.LearningAim.SequenceNumber.Should().Be(0);
             destinationMessage.LearningAim.StartDate.Should().Be(sourceMessage.Training.StartDate);
-            destinationMessage.LearningAim.LearningType.Should().Be(sourceMessage.Training.LearningType);
+            destinationMessage.LearningAim.LearningType.Should().Be(Payments.Model.Core.Entities.LearningType.MathsAndEnglish);
             destinationMessage.LearningAim.CourseCode.Should().Be(sourceMessage.Training.CourseCode);
         }
 
