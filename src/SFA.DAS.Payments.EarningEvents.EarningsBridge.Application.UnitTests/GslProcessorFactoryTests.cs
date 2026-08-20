@@ -16,6 +16,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         private GSLProcessorFactory _sut;
         private GSLApprenticeshipPaymentsProcessor _apprenticeshipProcessor;
         private GSLShortCoursePaymentsProcessor _shortCourseProcessor;
+        private GSLFunctionalSkillProcessor _functionalSkillProcessor;
         private UnsupportedLearningTypeProcessor _unsupportedProcessor;
         private Mock<IServiceProvider> _serviceProvider;
 
@@ -30,6 +31,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Mock.Of<IGSLShortCoursesMapper>(),
                 Mock.Of<IPaymentsServiceBusPublisher>()).Object;
 
+            _functionalSkillProcessor = new Mock<GSLFunctionalSkillProcessor>().Object;
+
             _unsupportedProcessor = new UnsupportedLearningTypeProcessor();
 
             _serviceProvider = new Mock<IServiceProvider>();
@@ -41,6 +44,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _serviceProvider
                 .Setup(x => x.GetService(typeof(GSLShortCoursePaymentsProcessor)))
                 .Returns(_shortCourseProcessor);
+
+            _serviceProvider
+                .Setup(x => x.GetService(typeof(GSLFunctionalSkillProcessor)))
+                .Returns(_functionalSkillProcessor);
 
             _serviceProvider
                 .Setup(x => x.GetService(typeof(UnsupportedLearningTypeProcessor)))
@@ -78,7 +85,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         {
             var result = _sut.CreateGSLProcessor(CourseType.FunctionalSkill);
 
-            result.Should().BeOfType<GSLFunctionalSkillProcessor>();
+            result.Should().BeAssignableTo<GSLFunctionalSkillProcessor>();
         }
     }
 }
