@@ -92,7 +92,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 }
             }
 
-            var processor = _gslProcessorFactory.CreateGSLProcessor(growthAndSkillsEarningModel.LearningType);
+            var processor = _gslProcessorFactory.CreateGSLProcessor(growthAndSkillsEarningModel.CourseType);
             await processor.Process(message, openCollectionPeriods);
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);

@@ -6,6 +6,7 @@ using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
 {
+
     public class GSLShortCoursePaymentsProcessor : IGSLProcessor
     {
         private readonly IGSLShortCoursesMapper _mapper;

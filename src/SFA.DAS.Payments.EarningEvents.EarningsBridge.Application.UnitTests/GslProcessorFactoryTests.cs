@@ -52,7 +52,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         [Test]
         public void CreateGSLProcessor_Returns_ApprenticeshipProcessor_For_Apprenticeship_LearningType()
         {
-            var result = _sut.CreateGSLProcessor(LearningType.Apprenticeship);
+            var result = _sut.CreateGSLProcessor(CourseType.Apprenticeship);
 
             result.Should().Be(_apprenticeshipProcessor);
         }
@@ -60,19 +60,25 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         [Test]
         public void CreateGSLProcessor_Returns_ShortCourseProcessor_For_ApprenticeshipUnit_LearningType()
         {
-            var result = _sut.CreateGSLProcessor(LearningType.ApprenticeshipUnit);
+            var result = _sut.CreateGSLProcessor(CourseType.ShortCourse);
 
             result.Should().Be(_shortCourseProcessor);
         }
 
-        [TestCase(default(LearningType))]
-        [TestCase(LearningType.FoundationApprenticeship)]
-        [TestCase(LearningType.MathsAndEnglish)]
-        public void CreateGSLProcessor_Returns_UnsupportedLearningTypeProcessor_For_Unsupported_LearningType(LearningType learningType)
+        [Test]
+        public void CreateGSLProcessor_Returns_UnsupportedLearningTypeProcessor_For_Unsupported_LearningType()
         {
-            var result = _sut.CreateGSLProcessor(learningType);
+            var result = _sut.CreateGSLProcessor((CourseType)0);
 
             result.Should().Be(_unsupportedProcessor);
+        }
+
+        [Test]
+        public void CreateGSLProcessor_Returns_FunctionalSkillProcessor_For_FunctionalSkill_Course_Type()
+        {
+            var result = _sut.CreateGSLProcessor(CourseType.FunctionalSkill);
+
+            result.Should().BeOfType<GSLFunctionalSkillProcessor>();
         }
     }
 }

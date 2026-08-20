@@ -52,6 +52,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     CourseCode = "123456",
                     CourseReference = "ZSC00123",
                     LearningType = LearningType.ApprenticeshipUnit,
+                    CourseType = Messages.External.CourseType.ShortCourse,
                     StartDate = new DateTime(2026, 1, 1),
                     TrainingStatus = TrainingStatus.Continuing,
                     AgeAtStartOfTraining = 25,
@@ -110,7 +111,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _processorFactory = new Mock<IGSLProcessorFactory>();
             _logger = new Mock<ILogger<GSLCalculatePaymentsHandler>>();
             _gslService = new Mock<IGSLEarningsService>();
-            _processorFactory.Setup(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()))
+            _processorFactory.Setup(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()))
                 .Returns(_gslProcessor.Object);
 
             _repository.Setup(x => x.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>())).ReturnsAsync(new List<GrowthAndSkillsEarningModel>());
@@ -151,7 +152,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Times.Once);
 
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
-            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
         }
@@ -177,7 +178,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
-            _processorFactory.Verify(x => x.CreateGSLProcessor(SFA.DAS.Payments.EarningEvents.Model.LearningType.ApprenticeshipUnit), Times.Once);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(SFA.DAS.Payments.EarningEvents.Model.CourseType.ShortCourse), Times.Once);
             _gslProcessor.Verify(x => x.Process(_message, It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
             passedCollectionPeriods.Should().BeEquivalentTo(new[]
             {
@@ -209,7 +210,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.All(p => p.ProcessedOn == null))), Times.Once);
-            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
         }
 
@@ -299,7 +300,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.Where(x => x.AcademicYear == 2526)
                     .All(p => p.ProcessedOn != null))), Times.Once);
-            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Once);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
         }
 
@@ -399,7 +400,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
-            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Once);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.Count == 2
@@ -428,7 +429,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
-            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
         }
 
@@ -451,7 +452,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
-            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Once);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Once);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(model => model.PricePeriods.Any())), Times.Once);
         }
@@ -471,7 +472,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
-            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.LearningType>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
             _logger.Verify(

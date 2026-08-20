@@ -12,13 +12,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
             _serviceProvider = serviceProvider;
         }
 
-        public IGSLProcessor CreateGSLProcessor(LearningType learningType)
+        public IGSLProcessor CreateGSLProcessor(CourseType courseType)
         {
-            switch (learningType)
+            switch (courseType)
             {
-                case LearningType.Apprenticeship:
+                case CourseType.Apprenticeship:
                     return _serviceProvider.GetRequiredService<GSLApprenticeshipPaymentsProcessor>();
-                case LearningType.ApprenticeshipUnit:
+                case CourseType.ShortCourse:
                     return _serviceProvider.GetRequiredService<GSLShortCoursePaymentsProcessor>();
                 default:
                     // Route unsupported learning types to a pass-through processor so message handling can continue safely
