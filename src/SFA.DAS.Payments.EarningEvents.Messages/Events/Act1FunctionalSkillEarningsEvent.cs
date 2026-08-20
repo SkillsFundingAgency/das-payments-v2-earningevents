@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Payments.Messages.Common;
+using SFA.DAS.Payments.Messages.Common.Events;
 using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.Messages.Events
@@ -8,6 +9,7 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.Events
         public Act1FunctionalSkillEarningsEvent()
         {
             ContractType = ContractType.Act1;
+            FundingPlatformType = FundingPlatformType.SubmitLearnerData;
         }
     }
 }

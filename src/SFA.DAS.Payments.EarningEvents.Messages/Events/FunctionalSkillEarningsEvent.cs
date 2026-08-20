@@ -24,7 +24,7 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.Events
         public DateTime StartDate { get; set; }
 
         public ContractType ContractType { get; set; }
-
+        public FundingPlatformType FundingPlatformType { get; set; } 
         private static Type[] inheritors;
 
         private static Type[] GetInheritors()
