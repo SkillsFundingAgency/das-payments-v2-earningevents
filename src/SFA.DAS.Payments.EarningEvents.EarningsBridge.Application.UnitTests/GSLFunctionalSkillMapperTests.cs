@@ -331,7 +331,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 {
                     new Earnings
                     {
-                        AcademicYear = 2526,
+                        AcademicYear = 2627,
                         PricePeriods = new List<PricePeriod>
                         {
                             new PricePeriod
@@ -393,13 +393,119 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Status = CollectionPeriodStatus.Open
             };
 
+            var onProg = new EarningPeriod
+            {
+                Employer = new Employer
+                {
+                    EmployerType = EmployerType.Levy,
+                    AccountId = 10000,
+                    FundingAccountId = 10000
+                },
+                Amount = 600m,
+                DeliveryPeriod = 1,
+                EarningType = EarningType.OnProgrammeMathsAndEnglish,
+                LearningId = 123456
+            };
+            var balancing = new EarningPeriod
+            {
+                Employer = new Employer
+                {
+                    EmployerType = EmployerType.Levy,
+                    AccountId = 10000,
+                    FundingAccountId = 10000
+                },
+                Amount = 600m,
+                DeliveryPeriod = 2,
+                EarningType = EarningType.BalancingMathsAndEnglish,
+                LearningId = 123456
+            };
+            var support = new EarningPeriod
+            {
+                Employer = new Employer
+                {
+                    EmployerType = EmployerType.Levy,
+                    AccountId = 10000,
+                    FundingAccountId = 10000
+                },
+                Amount = 600m,
+                DeliveryPeriod = 2,
+                EarningType = EarningType.LearningSupport,
+                LearningId = 123456
+            };
+
+            sourceMessage.Earnings = new List<Earnings>
+                {
+                    new Earnings
+                    {
+                        AcademicYear = 2526,
+                        PricePeriods = new List<PricePeriod>
+                        {
+                            new PricePeriod
+                            {
+                                StartDate = new DateTime(2026, 1, 1),
+                                Price = 0,
+                                EndDate = new DateTime(2026, 2, 31),
+                                CompletionAmount = 0,
+                                InstalmentAmount = 0,
+                                NumberOfInstalments = 0,
+                                Periods = new List<EarningPeriod>
+                                {
+                                    onProg,
+                                }
+                            }
+                        }
+                    },
+                    new Earnings
+                    {
+                        AcademicYear = 2627,
+                        PricePeriods = new List<PricePeriod>
+                        {
+                            new PricePeriod
+                            {
+                                StartDate = new DateTime(2026, 1, 1),
+                                Price = 0,
+                                EndDate = new DateTime(2026, 2, 31),
+                                CompletionAmount = 0,
+                                InstalmentAmount = 0,
+                                NumberOfInstalments = 0,
+                                Periods = new List<EarningPeriod>
+                                {
+                                    balancing,
+                                }
+                            }
+                        }
+                    },                    
+                    new Earnings
+                    {
+                        AcademicYear = 2728,
+                        PricePeriods = new List<PricePeriod>
+                        {
+                            new PricePeriod
+                            {
+                                StartDate = new DateTime(2026, 1, 1),
+                                Price = 0,
+                                EndDate = new DateTime(2026, 2, 31),
+                                CompletionAmount = 0,
+                                InstalmentAmount = 0,
+                                NumberOfInstalments = 0,
+                                Periods = new List<EarningPeriod>
+                                {
+                                    support,
+                                }
+                            }
+                        }
+                    }
+                };
+
+
             var destinationMessage = new GSLFunctionalSkillEarningsEvent();
 
             // Act
             mapper.Map(sourceMessage, collectionPeriod, destinationMessage);
 
             // Assert
-            destinationMessage.ContractType.Should().Be(ContractType.Act1);
+            destinationMessage.Earnings.Count().Should().Be(1);
+            destinationMessage.Earnings.FirstOrDefault().Type.Should().Be(Payments.Model.Core.Incentives.FunctionalSkillType.BalancingMathsAndEnglish);
         }
     }
 }

@@ -13,7 +13,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
     {
         public void Map(CalculateGrowthAndSkillsPayments source, CollectionPeriodModel collectionPeriod, GSLFunctionalSkillEarningsEvent destination)
         {
-            throw new NotImplementedException();
+            destination.JobId = 0;
+            destination.FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService;
+            destination.ContractType = ContractType.Act1;
+            destination.PriceEpisodes = new List<Payments.Model.Core.PriceEpisode>();
         }
     }
 }
