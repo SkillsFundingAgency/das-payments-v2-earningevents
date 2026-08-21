@@ -48,14 +48,17 @@ builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, op
 builder.Services.AddScoped<IGrowthAndSkillsMapper, GrowthAndSkillsMapper>();
 builder.Services.AddScoped<IGSLApprenticeshipsMapper, GSLApprenticeshipsMapper>();
 builder.Services.AddScoped<IGSLShortCoursesMapper, GSLShortCoursesMapper>();
+builder.Services.AddScoped<IGSLFunctionalSkillMapper, GSLFunctionalSkillMapper>();
 builder.Services.AddScoped<IGSLCalculatePaymentsHandler, GSLCalculatePaymentsHandler>();
 builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsValidator>();
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
 builder.Services.AddScoped<GSLApprenticeshipPaymentsProcessor>();
 builder.Services.AddScoped<GSLShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<GSLFunctionalSkillProcessor>();
 builder.Services.AddScoped<UnsupportedLearningTypeProcessor>();
 builder.Services.AddScoped<IGSLProcessor,GSLApprenticeshipPaymentsProcessor>();
 builder.Services.AddScoped<IGSLProcessor, GSLShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<IGSLProcessor, GSLFunctionalSkillProcessor>();
 builder.Services.AddScoped<IGSLProcessorFactory, GSLProcessorFactory>();
 
 
