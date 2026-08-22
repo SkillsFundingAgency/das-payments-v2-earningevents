@@ -24,6 +24,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
 
         public async Task Process(CalculateGrowthAndSkillsPayments message, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
         {
+            //TODO: This is NOT a required payment event.  Needs to be renamed.
             var requiredPaymentsEvents = _mapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
 
             if (requiredPaymentsEvents is null || !requiredPaymentsEvents.Any())
@@ -31,6 +32,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
                 return;
             }
 
+            //TODO: These are not funding source events.  Needs to be renamed.
             var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
 
             foreach (var requiredPaymentsEvent in requiredPaymentsEvents)

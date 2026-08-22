@@ -19,7 +19,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
                 CourseType.Apprenticeship => _serviceProvider.GetRequiredService<GSLApprenticeshipPaymentsProcessor>(),
                 CourseType.ShortCourse => _serviceProvider.GetRequiredService<GSLShortCoursePaymentsProcessor>(),
                 CourseType.FunctionalSkill => _serviceProvider.GetRequiredService<GSLFunctionalSkillProcessor>(),
-                _ => _serviceProvider.GetRequiredService<UnsupportedLearningTypeProcessor>(),// Route unsupported learning types to a pass-through processor so message handling can continue safely
+                _ => throw new InvalidOperationException($"Cannot resolve a processor for an unknown course type: {courseType}")
             };
         }
     }

@@ -2,6 +2,7 @@ using System;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Moq.AutoMock;
 using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
@@ -13,79 +14,37 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
     [TestFixture]
     public class GSLProcessorFactoryTests
     {
+        private AutoMocker mocker;
         private GSLProcessorFactory _sut;
-        private GSLApprenticeshipPaymentsProcessor _apprenticeshipProcessor;
-        private GSLShortCoursePaymentsProcessor _shortCourseProcessor;
-        private GSLFunctionalSkillProcessor _functionalSkillProcessor;
-        private UnsupportedLearningTypeProcessor _unsupportedProcessor;
         private Mock<IServiceProvider> _serviceProvider;
 
         [SetUp]
         public void SetUp()
         {
-            _apprenticeshipProcessor = new Mock<GSLApprenticeshipPaymentsProcessor>(
-                Mock.Of<IGSLApprenticeshipsMapper>(),
-                Mock.Of<IPaymentsServiceBusPublisher>()).Object;
+            mocker = new AutoMocker(MockBehavior.Loose);
 
-            _shortCourseProcessor = new Mock<GSLShortCoursePaymentsProcessor>(
-                Mock.Of<IGSLShortCoursesMapper>(),
-                Mock.Of<IPaymentsServiceBusPublisher>()).Object;
+            _serviceProvider = mocker.GetMock<IServiceProvider>();            
 
-            _functionalSkillProcessor = new Mock<GSLFunctionalSkillProcessor>().Object;
-
-            _unsupportedProcessor = new UnsupportedLearningTypeProcessor();
-
-            _serviceProvider = new Mock<IServiceProvider>();
-
-            _serviceProvider
-                .Setup(x => x.GetService(typeof(GSLApprenticeshipPaymentsProcessor)))
-                .Returns(_apprenticeshipProcessor);
-
-            _serviceProvider
-                .Setup(x => x.GetService(typeof(GSLShortCoursePaymentsProcessor)))
-                .Returns(_shortCourseProcessor);
-
-            _serviceProvider
-                .Setup(x => x.GetService(typeof(GSLFunctionalSkillProcessor)))
-                .Returns(_functionalSkillProcessor);
-
-            _serviceProvider
-                .Setup(x => x.GetService(typeof(UnsupportedLearningTypeProcessor)))
-                .Returns(_unsupportedProcessor);
-
-            _sut = new GSLProcessorFactory(_serviceProvider.Object);
+            _sut = mocker.CreateInstance<GSLProcessorFactory>();
         }
 
-        [Test]
-        public void CreateGSLProcessor_Returns_ApprenticeshipProcessor_For_Apprenticeship_LearningType()
+        [TestCase(CourseType.Apprenticeship,typeof(GSLApprenticeshipPaymentsProcessor))]
+        [TestCase(CourseType.ShortCourse, typeof(GSLShortCoursePaymentsProcessor))]
+        [TestCase(CourseType.FunctionalSkill, typeof(GSLFunctionalSkillProcessor))]
+        public void CreateGSLProcessor_Returns_Correct_Processor(CourseType courseType, Type processorType)
         {
-            var result = _sut.CreateGSLProcessor(CourseType.Apprenticeship);
-
-            result.Should().Be(_apprenticeshipProcessor);
+            _serviceProvider.Setup(x => x.GetService(processorType)).Returns(mocker.CreateInstance(processorType));
+            var result = _sut.CreateGSLProcessor(courseType);
+            mocker.GetMock<IServiceProvider>().Verify(x => x.GetService(processorType), Times.Once());
+            result.Should().BeAssignableTo(processorType);
         }
 
-        [Test]
-        public void CreateGSLProcessor_Returns_ShortCourseProcessor_For_ApprenticeshipUnit_LearningType()
-        {
-            var result = _sut.CreateGSLProcessor(CourseType.ShortCourse);
-
-            result.Should().Be(_shortCourseProcessor);
-        }
 
         [Test]
-        public void CreateGSLProcessor_Returns_UnsupportedLearningTypeProcessor_For_Unsupported_LearningType()
+        public void Unknown_Course_Type_Throws_Exception() 
         {
-            var result = _sut.CreateGSLProcessor((CourseType)0);
-
-            result.Should().Be(_unsupportedProcessor);
-        }
-
-        [Test]
-        public void CreateGSLProcessor_Returns_FunctionalSkillProcessor_For_FunctionalSkill_Course_Type()
-        {
-            var result = _sut.CreateGSLProcessor(CourseType.FunctionalSkill);
-
-            result.Should().BeAssignableTo<GSLFunctionalSkillProcessor>();
+            _serviceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(mocker.CreateInstance<GSLApprenticeshipPaymentsProcessor>());
+            Assert.Throws<InvalidOperationException>(() => _sut.CreateGSLProcessor((CourseType)0));
         }
     }
 }
