@@ -1,5 +1,6 @@
 using Moq;
 using Moq.AutoMock;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
@@ -10,14 +11,15 @@ using SFA.DAS.Payments.Model.Core.Entities;
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 {
     [TestFixture]
-    public class GSLFunctionalSkillProcessorTests 
+    public class GSLFunctionalSkillProcessorTests
     {
         private AutoMocker mocker;
         private CalculateGrowthAndSkillsPayments sourceMessage;
+        private List<CollectionPeriodModel> collectionPeriods;
 
         [SetUp]
-        public void SetUp() 
-        { 
+        public void SetUp()
+        {
             mocker = new AutoMocker(MockBehavior.Loose);
             sourceMessage = new CalculateGrowthAndSkillsPayments
             {
@@ -92,6 +94,28 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     }
                 }
             };
+            collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel { Period = 13, AcademicYear = 2627, Status = CollectionPeriodStatus.Open},
+                new CollectionPeriodModel { Period = 1, AcademicYear = 2728, Status = CollectionPeriodStatus.Open }            
+            };
+            mocker.GetMock<IGSLFunctionalSkillMapper>().Setup(x => x.Map(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<CollectionPeriodModel>(), It.IsAny<GSLFunctionalSkillEarningsEvent>()))
+                .Callback<CalculateGrowthAndSkillsPayments, CollectionPeriodModel, GSLFunctionalSkillEarningsEvent>((message, period, earningsEvent) =>
+                {
+                    earningsEvent.EventId = message.EarningsId;
+                    earningsEvent.CollectionPeriod = new Payments.Model.Core.CollectionPeriod
+                    {
+                        AcademicYear = period.AcademicYear,
+                        Period = period.Period
+                    };
+                });
+
+            mocker.GetMock<IGSLFunctionalSkillMapper>()
+                .Setup(x => x.MapToDasEarningsReceivedEvents(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<List<CollectionPeriodModel>>()))
+                .Returns(collectionPeriods                    
+                    .Select(period => new DasEarningsReceivedEvent { 
+                        CollectionPeriod = new Payments.Model.Core.CollectionPeriod { 
+                            AcademicYear = period.AcademicYear, Period = period.Period } }));
         }
 
         [Test]
@@ -102,6 +126,38 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             await processor.Process(sourceMessage, new List<CollectionPeriodModel>());
 
             mocker.Verify<IPaymentsServiceBusPublisher>(x => x.Publish(It.IsAny<GSLFunctionalSkillEarningsEvent>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Maps_Earnings_For_Each_Collection_Period()
+        {
+            var processor = mocker.CreateInstance<GSLFunctionalSkillProcessor>();
+            collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel { Period = 13, AcademicYear = 2627, Status = CollectionPeriodStatus.Open},
+                new CollectionPeriodModel { Period = 1, AcademicYear = 2728, Status = CollectionPeriodStatus.Open }
+            };
+            await processor.Process(sourceMessage, collectionPeriods);
+            mocker.GetMock<IGSLFunctionalSkillMapper>().Verify(x => x.Map(sourceMessage, collectionPeriods[0], It.IsAny<GSLFunctionalSkillEarningsEvent>()), Times.Once);
+            mocker.GetMock<IGSLFunctionalSkillMapper>().Verify(x => x.Map(sourceMessage, collectionPeriods[1], It.IsAny<GSLFunctionalSkillEarningsEvent>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Publishes_Functional_Skills_Events_For_Open_Periods()
+        {
+            var processor = mocker.CreateInstance<GSLFunctionalSkillProcessor>();
+
+            await processor.Process(sourceMessage, collectionPeriods);
+            mocker.GetMock<IPaymentsServiceBusPublisher>().Verify(x => x.Publish(It.IsAny<GSLFunctionalSkillEarningsEvent>()), Times.Exactly(2));
+        }
+
+        [Test]
+        public async Task Publishes_DAS_Earnings_Events_Received_For_Open_Periods()
+        {
+            var processor = mocker.CreateInstance<GSLFunctionalSkillProcessor>();
+
+            await processor.Process(sourceMessage, collectionPeriods);
+            mocker.GetMock<IPaymentsServiceBusPublisher>().Verify(x => x.Publish(It.IsAny<DasEarningsReceivedEvent>()), Times.Exactly(2));
         }
     }
 }

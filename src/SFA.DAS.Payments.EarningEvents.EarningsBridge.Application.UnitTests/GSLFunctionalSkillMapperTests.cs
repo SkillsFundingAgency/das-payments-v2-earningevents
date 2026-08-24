@@ -112,7 +112,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             // Act
             mapper.Map(sourceMessage, collectionPeriod, destinationMessage);
-
+            
             // Assert
             destinationMessage.CollectionPeriod.AcademicYear.Should().Be(collectionPeriod.AcademicYear);
             destinationMessage.CollectionPeriod.Period.Should().Be(collectionPeriod.Period);
