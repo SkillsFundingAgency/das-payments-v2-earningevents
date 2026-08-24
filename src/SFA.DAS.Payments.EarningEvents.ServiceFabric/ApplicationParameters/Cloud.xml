@@ -2,7 +2,7 @@
 <Application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="fabric:/SFA.DAS.Payments.EarningEvents.ServiceFabric" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
     <Parameter Name="EarningEventsService2526_InstanceCount" Value="__EarningEventsService2526_InstanceCount__" />
-    <Parameter Name="EarningEventsService2425_InstanceCount" Value="__EarningEventsService2425_InstanceCount__" />
+    <Parameter Name="EarningEventsService2627_InstanceCount" Value="__EarningEventsService2627_InstanceCount__" />
     <Parameter Name="ProcessLearnerProxyService_InstanceCount" Value="__ProcessLearnerProxyService_InstanceCount__" />
     <Parameter Name="ProcessLearnerServiceActorService_PartitionCount" Value="__ProcessLearnerActorService_PartitionCount__" />
     <Parameter Name="ProcessLearnerServiceActorService_MinReplicaSetSize" Value="__ProcessLearnerActorService_MinReplicaSetSize__" />
@@ -11,9 +11,9 @@
     <Parameter Name="MonitoringServiceBusConnectionString" Value="__MonitoringServiceBusConnectionString__" />
     <Parameter Name="DCServiceBusConnectionString" Value="__DCServiceBusConnectionString__" />
     <Parameter Name="EarningEventsService2526_EndpointName" Value="__EarningEventsService2526_EndpointName__" />
-    <Parameter Name="EarningEventsService2425_EndpointName" Value="__EarningEventsService2425_EndpointName__" />
+    <Parameter Name="EarningEventsService2627_EndpointName" Value="__EarningEventsService2627_EndpointName__" />
     <Parameter Name="EarningEventsService2526_FailedMessagesQueue" Value="__EarningEventsService2526_FailedMessagesQueue__" />
-    <Parameter Name="EarningEventsService2425_FailedMessagesQueue" Value="__EarningEventsService2425_FailedMessagesQueue__" />
+    <Parameter Name="EarningEventsService2627_FailedMessagesQueue" Value="__EarningEventsService2627_FailedMessagesQueue__" />
     <Parameter Name="ProcessLearnerService_EndpointName" Value="__ProcessLearnerService_EndpointName__" />
     <Parameter Name="ProcessLearnerService_FailedMessagesQueue" Value="__ProcessLearnerService_FailedMessagesQueue__" />
     <Parameter Name="SubscriptionName" Value="__SubscriptionName__" />
@@ -25,7 +25,7 @@
     <Parameter Name="PaymentsConnectionString" Value="__DasPaymentsConnectionStringRW__" />
     <Parameter Name="PaymentsMonitoringConnectionString" Value="__PaymentsMonitoringConnectionString__" />
     <Parameter Name="TopicName2526" Value="__TopicName2526__" />
-    <Parameter Name="TopicName2425" Value="__TopicName2425__" />
+    <Parameter Name="TopicName2627" Value="__TopicName2627__" />
     <Parameter Name="LogLevel" Value="__LogLevel__" />
     <Parameter Name="ProcessMessageSequentially" Value="false" />
     <Parameter Name="ApplicationInsightsInstrumentationKey" Value="__ApplicationInsights_InstrumentationKey__" />
