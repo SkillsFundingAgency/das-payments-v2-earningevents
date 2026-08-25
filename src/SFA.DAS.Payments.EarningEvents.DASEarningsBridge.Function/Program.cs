@@ -1,6 +1,8 @@
+using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,8 +11,8 @@ using SFA.DAS.Payments.EarningEvents.Data;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructure.Configuration;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
-using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Function;
@@ -66,6 +68,16 @@ builder.Services.AddHttpClient<ICollectionPeriodApiClient, CollectionPeriodApiCl
 {
     var config = sp.GetService<IEarningsBridgeConfiguration>();
     client.BaseAddress = new Uri(config.CollectionPeriodApiBaseAddress);
+});
+
+builder.Services.AddAzureClients( clientBuilder =>
+{
+    var config = builder.Configuration.Get<EarningsBridgeConfiguration>();
+    clientBuilder.AddServiceBusClient(config.DASServiceBusConnectionString)
+        .ConfigureOptions(options =>
+        {
+            options.TransportType = config.UseWebSockets ? ServiceBusTransportType.AmqpWebSockets : ServiceBusTransportType.AmqpTcp;
+        });
 });
 
 builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPublisher>((sp) =>
