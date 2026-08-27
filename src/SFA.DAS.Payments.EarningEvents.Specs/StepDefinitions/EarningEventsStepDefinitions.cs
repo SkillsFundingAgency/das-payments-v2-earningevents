@@ -55,8 +55,6 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             testSession.DataContext.CollectionPeriods.Add(new CollectionPeriodModel
             {
                 AcademicYear = currentPeriod.AcademicYear,
-                CalendarMonth = (byte)DateTime.Today.Month,
-                CalendarYear = (byte)DateTime.Today.Year,
                 CompletionDate = DateTime.Today,
                 EndDateTime = null,
                 Period = currentPeriod.Period,
