@@ -34,7 +34,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _collectionPeriodService = collectionPeriodService;
             _logger = logger;
         }
-        
+
         public async Task HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
         {
             try
@@ -42,7 +42,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 if (!_validator.Validate(message))
                 {
                     return;
-                };
+                }
+                ;
             }
             catch (Exception ex)
             {
@@ -76,7 +77,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
-            if(!openCollectionPeriods.Any())
+            if (!openCollectionPeriods.Any())
             {
                 await _repository.SaveEarnings(growthAndSkillsEarningModel);
                 return;
@@ -84,28 +85,33 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             foreach (var earning in growthAndSkillsEarningModel.PricePeriods)
             {
-                if (openCollectionPeriods.Any(x => x.AcademicYear == earning.AcademicYear))
+                var openCollectionPeriod = openCollectionPeriods
+                    .FirstOrDefault(x => x.AcademicYear == earning.AcademicYear);
+
+                if (openCollectionPeriod != null)
                 {
-                    earning.ProcessedOn = DateTime.UtcNow; // if ProcessedOn is not set then will be cached and picked up for processing later
+                    if (earning.DeliveryPeriod <= openCollectionPeriod.Period)
+                    {
+                        earning.ProcessedOn = DateTime.UtcNow;
+                    }
                 }
             }
 
             var requiredPaymentsEvents = _mapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
-
-            var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
-
+            if (requiredPaymentsEvents.Any())
+            {
+                var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
+                foreach (var fundingSourceEvent in fundingSourceEvents)
+                {
+                    await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
+                }
+            }
 
             foreach (var requiredPaymentsEvent in requiredPaymentsEvents)
             {
                 await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
             }
-
-            foreach (var fundingSourceEvent in fundingSourceEvents)
-            {
-                await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
-            }
             
-
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }
     }
