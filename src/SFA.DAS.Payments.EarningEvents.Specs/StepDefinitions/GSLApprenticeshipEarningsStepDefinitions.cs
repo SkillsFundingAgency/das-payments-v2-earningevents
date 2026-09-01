@@ -140,8 +140,6 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 {
                     AcademicYear = academicYear,
                     Period = period,
-                    CalendarMonth = (byte)period.ToMonth(),
-                    CalendarYear = (byte)(period.ToYear(academicYear.ToString()) - 2000),
                     CompletionDate = DateTime.Today,
                     EndDateTime = null,
                     ReferenceDataValidationDate = null,
