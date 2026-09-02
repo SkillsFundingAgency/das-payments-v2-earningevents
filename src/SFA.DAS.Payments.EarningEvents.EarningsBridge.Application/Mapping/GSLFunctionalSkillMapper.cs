@@ -17,6 +17,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
         public void Map(CalculateGrowthAndSkillsPayments source, CollectionPeriodModel collectionPeriod, GSLFunctionalSkillEarningsEvent destination)
         {
             destination.JobId = 0;
+            destination.ExternalEarningsId = source.EarningsId;
             destination.FundingPlatformType = FundingPlatformType.DigitalApprenticeshipService;
             destination.Ukprn = source.UKPRN;
             destination.CollectionYear = collectionPeriod.AcademicYear;
