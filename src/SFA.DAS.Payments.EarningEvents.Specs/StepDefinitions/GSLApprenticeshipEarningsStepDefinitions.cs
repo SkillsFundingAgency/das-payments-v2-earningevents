@@ -8,8 +8,10 @@ using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Specs.Handlers;
 using SFA.DAS.Payments.Model.Core.Entities;
+using SFA.DAS.Payments.Model.Core.Incentives;
 using SFA.DAS.Payments.Model.Core.OnProgramme;
 using UUIDNext;
+using Common = SFA.DAS.Payments.Model.Core;
 using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EarningPeriod = SFA.DAS.Payments.EarningEvents.Messages.External.EarningPeriod;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
@@ -51,12 +53,6 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         public void GivenThePaymentsServiceReceivesACalculateGrowthAndSkillsPaymentsEventForApprenticeshipPayments()
         {
             message = BuildMessage(LearningType.Apprenticeship, CourseType.Apprenticeship);
-        }
-
-        [Given("the payments service receives a CalculateGrowthAndSkillsPayments event for apprenticeship unit payments")]
-        public void GivenThePaymentsServiceReceivesACalculateGrowthAndSkillsPaymentsEventForApprenticeshipUnitPayments()
-        {
-            message = BuildMessage(LearningType.ApprenticeshipUnit, CourseType.ShortCourse);
         }
 
         private CalculateGrowthAndSkillsPayments BuildMessage(LearningType learningType, CourseType courseType)
@@ -181,19 +177,50 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 Assert.That(matchingEvent, Is.Not.Null,
                     $"Expected a GSL Apprenticeship Earnings Event for collection period {group.Key.CollectionPeriod} {academicYear}");
 
-                var learningEarnings = matchingEvent.OnProgrammeEarnings.SingleOrDefault(o => o.Type == OnProgrammeEarningType.Learning);
-                Assert.That(learningEarnings, Is.Not.Null,
-                    $"Expected Learning earnings on the event for collection period {group.Key.CollectionPeriod} {academicYear}");
-
                 foreach (var row in group)
                 {
                     var deliveryPeriod = byte.Parse(row["Delivery Period"]);
+                    var transactionType = row["Transaction Type"];
                     var amount = decimal.Parse(row["Amount"]);
 
-                    Assert.That(learningEarnings.Periods.Any(p => p.Period == deliveryPeriod && p.Amount == amount), Is.True,
-                        $"Expected a Learning earning of {amount} for delivery period {deliveryPeriod} in collection period {group.Key.CollectionPeriod} {academicYear}");
+                    var matchingPeriods = GetMatchingEarningPeriods(matchingEvent, transactionType);
+
+                    Assert.That(matchingPeriods.Any(p => p.Period == deliveryPeriod && p.Amount == amount), Is.True,
+                        $"Expected a {transactionType} earning of {amount} for delivery period {deliveryPeriod} in collection period {group.Key.CollectionPeriod} {academicYear}");
                 }
             }
+        }
+
+        [Then("the outgoing GSL Apprenticeship Earnings Event maps {int} earning period(s) in total")]
+        public void ThenTheOutgoingGSLApprenticeshipEarningsEventMapsEarningPeriodsInTotal(int expectedCount)
+        {
+            var apprenticeshipEvents = lastReceivedEvents.OfType<GSLApprenticeshipEarningsEvent>().ToList();
+
+            var actualCount = apprenticeshipEvents.Sum(e =>
+                e.OnProgrammeEarnings.Sum(o => o.Periods.Count) +
+                e.IncentiveEarnings.Sum(i => i.Periods.Count));
+
+            Assert.That(actualCount, Is.EqualTo(expectedCount),
+                $"Expected {expectedCount} mapped earning period(s) across the published GSL Apprenticeship Earnings Event(s) but found {actualCount}");
+        }
+
+        private static IEnumerable<Common.EarningPeriod> GetMatchingEarningPeriods(GSLApprenticeshipEarningsEvent earningEvent, string transactionType)
+        {
+            if (Enum.TryParse<OnProgrammeEarningType>(transactionType, out var onProgrammeType))
+            {
+                return earningEvent.OnProgrammeEarnings
+                    .Where(o => o.Type == onProgrammeType)
+                    .SelectMany(o => o.Periods);
+            }
+
+            if (Enum.TryParse<IncentiveEarningType>(transactionType, out var incentiveType))
+            {
+                return earningEvent.IncentiveEarnings
+                    .Where(i => i.Type == incentiveType)
+                    .SelectMany(i => i.Periods);
+            }
+
+            throw new ArgumentException($"'{transactionType}' is not a recognised on-programme or incentive earning type");
         }
 
         [Then("the following outgoing GSL Short Course Earnings Event is published")]
