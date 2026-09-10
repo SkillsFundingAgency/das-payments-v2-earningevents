@@ -3,48 +3,22 @@ using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
+using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
 using System.Data.SqlTypes;
 using UUIDNext;
 using Common = SFA.DAS.Payments.Model.Core;
-using EarningPeriod = SFA.DAS.Payments.EarningEvents.Messages.External.EarningPeriod;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.Model.Core.Entities.LearningType;
 using TrainingStatus = SFA.DAS.Payments.EarningEvents.Messages.External.TrainingStatus;
 
-// ReSharper disable InconsistentNaming
-
-namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
+namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 {
-    public class GrowthAndSkillsMapper : IGrowthAndSkillsMapper
+    public class GSLShortCoursesMapper : GrowthAndSkillsMapper, IGSLShortCoursesMapper
     {
         private const int FundingRules2026AgeThreshold = 25;
         private const decimal DefaultSfaContribution = 0.95m;
         public static readonly DateTime FundingRules2026EligibilityDate = new(2026, 8, 1);
-
-        public GrowthAndSkillsEarningModel MapToGrowthAndSkillsEarningModel(CalculateGrowthAndSkillsPayments source)
-        {
-            return new GrowthAndSkillsEarningModel
-            {
-                EarningsId = source.EarningsId,
-                UKPRN = source.UKPRN,
-                LearnerKey = source.Learner.LearnerKey,
-                LearnerUln = source.Learner.ULN,
-                LearnerReference = source.Learner.Reference,
-                LearningType = (Model.LearningType)source.Training.LearningType,
-                CourseCode = source.Training.CourseCode,
-                CourseReference = source.Training.CourseReference,
-                StartDate = source.Training.StartDate,
-                AgeAtStartOfTraining = source.Training.AgeAtStartOfTraining,
-                PlannedEndDate = source.Training.PlannedEndDate,
-                ActualEndDate = source.Training.ActualEndDate,
-                TrainingStatus = (Model.TrainingStatus)source.Training.TrainingStatus,
-                EmployerContribution = source.EmployerContribution,
-                CourseType = (Model.CourseType)source.Training.CourseType,
-                LearningKey = source.Training.LearningKey,
-                PricePeriods = MapToPricePeriodModels(source)
-            };
-        }
 
         public IEnumerable<GSLShortCourseEarningsEvent> MapToShortCourseEarningEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
         {
@@ -66,7 +40,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                 }
                 return earningEvents.Values.ToList();
             }
- 
+
             foreach (var earning in earnings)
             {
                 if (!earningEvents.ContainsKey(earning.AcademicYear))
@@ -86,81 +60,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             }
 
             return earningEvents.Values.ToList();
-        }
-        
-        public IEnumerable<CollectionPeriodModel> MapCollectionYearToCollectionPeriodModels(CollectionYear collectionYear)
-        {
-            var collectionPeriodModels = new List<CollectionPeriodModel>();
-
-            foreach (var period in collectionYear.Periods)
-            {
-                collectionPeriodModels.Add(new CollectionPeriodModel
-                {
-                    AcademicYear = collectionYear.Year,
-                    Period = period.Period,
-                    Status = period.Status,
-                    Id = period.Id
-                });
-            }
-            return collectionPeriodModels;
-        }
-
-        public IEnumerable<DasEarningsReceivedEvent> MapToDasEarningsReceivedEvents(CalculateGrowthAndSkillsPayments source, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
-        {
-            var earningsEvents = new List<DasEarningsReceivedEvent>();
-
-            foreach (var collectionPeriod in openCollectionPeriods)
-            {
-                earningsEvents.Add(new DasEarningsReceivedEvent
-                {
-                    EarningsId = source.EarningsId,
-                    CourseCode = source.Training.CourseCode,
-                    CollectionPeriod = new Common.CollectionPeriod
-                    {
-                        AcademicYear = collectionPeriod.AcademicYear,
-                        Period = collectionPeriod.Period
-                    },
-                    ULN = source.Learner.ULN,
-                    UKPRN = source.UKPRN,
-                    LearningAimReference = source.Training.CourseReference,
-                });
-            }
-
-            return earningsEvents;
-        }
-
-        private List<GrowthAndSkillsEarningPricePeriodModel> MapToPricePeriodModels(CalculateGrowthAndSkillsPayments source)
-        {
-            var output = new List<GrowthAndSkillsEarningPricePeriodModel>();
-
-            foreach (var earning in source.Earnings)
-            {
-                foreach (var pricePeriod in earning.PricePeriods)
-                {
-                    foreach (var earningPeriod in pricePeriod.Periods)
-                    {
-                        var shortCourseEarningPricePeriodRecord = new GrowthAndSkillsEarningPricePeriodModel
-                        {
-                            AcademicYear = earning.AcademicYear,
-                            Price = pricePeriod.Price,
-                            StartDate = pricePeriod.StartDate,
-                            EndDate = pricePeriod.EndDate,
-                            DeliveryPeriod = earningPeriod.DeliveryPeriod,
-                            EarningType = (Model.EarningType)earningPeriod.EarningType,
-                            Amount = earningPeriod.Amount,
-                            EmployerAccountId = earningPeriod.Employer.AccountId,
-                            EmployerType = (Model.EmployerType)earningPeriod.Employer.EmployerType,
-                            FundingAccountId = earningPeriod.Employer.FundingAccountId,
-                            GrowthAndSkillsEarningsId = source.EarningsId,
-                            ApprenticeshipId = earningPeriod.LearningId
-                        };
-
-                        output.Add(shortCourseEarningPricePeriodRecord);
-                    }
-
-                }
-            }
-            return output;
         }
 
         private List<Common.PriceEpisode> MapToEarningEventPriceEpisodes(CalculateGrowthAndSkillsPayments source, short academicYear)
@@ -211,53 +110,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             return $"{training.CourseCode}-{startDate}";
         }
 
-        private IEnumerable<ShortCourseEarning> MapToEarnings(CalculateGrowthAndSkillsPayments source, short academicYear)
-        {
-            var shortCourseEarnings = new List<ShortCourseEarning>();
 
-            foreach (var earning in source.Earnings.Where(x => x.AcademicYear == academicYear))
-            {
-                foreach (var pricePeriod in earning.PricePeriods)
-                {
-                    foreach (var period in pricePeriod.Periods)
-                    {
-                        shortCourseEarnings.Add(new ShortCourseEarning
-                        {
-                            Type = (ShortCourseEarningType)period.EarningType,
-                            Periods = new List<Common.EarningPeriod>
-                            {
-                                    new Common.EarningPeriod
-                                    {
-                                        AccountId = period.Employer.AccountId,
-                                        Amount = period.Amount,
-                                        TransferSenderAccountId = MapTransferSenderAccountId(period),
-                                        ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
-                                        Period = period.DeliveryPeriod,
-                                        SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType, source.Training),
-                                        ApprenticeshipId = period.LearningId,
-                                        PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate)
-                                    }
-                                }
-                            }
-                        );
-                    }
-                }
-            }
 
-            return shortCourseEarnings;
-        }
-
-        private long? MapTransferSenderAccountId(EarningPeriod earningPeriod)
-        {
-            if (earningPeriod.Employer.AccountId != earningPeriod.Employer.FundingAccountId)
-            {
-                return earningPeriod.Employer.FundingAccountId;
-            }
-
-            return null;
-        }
-
-        private decimal? MapSfaContributionPercentage(EmployerType employerType, Training training)
+            private decimal? MapSfaContributionPercentage(EmployerType employerType, Training training)
         {
             
             if (employerType == EmployerType.NonLevy)
@@ -327,6 +182,41 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
                     PriceEpisodes = new List<Common.PriceEpisode>()
                 });
         }
+
+        private IEnumerable<ShortCourseEarning> MapToEarnings(CalculateGrowthAndSkillsPayments source, short academicYear)
+        {
+            var shortCourseEarnings = new List<ShortCourseEarning>();
+
+            foreach (var earning in source.Earnings.Where(x => x.AcademicYear == academicYear))
+            {
+                foreach (var pricePeriod in earning.PricePeriods)
+                {
+                    foreach (var period in pricePeriod.Periods)
+                    {
+                        shortCourseEarnings.Add(new ShortCourseEarning
+                        {
+                            Type = (ShortCourseEarningType)period.EarningType,
+                            Periods = new List<Common.EarningPeriod>
+                            {
+                                    new Common.EarningPeriod
+                                    {
+                                        AccountId = period.Employer.AccountId,
+                                        Amount = period.Amount,
+                                        TransferSenderAccountId = MapTransferSenderAccountId(period),
+                                        ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
+                                        Period = period.DeliveryPeriod,
+                                        SfaContributionPercentage = MapSfaContributionPercentage(period.Employer.EmployerType, source.Training),
+                                        ApprenticeshipId = period.LearningId,
+                                        PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate)
+                                    }
+                                }
+                        }
+                        );
+                    }
+                }
+            }
+
+            return shortCourseEarnings;
+        }
     }
 }
-

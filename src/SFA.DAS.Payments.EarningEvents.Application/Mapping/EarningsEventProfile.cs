@@ -72,6 +72,8 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Mapping
                         source.Aims.OrderBy(aim => aim.LearningDeliveryValues.LearnStartDate).First()
                             .LearningDeliveryValues.AgeAtProgStart))
                 .Ignore(x => x.ContractType)
+                .ForMember(destinationMember => destinationMember.FundingPlatformType, opt => opt.MapFrom(source => FundingPlatformType.SubmitLearnerData))
+                .Ignore(x => x.AgreementId)
                 .AfterMap((intermediateLearningAim, earningEvent) => earningEvent.LearningAim.LearningType = LearningType.MathsAndEnglish)
                 ;
 
