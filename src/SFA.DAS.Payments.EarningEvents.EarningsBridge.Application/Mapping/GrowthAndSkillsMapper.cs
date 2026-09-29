@@ -7,6 +7,7 @@ using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Entities;
 using Common = SFA.DAS.Payments.Model.Core;
 using EarningPeriod = SFA.DAS.Payments.EarningEvents.Messages.External.EarningPeriod;
+using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 
 // ReSharper disable InconsistentNaming
 
@@ -122,6 +123,65 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
             }
             return output;
         }
+        
+        public CalculateGrowthAndSkillsPayments MapToCalculateGrowthAndSkillsPayments(GrowthAndSkillsEarningModel earning)
+        {
+            return new CalculateGrowthAndSkillsPayments
+            {
+                EarningsId = earning.EarningsId,
+                UKPRN = earning.UKPRN,
+                EmployerContribution = earning.EmployerContribution,
+                Learner = new Messages.External.Learner
+                {
+                    LearnerKey = earning.LearnerKey,
+                    ULN = earning.LearnerUln,
+                    Reference = earning.LearnerReference
+                },
+                Training = new Training
+                {
+                    CourseType = (Messages.External.CourseType)earning.CourseType,
+                    LearningType = (Messages.External.LearningType)earning.LearningType,
+                    CourseCode = earning.CourseCode,
+                    CourseReference = earning.CourseReference,
+                    StartDate = earning.StartDate,
+                    AgeAtStartOfTraining = earning.AgeAtStartOfTraining,
+                    PlannedEndDate = earning.PlannedEndDate,
+                    ActualEndDate = earning.ActualEndDate,
+                    TrainingStatus = (Messages.External.TrainingStatus)earning.TrainingStatus,
+                    LearningKey = earning.LearningKey ?? Guid.Empty
+                },
+                Earnings = earning.PricePeriods
+                    .GroupBy(pricePeriod => pricePeriod.AcademicYear)
+                    .Select(group => new Messages.External.Earnings
+                    {
+                        AcademicYear = group.Key,
+                        PricePeriods = group.Select(pricePeriod => new Messages.External.PricePeriod
+                        {
+                            Price = pricePeriod.Price,
+                            StartDate = pricePeriod.StartDate,
+                            EndDate = pricePeriod.EndDate,
+                            Periods = new List<EarningPeriod>
+                            {
+                                new EarningPeriod
+                                {
+                                    DeliveryPeriod = pricePeriod.DeliveryPeriod,
+                                    EarningType = (Messages.External.EarningType)pricePeriod.EarningType,
+                                    Amount = pricePeriod.Amount,
+                                    Employer = new Messages.External.Employer
+                                    {
+                                        AccountId = pricePeriod.EmployerAccountId,
+                                        EmployerType = (EmployerType)pricePeriod.EmployerType,
+                                        FundingAccountId = pricePeriod.FundingAccountId
+                                    },
+                                    LearningId = pricePeriod.ApprenticeshipId ?? 0
+                                }
+                            }
+                        }).ToList()
+                    }).ToList()
+            };
+        }
+
+        
 
     }
 }

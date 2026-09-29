@@ -114,25 +114,29 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
 
             private decimal? MapSfaContributionPercentage(EmployerType employerType, Training training)
         {
-            
+            return MapSfaContributionPercentage(employerType, training.StartDate, training.AgeAtStartOfTraining);
+        }
+
+        private decimal? MapSfaContributionPercentage(EmployerType employerType, DateTime trainingStartDate, byte ageAtStartOfTraining)
+        {
             if (employerType == EmployerType.NonLevy)
             {
                 return 1m; // 100%
             }
 
             // If the earning event is for a levy employer and the start date is before the 2026 eligibility date, it is not eligible for recalculation.
-            if (training.StartDate < FundingRules2026EligibilityDate)
+            if (trainingStartDate < FundingRules2026EligibilityDate)
             {
                 return DefaultSfaContribution;
             }
 
-            if (training.StartDate >= FundingRules2026EligibilityDate &&
-                training.AgeAtStartOfTraining < FundingRules2026AgeThreshold)
+            if (trainingStartDate >= FundingRules2026EligibilityDate &&
+                ageAtStartOfTraining < FundingRules2026AgeThreshold)
             {
                 return 1m; // 100% for Levy employers under 25 years old
             }
-            if (training.StartDate >= FundingRules2026EligibilityDate &&
-                training.AgeAtStartOfTraining >= FundingRules2026AgeThreshold)
+            if (trainingStartDate >= FundingRules2026EligibilityDate &&
+                ageAtStartOfTraining >= FundingRules2026AgeThreshold)
             {
                 return 0.75m; // 75% for Levy employers 25 years old and above
             }

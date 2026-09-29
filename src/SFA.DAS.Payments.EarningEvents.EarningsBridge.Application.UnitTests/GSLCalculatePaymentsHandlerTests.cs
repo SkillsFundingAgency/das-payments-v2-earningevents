@@ -12,12 +12,14 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
+using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 using SFA.DAS.Payments.Model.Core.Entities;
 using UUIDNext;
 using UUIDNext.Tools;
+using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
 using EmployerType = SFA.DAS.Payments.EarningEvents.Messages.External.EmployerType;
 using LearningType = SFA.DAS.Payments.EarningEvents.Messages.External.LearningType;
@@ -137,7 +139,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                                           _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
             
             // Act 
-            Func<Task> act = async () => await handler.HandleGSLCalculatePaymentsMessage(_message);
+            Func<Task> act = async () => await handler.HandleGslCalculatePaymentsMessage(_message);
             act.Should().Throw<ArgumentException>()
                 .WithMessage("UKPRN is required");
 
@@ -174,7 +176,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                                           _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGSLCalculatePaymentsMessage(_message);
+            await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
@@ -191,6 +193,40 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             });
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.All(p => p.ProcessedOn != null))), Times.Once);
+            _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2526, 2, It.IsAny<DateTime>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Freshness_check_is_skipped_when_reprocessing()
+        {
+            // Arrange
+            _gslService.Setup(x => x.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>())).Returns(false);
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, 
+                                                          _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message, isReprocessing: true);
+
+            // Assert
+            _repository.Verify(r => r.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()), Times.Never);
+            _gslService.Verify(x => x.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>()), Times.Never);
+            _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<Model.CourseType>()), Times.Once);
+            _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
+        }
+
+        [Test]
+        public async Task SaveEarnings_is_not_called_when_reprocessing()
+        {
+            // Arrange
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+                _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message, isReprocessing: true);
+
+            // Assert
+            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
+            _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2526, 2, It.IsAny<DateTime>()), Times.Once);
         }
         
         [Test]
@@ -204,7 +240,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGSLCalculatePaymentsMessage(_message);
+            await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
@@ -212,6 +248,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 y => y.PricePeriods.All(p => p.ProcessedOn == null))), Times.Once);
             _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Never);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
+            _repository.Verify(r => r.MarkEarningProcessed(It.IsAny<Guid>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<DateTime>()), Times.Never);
         }
 
         [Test]
@@ -290,7 +327,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGSLCalculatePaymentsMessage(_message);
+            await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
@@ -302,6 +339,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     .All(p => p.ProcessedOn != null))), Times.Once);
             _processorFactory.Verify(x => x.CreateGSLProcessor(It.IsAny<SFA.DAS.Payments.EarningEvents.Model.CourseType>()), Times.Once);
             _gslProcessor.Verify(x => x.Process(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Once);
+            _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2526, 2, It.IsAny<DateTime>()), Times.Once);
+            _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2425, It.IsAny<byte>(), It.IsAny<DateTime>()), Times.Never);
         }
 
         [Test]
@@ -396,7 +435,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
             
             // Act
-            await handler.HandleGSLCalculatePaymentsMessage(_message);
+            await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
@@ -424,7 +463,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGSLCalculatePaymentsMessage(_message);
+            await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
@@ -448,7 +487,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            await handler.HandleGSLCalculatePaymentsMessage(_message);
+            await handler.HandleGslCalculatePaymentsMessage(_message);
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Once);
@@ -468,7 +507,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
 
             // Act
-            Assert.ThrowsAsync<Exception>(async () => await handler.HandleGSLCalculatePaymentsMessage(_message));
+            Assert.ThrowsAsync<Exception>(async () => await handler.HandleGslCalculatePaymentsMessage(_message));
 
             // Assert
             _collectionPeriodService.Verify(x => x.GetOpenCollectionPeriods(), Times.Never);
