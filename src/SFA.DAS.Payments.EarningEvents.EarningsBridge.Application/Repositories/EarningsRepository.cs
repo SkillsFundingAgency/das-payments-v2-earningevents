@@ -98,5 +98,28 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
                 throw;
             }
         }
+
+        public async Task MarkPricePeriodsProcessed(Guid earningsId, short academicYear, DateTime processedOn)
+        {
+            try
+            {
+                var pricePeriods = await _earningsDataContext.GrowthAndSkillsEarningPricePeriods
+                    .Where(x => x.GrowthAndSkillsEarningsId == earningsId
+                                && x.AcademicYear == academicYear)
+                    .ToListAsync();
+
+                foreach (var pricePeriod in pricePeriods)
+                {
+                    pricePeriod.ProcessedOn = processedOn;
+                }
+
+                await _earningsDataContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error while marking GrowthAndSkills price periods for earning {earningsId} as processed for AcademicYear {academicYear}. Exception: {ex.Message}");
+                throw;
+            }
+        }
     }
 }

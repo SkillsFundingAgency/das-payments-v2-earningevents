@@ -105,6 +105,10 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             foreach (var period in matchingOpenPeriods)
             {
                 await _repository.MarkEarningProcessed(growthAndSkillsEarningModel.EarningsId, period.AcademicYear, (byte)period.Period, DateTime.UtcNow);
+                if (isReprocessing)
+                {
+                    await _repository.MarkPricePeriodsProcessed(growthAndSkillsEarningModel.EarningsId, period.AcademicYear, DateTime.UtcNow);
+                }
             }
 
             if (!isReprocessing)

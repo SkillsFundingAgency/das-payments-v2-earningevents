@@ -215,6 +215,34 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
+        public async Task Price_Periods_Are_Marked_Processed_When_Reprocessing()
+        {
+            // Arrange
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+                _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message, isReprocessing: true);
+
+            // Assert
+            _repository.Verify(r => r.MarkPricePeriodsProcessed(_message.EarningsId, 2526, It.IsAny<DateTime>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Price_Periods_Are_Not_Marked_Processed_Separately_When_Not_Reprocessing()
+        {
+            // Arrange
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+                _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            // Assert
+            _repository.Verify(r => r.MarkPricePeriodsProcessed(It.IsAny<Guid>(), It.IsAny<short>(), It.IsAny<DateTime>()), Times.Never);
+        }
+
+        [Test]
         public async Task SaveEarnings_is_not_called_when_reprocessing()
         {
             // Arrange
