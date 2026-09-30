@@ -9,4 +9,5 @@ public interface IEarningsRepository
     Task <List<GrowthAndSkillsEarningModel>> GetGrowthAndSkillsEarnings(long ukPrn, long uln, string courseCode);
     Task<List<GrowthAndSkillsEarningModel>> GetUnprocessedEarningsForCollectionPeriod(short academicYear, byte collectionPeriod);
     Task MarkEarningProcessed(Guid earningsId, short academicYear, byte collectionPeriod, DateTime processedOn);
+    Task MarkPricePeriodsProcessed(Guid earningsId, short academicYear, DateTime processedOn);
 }

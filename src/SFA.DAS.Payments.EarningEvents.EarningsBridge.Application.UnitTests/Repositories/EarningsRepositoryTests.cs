@@ -333,6 +333,59 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Re
         }
 
         [Test]
+        public async Task MarkPricePeriodsProcessed_When_Price_Periods_For_The_Academic_Year_Are_Unprocessed_Sets_ProcessedOn()
+        {
+            // Arrange
+            var earningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
+            _dataContext.GrowthAndSkillsEarnings.Add(CreateGrowthAndSkillsWithEarningsId(1, _ukPrn, _uln, _courseCode, earningsId, 2526));
+            await _dataContext.SaveChangesAsync();
+            var processedOn = DateTime.UtcNow;
+
+            // Act
+            await _repository.MarkPricePeriodsProcessed(earningsId, 2526, processedOn);
+
+            // Assert
+            var result = await _dataContext.GrowthAndSkillsEarningPricePeriods.AsNoTracking().ToListAsync();
+            result.Should().OnlyContain(x => x.ProcessedOn == processedOn);
+        }
+
+        [Test]
+        public async Task MarkPricePeriodsProcessed_When_Price_Periods_Are_For_A_Different_Academic_Year_Leaves_Them_Unprocessed()
+        {
+            // Arrange
+            var earningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
+            _dataContext.GrowthAndSkillsEarnings.Add(CreateGrowthAndSkillsWithEarningsId(1, _ukPrn, _uln, _courseCode, earningsId, 2627));
+            await _dataContext.SaveChangesAsync();
+
+            // Act
+            await _repository.MarkPricePeriodsProcessed(earningsId, 2526, DateTime.UtcNow);
+
+            // Assert
+            var result = await _dataContext.GrowthAndSkillsEarningPricePeriods.AsNoTracking().ToListAsync();
+            result.Should().OnlyContain(x => x.ProcessedOn == null);
+        }
+
+        [Test]
+        public async Task MarkPricePeriodsProcessed_When_A_Price_Period_Was_Processed_In_A_Previous_Period_Updates_ProcessedOn()
+        {
+            // Arrange
+            var earningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
+            var originalProcessedOn = DateTime.UtcNow.AddDays(-1);
+            var earning = CreateGrowthAndSkillsWithEarningsId(1, _ukPrn, _uln, _courseCode, earningsId, 2526);
+            earning.PricePeriods.Single().ProcessedOn = originalProcessedOn;
+            _dataContext.GrowthAndSkillsEarnings.Add(earning);
+            await _dataContext.SaveChangesAsync();
+
+            // Act
+            var updatedProcessedOn = DateTime.UtcNow;
+            await _repository.MarkPricePeriodsProcessed(earningsId, 2526, updatedProcessedOn);
+
+            // Assert
+            var result = await _dataContext.GrowthAndSkillsEarningPricePeriods.AsNoTracking().ToListAsync();
+            result.Should().OnlyContain(x => x.ProcessedOn == updatedProcessedOn);
+        }
+
+        [Test]
         public void Unhandled_Error_Throws_Exception()
         {
             // Arrange
