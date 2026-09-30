@@ -166,6 +166,67 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Times.Once);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.All(p => p.ProcessedOn != null))), Times.Once);
+            _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2526, 2, It.IsAny<DateTime>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Freshness_check_is_skipped_when_reprocessing()
+        {
+            // Arrange
+            _gslService.Setup(x => x.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>())).Returns(false);
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+                                                          _collectionPeriodService.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message, isReprocessing: true);
+
+            // Assert
+            _repository.Verify(r => r.GetGrowthAndSkillsEarnings(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()), Times.Never);
+            _gslService.Verify(x => x.CheckEarningsAreLatest(It.IsAny<List<GrowthAndSkillsEarningModel>>(), It.IsAny<Guid>()), Times.Never);
+            _publisher.Verify(p => p.Publish<GSLShortCourseEarningsEvent>(It.IsAny<GSLShortCourseEarningsEvent>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Price_Periods_Are_Marked_Processed_When_Reprocessing()
+        {
+            // Arrange
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+                _collectionPeriodService.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message, isReprocessing: true);
+
+            // Assert
+            _repository.Verify(r => r.MarkPricePeriodsProcessed(_message.EarningsId, 2526, It.IsAny<DateTime>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Price_Periods_Are_Not_Marked_Processed_Separately_When_Not_Reprocessing()
+        {
+            // Arrange
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+                _collectionPeriodService.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            // Assert
+            _repository.Verify(r => r.MarkPricePeriodsProcessed(It.IsAny<Guid>(), It.IsAny<short>(), It.IsAny<DateTime>()), Times.Never);
+        }
+
+        [Test]
+        public async Task SaveEarnings_is_not_called_when_reprocessing()
+        {
+            // Arrange
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object, _publisher.Object,
+                                                          _collectionPeriodService.Object, _logger.Object);
+
+            // Act
+            await handler.HandleGslCalculatePaymentsMessage(_message, isReprocessing: true);
+
+            // Assert
+            _repository.Verify(r => r.SaveEarnings(It.IsAny<GrowthAndSkillsEarningModel>()), Times.Never);
+            _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2526, 2, It.IsAny<DateTime>()), Times.Once);
         }
 
         [Test]
@@ -189,6 +250,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 Times.Never);
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.All(p => p.ProcessedOn == null))), Times.Once);
+            _repository.Verify(r => r.MarkEarningProcessed(It.IsAny<Guid>(), It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<DateTime>()), Times.Never);
         }
 
         [Test]
@@ -281,6 +343,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
                 y => y.PricePeriods.Where(x => x.AcademicYear == 2526)
                     .All(p => p.ProcessedOn != null))), Times.Once);
+            _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2526, 2, It.IsAny<DateTime>()), Times.Once);
+            _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2425, It.IsAny<byte>(), It.IsAny<DateTime>()), Times.Never);
         }
 
         [Test]
