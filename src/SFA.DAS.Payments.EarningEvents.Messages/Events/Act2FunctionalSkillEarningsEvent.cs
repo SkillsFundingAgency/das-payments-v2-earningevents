@@ -12,6 +12,8 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.Events
         public Act2FunctionalSkillEarningsEvent()
         {
             ContractType = ContractType.Act2;
+            FundingPlatformType = FundingPlatformType.SubmitLearnerData;
+
         }
     }
 }
