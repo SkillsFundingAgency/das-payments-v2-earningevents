@@ -1,7 +1,6 @@
 ﻿using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
-using SFA.DAS.Payments.EarningEvents.Messages.Events;
-using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.Messages.Events;using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
@@ -21,6 +20,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors
 
         public async Task Process(CalculateGrowthAndSkillsPayments message, IEnumerable<CollectionPeriodModel> openCollectionPeriods)
         {
+            if (message.ContainsOnlyHiringPaymentEarnings())
+            {
+                return;
+            }
+
             var requiredPaymentsEvents = _mapper.MapToApprenticeshipEarningEvents(message, openCollectionPeriods);
 
             if (requiredPaymentsEvents is null || !requiredPaymentsEvents.Any())
