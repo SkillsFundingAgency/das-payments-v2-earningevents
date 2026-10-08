@@ -8,6 +8,7 @@ using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Specs.Handlers;
 using SFA.DAS.Payments.Model.Core.Entities;
+using SFA.DAS.Payments.Model.Core.Incentives;
 using SFA.DAS.Payments.Model.Core.OnProgramme;
 using UUIDNext;
 using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
@@ -234,6 +235,73 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                         $"Expected a {transactionType} earning of {amount} for delivery period {deliveryPeriod} in collection period {group.Key.CollectionPeriod} {academicYear}");
                 }
             }
+        }
+
+        [Then("the outgoing GSL Apprenticeship Earnings Event includes the following hiring payments")]
+        public void ThenTheOutgoingGSLApprenticeshipEarningsEventIncludesTheFollowingHiringPayments(Table table)
+        {
+            foreach (var row in table.Rows)
+            {
+                var period = byte.Parse(row["Collection Period"].TrimStart('R', 'r'));
+                var academicYear = short.Parse(row["Academic Year"]);
+                var deliveryPeriod = byte.Parse(row["Delivery Period"]);
+                var transactionType = Enum.Parse<IncentiveEarningType>(row["Transaction Type"]);
+                var amount = decimal.Parse(row["Amount"]);
+
+                var matchingEvent = GSLApprenticeshipEarningsEventHandler.GetEvents(testSession.Learner).SingleOrDefault(e =>
+                    e.CollectionPeriod.AcademicYear == academicYear && e.CollectionPeriod.Period == period);
+                Assert.That(matchingEvent, Is.Not.Null,
+                    $"Expected a GSL Apprenticeship Earnings Event for collection period {row["Collection Period"]} {academicYear}");
+
+                var hiringEarning = matchingEvent.IncentiveEarnings.SingleOrDefault(i => i.Type == transactionType);
+                Assert.That(hiringEarning, Is.Not.Null,
+                    $"Expected {transactionType} earnings on the event for collection period {row["Collection Period"]} {academicYear}");
+                Assert.That(hiringEarning.Periods.Any(p => p.Period == deliveryPeriod && p.Amount == amount), Is.True,
+                    $"Expected a {transactionType} earning of {amount} for delivery period {deliveryPeriod} in collection period {row["Collection Period"]} {academicYear}");
+            }
+        }
+
+        [Then("the outgoing DAS Earnings Received event is published for collection period (.*) of academic year (.*)")]
+        public async Task ThenTheOutgoingDASEarningsReceivedEventIsPublished(string collectionPeriod, short academicYear)
+        {
+            var period = byte.Parse(collectionPeriod.TrimStart('R', 'r'));
+
+            await testSession.WaitForIt(
+                () => DasEarningsReceivedEventHandler.GetEvents(testSession.Learner)
+                    .Any(e => e.EarningsId == message.EarningsId && e.CollectionPeriod.AcademicYear == academicYear && e.CollectionPeriod.Period == period),
+                $"Timed out waiting for the DAS Earnings Received event for collection period {collectionPeriod} {academicYear}");
+        }
+
+        [Then("no outgoing GSL Apprenticeship Earnings Event is published")]
+        public async Task ThenNoOutgoingGSLApprenticeshipEarningsEventIsPublished()
+        {
+            await Task.Delay(testSession.TimeToWait);
+
+            Assert.That(GSLApprenticeshipEarningsEventHandler.GetEvents(testSession.Learner), Is.Empty,
+                "Expected no GSL Apprenticeship Earnings Event to be published");
+        }
+
+        [Then("no outgoing DAS Earnings Received event is published")]
+        public void ThenNoOutgoingDASEarningsReceivedEventIsPublished()
+        {
+            Assert.That(DasEarningsReceivedEventHandler.GetEvents(testSession.Learner).Where(e => e.EarningsId == message.EarningsId), Is.Empty,
+                "Expected no DAS Earnings Received event to be published");
+        }
+
+        [Then("the incoming earnings have been saved in the Earnings Bridge cache tables awaiting processing")]
+        public async Task ThenTheIncomingEarningsHaveBeenSavedInTheEarningsBridgeCacheTablesAwaitingProcessing()
+        {
+            await testSession.WaitForIt(
+                async () => await earningsDataContext.GrowthAndSkillsEarnings.AnyAsync(x => x.EarningsId == message.EarningsId),
+                "Timed out waiting for the incoming earnings to be saved to the Earnings Bridge cache tables");
+
+            var savedEarnings = await earningsDataContext.GrowthAndSkillsEarnings
+                .Include(x => x.PricePeriods)
+                .SingleAsync(x => x.EarningsId == message.EarningsId);
+
+            Assert.That(savedEarnings.PricePeriods, Is.Not.Empty);
+            Assert.That(savedEarnings.PricePeriods.All(p => p.ProcessedOn == null), Is.True,
+                "Expected the hiring payment earnings to be left unprocessed in the cache tables");
         }
 
         [Then("all learner details, training details and payment details match the values on the incoming message")]
