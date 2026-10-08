@@ -10,7 +10,7 @@
     <PackageReference Include="SFA.DAS.Payments.Application" Version="2.4.1-prerelease-62" />
     <PackageReference Include="SFA.DAS.Payments.Core" Version="2.4.1-prerelease-62" />
     <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.4.1-prerelease-62" />
-    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-62" />
+    <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.10.0-prerelease-4" />
   </ItemGroup>
 
   <ItemGroup>

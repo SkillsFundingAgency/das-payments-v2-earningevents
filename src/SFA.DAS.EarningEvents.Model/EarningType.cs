@@ -19,6 +19,8 @@ namespace SFA.DAS.Payments.EarningEvents.Model
         BalancingMathsAndEnglish = 14,
         LearningSupport = 15,
         CareLeaverApprenticePayment = 16,
-        Milestone1 = 17
+        Milestone1 = 17,
+        FirstEmployerHiringPayment = 18,
+        SecondEmployerHiringPayment = 19
     }
 }
