@@ -306,6 +306,71 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 .Should().Be(IncentiveEarningType.First16To18EmployerIncentive);
         }
 
+        [TestCase(EarningType.FirstEmployerHiringPayment, IncentiveEarningType.FirstEmployerHiringPayment)]
+        [TestCase(EarningType.SecondEmployerHiringPayment, IncentiveEarningType.SecondEmployerHiringPayment)]
+        public void Hiring_Payment_Periods_Are_Mapped_To_IncentiveEarnings(EarningType earningType, IncentiveEarningType expectedType)
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
+            };
+            ((List<EarningPeriod>)_message.Earnings.First().PricePeriods.First().Periods).Add(new EarningPeriod
+            {
+                Employer = new Employer { EmployerType = EmployerType.Levy, AccountId = 10000, FundingAccountId = 10000 },
+                Amount = 1000m,
+                DeliveryPeriod = 5,
+                EarningType = earningType,
+                LearningId = 123456
+            });
+
+            var earningEvent = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods).First();
+
+            earningEvent.OnProgrammeEarnings.Single(x => x.Type == OnProgrammeEarningType.Learning).Periods.Should().ContainSingle(p => p.Amount == 700m);
+            var incentiveEarning = earningEvent.IncentiveEarnings.Single(x => x.Type == expectedType);
+            incentiveEarning.Type.Should().Be(expectedType);
+            incentiveEarning.Periods.Single().Amount.Should().Be(1000m);
+            incentiveEarning.Periods.Single().Period.Should().Be(5);
+            incentiveEarning.Periods.Single().AccountId.Should().Be(10000);
+            incentiveEarning.Periods.Single().ApprenticeshipId.Should().Be(123456);
+        }
+
+        [Test]
+        public void First_And_Second_Hiring_Payments_Are_Mapped_To_Separate_IncentiveEarnings()
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
+            };
+            var periods = (List<EarningPeriod>)_message.Earnings.First().PricePeriods.First().Periods;
+            foreach (var (earningType, deliveryPeriod) in new[] { (EarningType.FirstEmployerHiringPayment, 2), (EarningType.SecondEmployerHiringPayment, 8) })
+            {
+                periods.Add(new EarningPeriod
+                {
+                    Employer = new Employer { EmployerType = EmployerType.Levy, AccountId = 10000, FundingAccountId = 10000 },
+                    Amount = 500m,
+                    DeliveryPeriod = (byte)deliveryPeriod,
+                    EarningType = earningType,
+                    LearningId = 123456
+                });
+            }
+
+            var earningEvent = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods).First();
+
+            earningEvent.IncentiveEarnings.Select(x => x.Type).Should().BeEquivalentTo(new[]
+            {
+                IncentiveEarningType.First16To18EmployerIncentive,
+                IncentiveEarningType.FirstEmployerHiringPayment,
+                IncentiveEarningType.SecondEmployerHiringPayment
+            });
+        }
+
+        [TestCase(EarningType.FirstEmployerHiringPayment, TransactionType.FirstEmployerHiringPayment)]
+        [TestCase(EarningType.SecondEmployerHiringPayment, TransactionType.SecondEmployerHiringPayment)]
+        public void Hiring_Payment_Earning_Types_Have_Matching_Transaction_Types(EarningType earningType, TransactionType transactionType)
+        {
+            ((int)earningType).Should().Be((int)transactionType);
+        }
+
         [Test]
         public void PriceEpisode_StartDate_Is_Mapped_From_The_Price_Period_Not_The_Course()
         {
