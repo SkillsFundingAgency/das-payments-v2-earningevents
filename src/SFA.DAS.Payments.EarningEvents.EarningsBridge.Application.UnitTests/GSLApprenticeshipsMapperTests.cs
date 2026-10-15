@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Linq;
 using FluentAssertions;
-using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.Model.Core.Entities;
+using SFA.DAS.Payments.Model.Core.Incentives;
 using SFA.DAS.Payments.Model.Core.OnProgramme;
+using System.Data.SqlTypes;
 using Common = SFA.DAS.Payments.Model.Core;
 using CourseType = SFA.DAS.Payments.EarningEvents.Messages.External.CourseType;
 using EarningType = SFA.DAS.Payments.EarningEvents.Messages.External.EarningType;
@@ -96,6 +93,19 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                         DeliveryPeriod = 1,
                                         EarningType = EarningType.Completion,
                                         LearningId = 123456
+                                    },
+                                    new EarningPeriod
+                                    {
+                                        Employer = new Employer
+                                        {
+                                            EmployerType = EmployerType.Levy,
+                                            AccountId = 10000,
+                                            FundingAccountId = 10000
+                                        },
+                                        Amount = 100m,
+                                        DeliveryPeriod = 1,
+                                        EarningType = EarningType.First16To18EmployerIncentive,
+                                        LearningId = 123456
                                     }
                                 }
                             }
@@ -173,6 +183,32 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                                     DeliveryPeriod = 1,
                                     EarningType = EarningType.Learning,
                                     LearningId = 123456
+                                },
+                                new EarningPeriod
+                                {
+                                    Employer = new Employer
+                                    {
+                                        EmployerType = EmployerType.Levy,
+                                        AccountId = 10000,
+                                        FundingAccountId = 10000
+                                    },
+                                    Amount = 1000m,
+                                    DeliveryPeriod = 1,
+                                    EarningType = EarningType.Completion,
+                                    LearningId = 123456
+                                },
+                                new EarningPeriod
+                                {
+                                    Employer = new Employer
+                                    {
+                                        EmployerType = EmployerType.Levy,
+                                        AccountId = 10000,
+                                        FundingAccountId = 10000
+                                    },
+                                    Amount = 100m,
+                                    DeliveryPeriod = 1,
+                                    EarningType = EarningType.First16To18EmployerIncentive,
+                                    LearningId = 123456
                                 }
                             }
                         }
@@ -180,11 +216,17 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 }
             }).ToList();
 
-            var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods).ToList();
+            var earningEvents = _sut
+                .MapToApprenticeshipEarningEvents(_message, collectionPeriods)
+                .ToList();
 
             earningEvents.Count.Should().Be(2);
-            var firstEarningEvent = earningEvents.FirstOrDefault(x => x.CollectionPeriod.AcademicYear == 2526);
-            var secondEarningEvent = earningEvents.FirstOrDefault(x => x.CollectionPeriod.AcademicYear == 2627);
+
+            var firstEarningEvent =
+                earningEvents.Single(x => x.CollectionPeriod.AcademicYear == 2526);
+
+            var secondEarningEvent =
+                earningEvents.Single(x => x.CollectionPeriod.AcademicYear == 2627);
 
             VerifyEarningEvent(firstEarningEvent, collectionPeriods[0].Period, 2526);
             VerifyEarningEvent(secondEarningEvent, collectionPeriods[1].Period, 2627);
@@ -231,22 +273,37 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
-        public void Only_Learning_Earning_Type_Periods_Are_Mapped_To_OnProgrammeEarnings()
+        public void Supported_Earning_Types_Are_Mapped_Correctly()
         {
             var collectionPeriods = new List<CollectionPeriodModel>
             {
-                new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
+                new CollectionPeriodModel
+                {
+                    AcademicYear = 2526,
+                    Period = 1,
+                    Status = CollectionPeriodStatus.Open
+                }
             };
 
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
             var earningEvent = earningEvents.First();
-            earningEvent.OnProgrammeEarnings.Count.Should().Be(1);
-            var onProgrammeEarning = earningEvent.OnProgrammeEarnings.Single();
-            onProgrammeEarning.Type.Should().Be(OnProgrammeEarningType.Learning);
-            onProgrammeEarning.Periods.Count.Should().Be(1);
-            onProgrammeEarning.Periods.Single().Amount.Should().Be(700m);
-            earningEvent.IncentiveEarnings.Should().BeEmpty();
+
+            earningEvent.OnProgrammeEarnings.Should().HaveCount(2);
+
+            earningEvent.OnProgrammeEarnings
+                .Select(x => x.Type)
+                .Should()
+                .BeEquivalentTo(new[]
+                {
+                    OnProgrammeEarningType.Learning,
+                    OnProgrammeEarningType.Completion
+                });
+
+            earningEvent.IncentiveEarnings.Should().HaveCount(1);
+
+            earningEvent.IncentiveEarnings.Single().Type
+                .Should().Be(IncentiveEarningType.First16To18EmployerIncentive);
         }
 
         [Test]
@@ -280,7 +337,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
             earningEvents.First()
-                .OnProgrammeEarnings.Single()
+                .OnProgrammeEarnings.Single(x => x.Type == OnProgrammeEarningType.Learning)
                 .Periods.Single()
                 .SfaContributionPercentage
                 .Should().Be(0.75m);
@@ -300,7 +357,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
             earningEvents.First()
-                .OnProgrammeEarnings.Single()
+                .OnProgrammeEarnings.Single(x => x.Type == OnProgrammeEarningType.Learning)
                 .Periods.Single()
                 .SfaContributionPercentage
                 .Should().Be(1m);
@@ -322,7 +379,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
             earningEvents.First()
-                .OnProgrammeEarnings.Single()
+                .OnProgrammeEarnings.Single(x => x.Type == OnProgrammeEarningType.Learning)
                 .Periods.Single()
                 .SfaContributionPercentage
                 .Should().Be(0.95m);
@@ -332,48 +389,180 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         public void SfaContributionPercentage_Is_Calculated_Per_Price_Period_When_The_Employer_Changes_During_Training()
         {
             var collectionPeriods = new List<CollectionPeriodModel>
-            {
-                new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
-            };
+    {
+        new CollectionPeriodModel
+        {
+            AcademicYear = 2526,
+            Period = 1,
+            Status = CollectionPeriodStatus.Open
+        }
+    };
+
             _message.Training.StartDate = new DateTime(2026, 8, 1);
             _message.Training.AgeAtStartOfTraining = 25;
-            _message.Earnings.First().PricePeriods.First().Periods.Single(p => p.EarningType == EarningType.Learning).Employer.EmployerType = EmployerType.Levy;
-            _message.Earnings.First().PricePeriods = _message.Earnings.First().PricePeriods.Concat(new List<PricePeriod>
-            {
-                new PricePeriod
+
+            _message.Earnings.First()
+                .PricePeriods.First()
+                .Periods.Single(p => p.EarningType == EarningType.Learning)
+                .Employer.EmployerType = EmployerType.Levy;
+
+            _message.Earnings.First().PricePeriods =
+                _message.Earnings.First().PricePeriods.Concat(new List<PricePeriod>
                 {
-                    StartDate = new DateTime(2027, 1, 1),
-                    Price = 15000m,
-                    EndDate = null,
-                    CompletionAmount = 1000m,
-                    InstalmentAmount = 700m,
-                    NumberOfInstalments = 12,
-                    Periods = new List<EarningPeriod>
+                    new PricePeriod
                     {
-                        new EarningPeriod
+                        StartDate = new DateTime(2027, 1, 1),
+                        Price = 15000m,
+                        EndDate = null,
+                        CompletionAmount = 1000m,
+                        InstalmentAmount = 700m,
+                        NumberOfInstalments = 12,
+                        Periods = new List<EarningPeriod>
                         {
-                            Employer = new Employer
+                            new EarningPeriod
                             {
-                                EmployerType = EmployerType.NonLevy,
-                                AccountId = 20000,
-                                FundingAccountId = 20000
-                            },
-                            Amount = 700m,
-                            DeliveryPeriod = 2,
-                            EarningType = EarningType.Learning,
-                            LearningId = 123456
+                                Employer = new Employer
+                                {
+                                    EmployerType = EmployerType.NonLevy,
+                                    AccountId = 20000,
+                                    FundingAccountId = 20000
+                                },
+                                Amount = 700m,
+                                DeliveryPeriod = 2,
+                                EarningType = EarningType.Learning,
+                                LearningId = 123456
+                            }
                         }
                     }
-                }
-            }).ToList();
+                }).ToList();
 
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
-            var learningPeriods = earningEvents.First().OnProgrammeEarnings.Single().Periods.ToList();
-            learningPeriods.Count.Should().Be(2);
-            learningPeriods.Single(p => p.AccountId == 10000).SfaContributionPercentage.Should().Be(0.75m);
+            var learningPeriods = earningEvents.First().OnProgrammeEarnings
+                .Where(x => x.Type == OnProgrammeEarningType.Learning)
+                .SelectMany(x => x.Periods).ToList();
+
+            learningPeriods.Should().HaveCount(2);
+
+            learningPeriods
+                .Single(p => p.AccountId == 10000).SfaContributionPercentage.Should().Be(0.75m);
+
             learningPeriods.Single(p => p.AccountId == 20000).SfaContributionPercentage.Should().Be(0.95m);
         }
+
+        [Test]
+        public void Balancing_Earning_Is_Mapped_To_OnProgrammeEarnings()
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel
+                {
+                    AcademicYear = 2526,
+                    Period = 1,
+                    Status = CollectionPeriodStatus.Open
+                }
+            };
+
+            _message.Earnings.First().PricePeriods.First().Periods =
+            [
+                new EarningPeriod
+                {
+                    Employer = new Employer
+                    {
+                        EmployerType = EmployerType.Levy,
+                        AccountId = 10000,
+                        FundingAccountId = 10000
+                    },
+                    Amount = 250m,
+                    DeliveryPeriod = 1,
+                    EarningType = EarningType.Balancing,
+                    LearningId = 123456
+                }
+            ];
+
+            var earningEvent = _sut
+                .MapToApprenticeshipEarningEvents(_message, collectionPeriods)
+                .Single();
+
+            earningEvent.OnProgrammeEarnings.Should().HaveCount(1);
+
+            var balancing = earningEvent.OnProgrammeEarnings.Single();
+
+            balancing.Type.Should().Be(OnProgrammeEarningType.Balancing);
+
+            var period = balancing.Periods.Single();
+
+            period.Amount.Should().Be(250m);
+            period.AccountId.Should().Be(10000);
+            period.ApprenticeshipId.Should().Be(123456);
+        }
+
+        [Test]
+        public void TransferSenderAccountId_Is_Mapped_For_Incentive_Earnings()
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel
+                {
+                    AcademicYear = 2526,
+                    Period = 1,
+                    Status = CollectionPeriodStatus.Open
+                }
+            };
+
+            var incentivePeriod = _message.Earnings.First().PricePeriods.First().Periods
+                    .Single(p => p.EarningType == EarningType.First16To18EmployerIncentive);
+
+            incentivePeriod.Employer.FundingAccountId = 1234567;
+
+            var earningEvent = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods).Single();
+
+            var mappedPeriod = earningEvent.IncentiveEarnings.Single().Periods.Single();
+
+            mappedPeriod.TransferSenderAccountId.Should().Be(1234567);
+        }
+
+        [Test]
+        public void Incentive_Earnings_Use_Levy_Sfa_Contribution_Percentage()
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel
+                {
+                    AcademicYear = 2526,
+                    Period = 1,
+                    Status = CollectionPeriodStatus.Open
+                }
+            };
+
+            _message.Training.AgeAtStartOfTraining = 25;
+
+            var earningEvent = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods).Single();
+
+            earningEvent.IncentiveEarnings
+                .Single().Periods.Single().SfaContributionPercentage.Should().Be(0.75m);
+        }
+
+        [Test]
+        public void Incentive_Earnings_Are_100_Percent_For_Apprentices_Under_25()
+        {
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new CollectionPeriodModel
+                {
+                    AcademicYear = 2526,
+                    Period = 1,
+                    Status = CollectionPeriodStatus.Open
+                }
+            };
+
+            _message.Training.AgeAtStartOfTraining = 24;
+
+            var earningEvent = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods).Single();
+
+            earningEvent.IncentiveEarnings.Single().Periods.Single().SfaContributionPercentage.Should().Be(1m);
+        }
+
 
         [Test]
         public void TransferSenderAccountId_Is_Mapped_Correctly_When_Funding_Account_Id_Is_Different_To_Employer_Account_Id()
@@ -389,7 +578,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
 
-            var learningPeriod = earningEvents.First().OnProgrammeEarnings.Single().Periods.Single();
+            var learningPeriod = earningEvents.First().OnProgrammeEarnings.Single(x => x.Type == OnProgrammeEarningType.Learning).Periods.Single();
             learningPeriod.TransferSenderAccountId.Should().Be(1234567);
         }
 
@@ -449,6 +638,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
         private void VerifyEarningEvent(GSLApprenticeshipEarningsEvent? earningEvent, byte collectionPeriod, short academicYear)
         {
+            earningEvent.Should().NotBeNull();
+
             earningEvent.JobId.Should().Be(0);
             earningEvent.EventTime.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1));
             earningEvent.EventId.Should().NotBe(Guid.Empty);
@@ -460,7 +651,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             earningEvent.LearningAim.Reference.Should().Be(_message.Training.CourseReference);
             earningEvent.LearningAim.CourseCode.Should().Be(_message.Training.CourseCode);
             earningEvent.LearningAim.StartDate.Should().Be(_message.Training.StartDate);
-            earningEvent.LearningAim.LearningType.Should().Be((Common.Entities.LearningType)_message.Training.LearningType);
+            earningEvent.LearningAim.LearningType.Should()
+                .Be((Common.Entities.LearningType)_message.Training.LearningType);
             earningEvent.CollectionPeriod.AcademicYear.Should().Be(academicYear);
             earningEvent.CollectionPeriod.Period.Should().Be(collectionPeriod);
             earningEvent.AgeAtStartOfLearning.Should().Be(_message.Training.AgeAtStartOfTraining);
@@ -472,6 +664,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             var pricePeriod = earning.PricePeriods.Single();
 
             var priceEpisode = earningEvent.PriceEpisodes.Single();
+
             priceEpisode.Identifier.Should().Be($"{_message.Training.CourseCode}-{pricePeriod.StartDate}");
             priceEpisode.AgreedPrice.Should().Be(pricePeriod.Price);
             priceEpisode.StartDate.Should().Be(pricePeriod.StartDate);
@@ -484,20 +677,68 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             priceEpisode.CompletionAmount.Should().Be(pricePeriod.CompletionAmount);
             priceEpisode.FundingLineType.Should().Be("19+ Apprenticeship (Employer on App Service)");
 
-            var learningEarningPeriod = pricePeriod.Periods.Single(p => p.EarningType == EarningType.Learning);
-            var onProgrammeEarning = earningEvent.OnProgrammeEarnings.Single();
-            onProgrammeEarning.Type.Should().Be(OnProgrammeEarningType.Learning);
-            var mappedPeriod = onProgrammeEarning.Periods.Single();
-            mappedPeriod.PriceEpisodeIdentifier.Should().Be(priceEpisode.Identifier);
-            mappedPeriod.Period.Should().Be(learningEarningPeriod.DeliveryPeriod);
-            mappedPeriod.Amount.Should().Be(learningEarningPeriod.Amount);
-            mappedPeriod.AccountId.Should().Be(learningEarningPeriod.Employer.AccountId);
-            mappedPeriod.ApprenticeshipId.Should().Be(learningEarningPeriod.LearningId);
-            ((int)mappedPeriod.ApprenticeshipEmployerType).Should().Be((int)learningEarningPeriod.Employer.EmployerType);
-            mappedPeriod.SfaContributionPercentage.Should().Be(0.75m);
-            mappedPeriod.TransferSenderAccountId.Should().BeNull();
+            // On Programme Earnings
+            earningEvent.OnProgrammeEarnings.Should().HaveCount(2);
 
-            earningEvent.IncentiveEarnings.Should().BeEmpty();
+            var learningPeriod =
+                pricePeriod.Periods.Single(p => p.EarningType == EarningType.Learning);
+
+            var learningEarning =
+                earningEvent.OnProgrammeEarnings.Single(x => x.Type == OnProgrammeEarningType.Learning);
+
+            var learningMappedPeriod = learningEarning.Periods.Single();
+
+            learningMappedPeriod.PriceEpisodeIdentifier.Should().Be(priceEpisode.Identifier);
+            learningMappedPeriod.Period.Should().Be(learningPeriod.DeliveryPeriod);
+            learningMappedPeriod.Amount.Should().Be(learningPeriod.Amount);
+            learningMappedPeriod.AccountId.Should().Be(learningPeriod.Employer.AccountId);
+            learningMappedPeriod.ApprenticeshipId.Should().Be(learningPeriod.LearningId);
+            ((int)learningMappedPeriod.ApprenticeshipEmployerType)
+                .Should().Be((int)learningPeriod.Employer.EmployerType);
+            learningMappedPeriod.SfaContributionPercentage.Should().Be(0.75m);
+            learningMappedPeriod.TransferSenderAccountId.Should().BeNull();
+
+            var completionPeriod =
+                pricePeriod.Periods.Single(p => p.EarningType == EarningType.Completion);
+
+            var completionEarning =
+                earningEvent.OnProgrammeEarnings.Single(x => x.Type == OnProgrammeEarningType.Completion);
+
+            var completionMappedPeriod = completionEarning.Periods.Single();
+
+            completionMappedPeriod.PriceEpisodeIdentifier.Should().Be(priceEpisode.Identifier);
+            completionMappedPeriod.Period.Should().Be(completionPeriod.DeliveryPeriod);
+            completionMappedPeriod.Amount.Should().Be(completionPeriod.Amount);
+            completionMappedPeriod.AccountId.Should().Be(completionPeriod.Employer.AccountId);
+            completionMappedPeriod.ApprenticeshipId.Should().Be(completionPeriod.LearningId);
+            ((int)completionMappedPeriod.ApprenticeshipEmployerType)
+                .Should().Be((int)completionPeriod.Employer.EmployerType);
+            completionMappedPeriod.SfaContributionPercentage.Should().Be(0.75m);
+            completionMappedPeriod.TransferSenderAccountId.Should().BeNull();
+
+            // Incentive Earnings
+            earningEvent.IncentiveEarnings.Should().HaveCount(1);
+
+            var incentivePeriod =
+                pricePeriod.Periods.Single(p => p.EarningType == EarningType.First16To18EmployerIncentive);
+
+            var incentiveEarning =
+                earningEvent.IncentiveEarnings.Single();
+
+            incentiveEarning.Type.Should()
+                .Be(IncentiveEarningType.First16To18EmployerIncentive);
+
+            var incentiveMappedPeriod = incentiveEarning.Periods.Single();
+
+            incentiveMappedPeriod.PriceEpisodeIdentifier.Should().Be(priceEpisode.Identifier);
+            incentiveMappedPeriod.Period.Should().Be(incentivePeriod.DeliveryPeriod);
+            incentiveMappedPeriod.Amount.Should().Be(incentivePeriod.Amount);
+            incentiveMappedPeriod.AccountId.Should().Be(incentivePeriod.Employer.AccountId);
+            incentiveMappedPeriod.ApprenticeshipId.Should().Be(incentivePeriod.LearningId);
+            ((int)incentiveMappedPeriod.ApprenticeshipEmployerType)
+                .Should().Be((int)incentivePeriod.Employer.EmployerType);
+            incentiveMappedPeriod.SfaContributionPercentage.Should().Be(0.75m);
+            incentiveMappedPeriod.TransferSenderAccountId.Should().BeNull();
         }
     }
 }
