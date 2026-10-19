@@ -57,7 +57,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                 if (earningEvents.ContainsKey(collectionPeriod.AcademicYear))
                 {
                     earningEvents[collectionPeriod.AcademicYear].OnProgrammeEarnings = MapToOnProgrammeEarnings(source, collectionPeriod.AcademicYear);
-                    earningEvents[collectionPeriod.AcademicYear].IncentiveEarnings = new List<IncentiveEarning>();
+                    earningEvents[collectionPeriod.AcademicYear].IncentiveEarnings = MapToHiringIncentiveEarnings(source, collectionPeriod.AcademicYear);
                     earningEvents[collectionPeriod.AcademicYear].PriceEpisodes = MapToEarningEventPriceEpisodes(source, collectionPeriod.AcademicYear);
                 }
             }
@@ -121,6 +121,40 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                     Periods = new ReadOnlyCollection<Common.EarningPeriod>(learningPeriods)
                 }
             };
+        }
+
+        private List<IncentiveEarning> MapToHiringIncentiveEarnings(CalculateGrowthAndSkillsPayments source, short academicYear)
+        {
+            var hiringPeriods = new Dictionary<IncentiveEarningType, List<Common.EarningPeriod>>();
+
+            foreach (var earning in source.Earnings.Where(x => x.AcademicYear == academicYear))
+                foreach (var pricePeriod in earning.PricePeriods)
+                    foreach (var period in pricePeriod.Periods.Where(p => p.EarningType.IsHiringPayment()))
+                    {
+                        var incentiveType = (IncentiveEarningType)(byte)period.EarningType;
+                        if (!hiringPeriods.ContainsKey(incentiveType))
+                            hiringPeriods.Add(incentiveType, new List<Common.EarningPeriod>());
+
+                        hiringPeriods[incentiveType].Add(new Common.EarningPeriod
+                        {
+                            PriceEpisodeIdentifier = BuildPriceEpisodeIdentifier(source.Training, pricePeriod.StartDate),
+                            Period = period.DeliveryPeriod,
+                            Amount = period.Amount,
+                            AccountId = period.Employer.AccountId,
+                            ApprenticeshipId = period.LearningId,
+                            ApprenticeshipEmployerType = (ApprenticeshipEmployerType)period.Employer.EmployerType,
+                            SfaContributionPercentage = CalculateSfaContributionPercentage(source.Training, (ApprenticeshipEmployerType)period.Employer.EmployerType),
+                            TransferSenderAccountId = MapTransferSenderAccountId(period)
+                        });
+                    }
+
+            return hiringPeriods
+                .Select(x => new IncentiveEarning
+                {
+                    Type = x.Key,
+                    Periods = new ReadOnlyCollection<Common.EarningPeriod>(x.Value)
+                })
+                .ToList();
         }
 
         private string BuildPriceEpisodeIdentifier(Training training, DateTime startDate) => $"{training.CourseCode}-{startDate}";
