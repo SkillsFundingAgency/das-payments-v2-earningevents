@@ -281,8 +281,9 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                     $"Expected a GSL Apprenticeship Earnings Event for collection period {row["Collection Period"]} {academicYear}");
 
                 var earningPeriod = matchingEvent.OnProgrammeEarnings
-                    .Single(o => o.Type == OnProgrammeEarningType.Learning)
-                    .Periods.Single(p => p.Period == deliveryPeriod);
+                    .Where(o => o.Type == OnProgrammeEarningType.Learning)
+                    .SelectMany(o => o.Periods)
+                    .Single(p => p.Period == deliveryPeriod);
 
                 Assert.That(earningPeriod.PriceEpisodeIdentifier, Is.EqualTo(expectedIdentifier),
                     $"Unexpected price episode identifier for delivery period {deliveryPeriod} in collection period {row["Collection Period"]} {academicYear}");
