@@ -1,3 +1,4 @@
+using System.Globalization;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
@@ -179,7 +180,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
             return onProgrammeEarnings;
         }
 
-        private string BuildPriceEpisodeIdentifier(Training training, DateTime startDate) => $"{training.CourseCode}-{startDate}";
+        private string BuildPriceEpisodeIdentifier(Training training, DateTime startDate) => $"{ApprenticeshipProgrammeType}-{training.CourseCode}-{startDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}";
 
         private decimal CalculateSfaContributionPercentage(Training training, ApprenticeshipEmployerType employerType)
         {

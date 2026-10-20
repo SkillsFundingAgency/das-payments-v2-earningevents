@@ -636,6 +636,58 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             .Should().Be("19+ Apprenticeship (Employer on App Service)");
         }
 
+        [Test]
+        public void Price_Episode_Identifier_Uses_Programme_Code_Standard_Code_And_Price_Period_Start_Date()
+        {
+            var collectionPeriods = OpenCollectionPeriods();
+
+            var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, collectionPeriods);
+
+            earningEvents.Single().PriceEpisodes.Single().Identifier.Should().Be("25-123456-01/01/2026");
+        }
+
+        [Test]
+        public void Each_Price_Period_Gets_A_Unique_Price_Episode_Identifier_And_Earning_Periods_Reference_Their_Own_Price_Period()
+        {
+            var secondPricePeriod = new PricePeriod
+            {
+                StartDate = new DateTime(2026, 3, 1),
+                EndDate = new DateTime(2026, 7, 31),
+                Price = 16000m,
+                InstalmentAmount = 750m,
+                NumberOfInstalments = 12,
+                Periods = new List<EarningPeriod>
+                {
+                    new EarningPeriod
+                    {
+                        Employer = new Employer { EmployerType = EmployerType.Levy, AccountId = 10000, FundingAccountId = 10000 },
+                        Amount = 750m,
+                        DeliveryPeriod = 8,
+                        EarningType = EarningType.Learning,
+                        LearningId = 123456
+                    }
+                }
+            };
+            var earnings = _message.Earnings.Single();
+            earnings.PricePeriods = earnings.PricePeriods.Append(secondPricePeriod).ToList();
+
+            var earningEvents = _sut.MapToApprenticeshipEarningEvents(_message, OpenCollectionPeriods());
+
+            var earningEvent = earningEvents.Single();
+            earningEvent.PriceEpisodes.Select(x => x.Identifier)
+                .Should().BeEquivalentTo(new[] { "25-123456-01/01/2026", "25-123456-01/03/2026" });
+            var periods = earningEvent.OnProgrammeEarnings.SelectMany(x => x.Periods).ToList();
+            periods.Where(x => x.Period == 1).Should().NotBeEmpty()
+                .And.OnlyContain(x => x.PriceEpisodeIdentifier == "25-123456-01/01/2026");
+            periods.Where(x => x.Period == 8).Should().NotBeEmpty()
+                .And.OnlyContain(x => x.PriceEpisodeIdentifier == "25-123456-01/03/2026");
+        }
+
+        private static List<CollectionPeriodModel> OpenCollectionPeriods() => new List<CollectionPeriodModel>
+        {
+            new CollectionPeriodModel { AcademicYear = 2526, Period = 1, Status = CollectionPeriodStatus.Open }
+        };
+
         private void VerifyEarningEvent(GSLApprenticeshipEarningsEvent? earningEvent, byte collectionPeriod, short academicYear)
         {
             earningEvent.Should().NotBeNull();
@@ -665,7 +717,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
 
             var priceEpisode = earningEvent.PriceEpisodes.Single();
 
-            priceEpisode.Identifier.Should().Be($"{_message.Training.CourseCode}-{pricePeriod.StartDate}");
+            priceEpisode.Identifier.Should().Be($"25-{_message.Training.CourseCode}-{pricePeriod.StartDate:dd/MM/yyyy}");
             priceEpisode.AgreedPrice.Should().Be(pricePeriod.Price);
             priceEpisode.StartDate.Should().Be(pricePeriod.StartDate);
             priceEpisode.EffectiveTotalNegotiatedPriceStartDate.Should().Be(pricePeriod.StartDate);

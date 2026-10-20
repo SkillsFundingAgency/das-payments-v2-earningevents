@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Reqnroll;
@@ -124,6 +125,46 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 }).ToList();
         }
 
+        [Given("the event contains the following earnings in separate price periods")]
+        public void GivenTheEventContainsTheFollowingEarningsInSeparatePricePeriods(Table table)
+        {
+            var rows = table.Rows.Select(row => new
+            {
+                AcademicYear = short.Parse(row["Academic Year"]),
+                PricePeriodStartDate = DateTime.ParseExact(row["Price Period Start Date"], "dd/MM/yyyy", CultureInfo.InvariantCulture),
+                DeliveryPeriod = byte.Parse(row["Delivery Period"]),
+                EarningType = Enum.Parse<EarningType>(row["Earning Type"]),
+                Amount = decimal.Parse(row["Amount"])
+            });
+
+            message.Earnings = rows
+                .GroupBy(row => row.AcademicYear)
+                .Select(yearGroup => new Earnings
+                {
+                    AcademicYear = yearGroup.Key,
+                    PricePeriods = yearGroup
+                        .GroupBy(row => row.PricePeriodStartDate)
+                        .Select(periodGroup => new PricePeriod
+                        {
+                            StartDate = periodGroup.Key,
+                            Price = periodGroup.Sum(row => row.Amount),
+                            Periods = periodGroup.Select(row => new EarningPeriod
+                            {
+                                DeliveryPeriod = row.DeliveryPeriod,
+                                EarningType = row.EarningType,
+                                Amount = row.Amount,
+                                Employer = new Employer
+                                {
+                                    EmployerType = EmployerType.Levy,
+                                    AccountId = testSession.Provider.Ukprn,
+                                    FundingAccountId = testSession.Provider.Ukprn
+                                },
+                                LearningId = testSession.JobId
+                            }).ToList()
+                        }).ToList()
+                }).ToList();
+        }
+
         [Given("the following collection periods are open")]
         public async Task GivenTheFollowingCollectionPeriodsAreOpen(Table table)
         {
@@ -221,6 +262,40 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             }
 
             throw new ArgumentException($"'{transactionType}' is not a recognised on-programme or incentive earning type");
+        }
+
+        [Then("the earnings are marked with the following price episode identifiers")]
+        public void ThenTheEarningsAreMarkedWithTheFollowingPriceEpisodeIdentifiers(Table table)
+        {
+            foreach (var row in table.Rows)
+            {
+                var period = byte.Parse(row["Collection Period"].TrimStart('R', 'r'));
+                var academicYear = short.Parse(row["Academic Year"]);
+                var deliveryPeriod = byte.Parse(row["Delivery Period"]);
+                var expectedIdentifier = row["Price Episode Identifier"];
+
+                var matchingEvent = GSLApprenticeshipEarningsEventHandler.GetEvents(testSession.Learner)
+                    .SingleOrDefault(e => e.CollectionPeriod.AcademicYear == academicYear && e.CollectionPeriod.Period == period);
+
+                Assert.That(matchingEvent, Is.Not.Null,
+                    $"Expected a GSL Apprenticeship Earnings Event for collection period {row["Collection Period"]} {academicYear}");
+
+                var earningPeriod = matchingEvent.OnProgrammeEarnings
+                    .Single(o => o.Type == OnProgrammeEarningType.Learning)
+                    .Periods.Single(p => p.Period == deliveryPeriod);
+
+                Assert.That(earningPeriod.PriceEpisodeIdentifier, Is.EqualTo(expectedIdentifier),
+                    $"Unexpected price episode identifier for delivery period {deliveryPeriod} in collection period {row["Collection Period"]} {academicYear}");
+
+                Assert.That(matchingEvent.PriceEpisodes.Select(p => p.Identifier), Does.Contain(expectedIdentifier),
+                    $"Expected a price episode with identifier {expectedIdentifier} in collection period {row["Collection Period"]} {academicYear}");
+            }
+
+            foreach (var receivedEvent in GSLApprenticeshipEarningsEventHandler.GetEvents(testSession.Learner))
+            {
+                var identifiers = receivedEvent.PriceEpisodes.Select(p => p.Identifier).ToList();
+                Assert.That(identifiers, Is.Unique, "Price episode identifiers must be unique within an earning event");
+            }
         }
 
         [Then("the following outgoing GSL Short Course Earnings Event is published")]
