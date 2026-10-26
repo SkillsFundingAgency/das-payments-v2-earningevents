@@ -360,6 +360,76 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         }
 
         [Test]
+        public void Rows_Of_One_Price_Period_Are_Grouped_Into_A_Single_Price_Period_When_Mapped_To_A_Message()
+        {
+            var earning = CreateGrowthAndSkillsEarningModel();
+            var template = earning.PricePeriods.Single();
+            earning.PricePeriods = Enumerable.Range(1, 12)
+                .Select(deliveryPeriod => new GrowthAndSkillsEarningPricePeriodModel
+                {
+                    AcademicYear = template.AcademicYear,
+                    Price = template.Price,
+                    StartDate = template.StartDate,
+                    EndDate = template.EndDate,
+                    DeliveryPeriod = (byte)deliveryPeriod,
+                    EarningType = Model.EarningType.Learning,
+                    Amount = 1000m,
+                    EmployerAccountId = template.EmployerAccountId,
+                    EmployerType = template.EmployerType,
+                    FundingAccountId = template.FundingAccountId,
+                    ApprenticeshipId = template.ApprenticeshipId
+                })
+                .ToList();
+
+            var message = _sut.MapToCalculateGrowthAndSkillsPayments(earning);
+
+            var pricePeriod = message.Earnings.Single().PricePeriods.Single();
+            pricePeriod.Price.Should().Be(template.Price);
+            pricePeriod.StartDate.Should().Be(template.StartDate);
+            pricePeriod.EndDate.Should().Be(template.EndDate);
+            pricePeriod.Periods.Select(x => x.DeliveryPeriod).Should().BeEquivalentTo(Enumerable.Range(1, 12));
+        }
+
+        [Test]
+        public void Rows_Of_Different_Price_Periods_Stay_In_Separate_Price_Periods_When_Mapped_To_A_Message()
+        {
+            var earning = CreateGrowthAndSkillsEarningModel();
+            var template = earning.PricePeriods.Single();
+            GrowthAndSkillsEarningPricePeriodModel Row(DateTime start, DateTime end, decimal price, byte deliveryPeriod) =>
+                new GrowthAndSkillsEarningPricePeriodModel
+                {
+                    AcademicYear = template.AcademicYear,
+                    Price = price,
+                    StartDate = start,
+                    EndDate = end,
+                    DeliveryPeriod = deliveryPeriod,
+                    EarningType = Model.EarningType.Learning,
+                    Amount = 1000m,
+                    EmployerAccountId = template.EmployerAccountId,
+                    EmployerType = template.EmployerType,
+                    FundingAccountId = template.FundingAccountId,
+                    ApprenticeshipId = template.ApprenticeshipId
+                };
+            earning.PricePeriods = new List<GrowthAndSkillsEarningPricePeriodModel>
+            {
+                Row(new DateTime(2025, 8, 1), new DateTime(2025, 10, 31), 15000m, 1),
+                Row(new DateTime(2025, 8, 1), new DateTime(2025, 10, 31), 15000m, 2),
+                Row(new DateTime(2025, 11, 1), new DateTime(2026, 7, 31), 16000m, 4),
+                Row(new DateTime(2025, 11, 1), new DateTime(2026, 7, 31), 16000m, 5)
+            };
+
+            var message = _sut.MapToCalculateGrowthAndSkillsPayments(earning);
+
+            var pricePeriods = message.Earnings.Single().PricePeriods.ToList();
+            pricePeriods.Should().HaveCount(2);
+            pricePeriods[0].StartDate.Should().Be(new DateTime(2025, 8, 1));
+            pricePeriods[0].Periods.Select(x => x.DeliveryPeriod).Should().Equal(1, 2);
+            pricePeriods[1].StartDate.Should().Be(new DateTime(2025, 11, 1));
+            pricePeriods[1].Price.Should().Be(16000m);
+            pricePeriods[1].Periods.Select(x => x.DeliveryPeriod).Should().Equal(4, 5);
+        }
+
+        [Test]
         public void MapToCalculateGrowthAndSkillsPayments_MapsPricePeriodAndEarningPeriodFields()
         {
             // Arrange

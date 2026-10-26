@@ -183,3 +183,36 @@ Scenario: Price episode identifiers are unique for each price period
 		| R01                | 2526           | 4                | 25-APPR001-01/11/2025    |
 		| R01                | 2526           | 5                | 25-APPR001-01/11/2025    |
 		| R01                | 2526           | 6                | 25-APPR001-01/11/2025    |
+
+Scenario: Reprocessed earnings with several delivery periods in one price period produce a single price episode
+	Given the payments service receives a CalculateGrowthAndSkillsPayments event for apprenticeship payments
+	And the event contains the following earnings in separate price periods
+		| Academic Year | Price Period Start Date | Delivery Period | Earning Type | Amount |
+		| 2526           | 01/08/2025              | 1                | Learning      | 1000   |
+		| 2526           | 01/08/2025              | 2                | Learning      | 1000   |
+		| 2526           | 01/08/2025              | 3                | Learning      | 1000   |
+		| 2526           | 01/08/2025              | 4                | Learning      | 1000   |
+		| 2526           | 01/08/2025              | 5                | Learning      | 1000   |
+		| 2526           | 01/08/2025              | 6                | Learning      | 1000   |
+	When the event is processed
+	Then the incoming earnings have been saved in the Earnings Bridge cache tables
+	When the following collection periods are opened
+		| Collection Period | Academic Year |
+		| R01                | 2526           |
+	And the Earnings Bridge reprocesses pending earnings
+	Then the following outgoing GSL Apprenticeship Earnings Event is published
+		| Collection Period | Academic Year | Delivery Period | Transaction Type | Amount |
+		| R01                | 2526           | 1                | Learning          | 1000   |
+		| R01                | 2526           | 2                | Learning          | 1000   |
+		| R01                | 2526           | 3                | Learning          | 1000   |
+		| R01                | 2526           | 4                | Learning          | 1000   |
+		| R01                | 2526           | 5                | Learning          | 1000   |
+		| R01                | 2526           | 6                | Learning          | 1000   |
+	And the earnings are marked with the following price episode identifiers
+		| Collection Period | Academic Year | Delivery Period | Price Episode Identifier |
+		| R01                | 2526           | 1                | 25-APPR001-01/08/2025    |
+		| R01                | 2526           | 2                | 25-APPR001-01/08/2025    |
+		| R01                | 2526           | 3                | 25-APPR001-01/08/2025    |
+		| R01                | 2526           | 4                | 25-APPR001-01/08/2025    |
+		| R01                | 2526           | 5                | 25-APPR001-01/08/2025    |
+		| R01                | 2526           | 6                | 25-APPR001-01/08/2025    |
