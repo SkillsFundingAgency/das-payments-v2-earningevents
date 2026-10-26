@@ -188,6 +188,12 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             await testSession.DataContext.SaveChangesAsync();
         }
 
+        [When("the following collection periods are opened")]
+        public async Task WhenTheFollowingCollectionPeriodsAreOpened(Table table)
+        {
+            await GivenTheFollowingCollectionPeriodsAreOpen(table);
+        }
+
         [When("the event is processed")]
         public async Task WhenTheEventIsProcessed()
         {

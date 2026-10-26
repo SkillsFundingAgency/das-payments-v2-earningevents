@@ -155,14 +155,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                     .Select(group => new Messages.External.Earnings
                     {
                         AcademicYear = group.Key,
-                        PricePeriods = group.Select(pricePeriod => new Messages.External.PricePeriod
-                        {
-                            Price = pricePeriod.Price,
-                            StartDate = pricePeriod.StartDate,
-                            EndDate = pricePeriod.EndDate,
-                            Periods = new List<EarningPeriod>
+                        PricePeriods = group
+                            .GroupBy(pricePeriod => new { pricePeriod.StartDate, pricePeriod.EndDate, pricePeriod.Price })
+                            .Select(priceGroup => new Messages.External.PricePeriod
                             {
-                                new EarningPeriod
+                                Price = priceGroup.Key.Price,
+                                StartDate = priceGroup.Key.StartDate,
+                                EndDate = priceGroup.Key.EndDate,
+                                Periods = priceGroup.Select(pricePeriod => new EarningPeriod
                                 {
                                     DeliveryPeriod = pricePeriod.DeliveryPeriod,
                                     EarningType = (Messages.External.EarningType)pricePeriod.EarningType,
@@ -174,9 +174,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping
                                         FundingAccountId = pricePeriod.FundingAccountId
                                     },
                                     LearningId = pricePeriod.ApprenticeshipId ?? 0
-                                }
-                            }
-                        }).ToList()
+                                }).ToList()
+                            }).ToList()
                     }).ToList()
             };
         }
