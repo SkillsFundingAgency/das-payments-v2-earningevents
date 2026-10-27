@@ -190,8 +190,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     {
                         Id = 1234,
                         Period = 13,
-                        CalendarMonth = 8,
-                        CalendarYear = 2025,
                         Status = CollectionPeriodStatus.Open
                     },
                 },
