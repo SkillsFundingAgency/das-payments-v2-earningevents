@@ -1,6 +1,8 @@
+using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +10,8 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.Payments.EarningEvents.Data;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Infrastructure.Configuration;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
@@ -44,15 +48,36 @@ builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, op
 });
 
 builder.Services.AddScoped<IGrowthAndSkillsMapper, GrowthAndSkillsMapper>();
+builder.Services.AddScoped<IGSLApprenticeshipsMapper, GSLApprenticeshipsMapper>();
+builder.Services.AddScoped<IGSLShortCoursesMapper, GSLShortCoursesMapper>();
+builder.Services.AddScoped<IGSLFunctionalSkillMapper, GSLFunctionalSkillMapper>();
 builder.Services.AddScoped<IGSLCalculatePaymentsHandler, GSLCalculatePaymentsHandler>();
 builder.Services.AddScoped<ICalculateGSLPaymentsValidator, CalculateGSLPaymentsValidator>();
 builder.Services.AddScoped<IEarningsRepository, EarningsRepository>();
+builder.Services.AddScoped<GSLApprenticeshipPaymentsProcessor>();
+builder.Services.AddScoped<GSLShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<GSLFunctionalSkillProcessor>();
+builder.Services.AddScoped<UnsupportedLearningTypeProcessor>();
+builder.Services.AddScoped<IGSLProcessor,GSLApprenticeshipPaymentsProcessor>();
+builder.Services.AddScoped<IGSLProcessor, GSLShortCoursePaymentsProcessor>();
+builder.Services.AddScoped<IGSLProcessor, GSLFunctionalSkillProcessor>();
+builder.Services.AddScoped<IGSLProcessorFactory, GSLProcessorFactory>();
 
 
 builder.Services.AddHttpClient<ICollectionPeriodApiClient, CollectionPeriodApiClient>((sp, client) =>
 {
     var config = sp.GetService<IEarningsBridgeConfiguration>();
     client.BaseAddress = new Uri(config.CollectionPeriodApiBaseAddress);
+});
+
+builder.Services.AddAzureClients( clientBuilder =>
+{
+    var config = builder.Configuration.Get<EarningsBridgeConfiguration>();
+    clientBuilder.AddServiceBusClient(config.DASServiceBusConnectionString)
+        .ConfigureOptions(options =>
+        {
+            options.TransportType = config.UseWebSockets ? ServiceBusTransportType.AmqpWebSockets : ServiceBusTransportType.AmqpTcp;
+        });
 });
 
 builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPublisher>((sp) =>
