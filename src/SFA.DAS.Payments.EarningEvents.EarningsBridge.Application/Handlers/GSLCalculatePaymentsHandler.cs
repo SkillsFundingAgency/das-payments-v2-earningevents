@@ -35,7 +35,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _logger = logger;
         }
         
-        public async Task HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
+        public async Task HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message, bool isReprocessing = false)
         {
             try
             {
@@ -50,25 +50,28 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 throw;
             }
 
-            try
+            if (!isReprocessing)
             {
-                // Check if earnings in DB are the latest
-                var dbEarnings = await _repository.GetGrowthAndSkillsEarnings(ukPrn: message.UKPRN, uln: message.Learner.ULN, courseCode: message.Training.CourseCode);
-                var earningsAreLatest = _gslEarningsService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
-                if (!earningsAreLatest)
+                try
                 {
-                    _logger.LogWarning("Earnings received are not the latest. " +
-                                           "Skipping processing for message with EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
-                        message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
-                    return; // If earnings are not the latest, don't proceed
+                    // Check if earnings in DB are the latest
+                    var dbEarnings = await _repository.GetGrowthAndSkillsEarnings(ukPrn: message.UKPRN, uln: message.Learner.ULN, courseCode: message.Training.CourseCode);
+                    var earningsAreLatest = _gslEarningsService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
+                    if (!earningsAreLatest)
+                    {
+                        _logger.LogWarning("Earnings received are not the latest. " +
+                                               "Skipping processing for message with EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
+                            message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                        return; // If earnings are not the latest, don't proceed
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while processing CalculateGrowthAndSkillsPayments with " +
-                                     "EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
-                    message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
-                throw;
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred while processing CalculateGrowthAndSkillsPayments with " +
+                                         "EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
+                        message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                    throw;
+                }
             }
 
 
@@ -86,9 +89,13 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             {
                 if (openCollectionPeriods.Any(x => x.AcademicYear == earning.AcademicYear))
                 {
-                    earning.ProcessedOn = DateTime.UtcNow; // if ProcessedOn is not set then will be cached and picked up for processing later
+                    earning.ProcessedOn = DateTime.UtcNow;
                 }
             }
+
+            var matchingOpenPeriods = openCollectionPeriods
+                .Where(period => growthAndSkillsEarningModel.PricePeriods.Any(pricePeriod => pricePeriod.AcademicYear == period.AcademicYear))
+                .ToList();
 
             var requiredPaymentsEvents = _mapper.MapToShortCourseEarningEvents(message, openCollectionPeriods);
 
@@ -104,9 +111,20 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             {
                 await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
             }
-            
 
-            await _repository.SaveEarnings(growthAndSkillsEarningModel);
+            foreach (var period in matchingOpenPeriods)
+            {
+                await _repository.MarkEarningProcessed(growthAndSkillsEarningModel.EarningsId, period.AcademicYear, (byte)period.Period, DateTime.UtcNow);
+                if (isReprocessing)
+                {
+                    await _repository.MarkPricePeriodsProcessed(growthAndSkillsEarningModel.EarningsId, period.AcademicYear, DateTime.UtcNow);
+                }
+            }
+
+            if (!isReprocessing)
+            {
+                await _repository.SaveEarnings(growthAndSkillsEarningModel);
+            }
         }
     }
 }
