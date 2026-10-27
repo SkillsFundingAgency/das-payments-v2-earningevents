@@ -2,12 +2,12 @@ using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Logging;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
-// ReSharper disable InconsistentNaming
+using SFA.DAS.Payments.Messages.Common;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
 {
-
     public class DASEarningsReceiver
     {
         private readonly ILogger<DASEarningsReceiver> _logger;
@@ -25,15 +25,29 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
             ServiceBusReceivedMessage message,
             ServiceBusMessageActions messageActions)
         {
-            _logger.LogInformation("Message ID: {id}", message.MessageId);
-            _logger.LogInformation("Message Body: {body}", message.Body);
-            _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
-
             var growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
-            await _gslCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
 
+            if (growthAndSkillsPaymentsMessage is null)
+            {
+                throw new InvalidOperationException($"Service Bus message {message.MessageId} could not be deserialized.");
+            }
+
+            _logger.LogEarningsBridgeTrace("EarningsBridge.MessageReceived",
+            new
+            {
+                ExternalEarningsId = growthAndSkillsPaymentsMessage?.EarningsId,
+                UKPRN = growthAndSkillsPaymentsMessage?.UKPRN,
+                ULN = growthAndSkillsPaymentsMessage?.Learner?.ULN,
+                AcademicYear = growthAndSkillsPaymentsMessage?.Earnings?.FirstOrDefault()?.AcademicYear,
+                CollectionPeriod = growthAndSkillsPaymentsMessage?.Earnings?
+                    .SelectMany(x => x.PricePeriods)
+                    .SelectMany(x => x.Periods)
+                    .Select(x => x.DeliveryPeriod)
+                    .FirstOrDefault()
+            });
+
+            await _gslCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
             await messageActions.CompleteMessageAsync(message);
         }
     }
 }
-

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Logging;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
@@ -34,51 +35,68 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             _collectionPeriodService = collectionPeriodService;
             _logger = logger;
         }
-        
+
         public async Task HandleGslCalculatePaymentsMessage(CalculateGrowthAndSkillsPayments message)
         {
+            var logProperties = new
+            {
+                ExternalEarningsId = message?.EarningsId,
+                UKPRN = message?.UKPRN,
+                ULN = message?.Learner?.ULN,
+                AcademicYear = message?.Earnings?.FirstOrDefault()?.AcademicYear,
+                CollectionPeriod = message?.Earnings?
+                    .SelectMany(x => x.PricePeriods)
+                    .SelectMany(x => x.Periods)
+                    .Select(x => x.DeliveryPeriod)
+                    .FirstOrDefault()
+            };
+
             try
             {
                 if (!_validator.Validate(message))
                 {
+                    _logger.LogEarningsBridgeTrace("EarningsBridge.MessageValidationFailed", logProperties);
+
                     return;
-                };
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to validate GSL calculate payments message");
+                _logger.LogEarningsBridgeError(ex, "EarningsBridge.MessageValidationException", logProperties);
+
                 throw;
-            }
+            }            
 
             try
             {
                 // Check if earnings in DB are the latest
                 var dbEarnings = await _repository.GetGrowthAndSkillsEarnings(ukPrn: message.UKPRN, uln: message.Learner.ULN, courseCode: message.Training.CourseCode);
                 var earningsAreLatest = _gslEarningsService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
+
                 if (!earningsAreLatest)
                 {
-                    _logger.LogWarning("Earnings received are not the latest. " +
-                                           "Skipping processing for message with EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
-                        message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                    _logger.LogEarningsBridgeTrace("EarningsBridge.MessageReprocessed", logProperties);
+
                     return; // If earnings are not the latest, don't proceed
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing CalculateGrowthAndSkillsPayments with " +
-                                     "EarningsId: {EarningsId}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
-                    message.EarningsId, message.UKPRN, message.Learner.ULN, message.Training.CourseCode);
+                _logger.LogEarningsBridgeError(ex, "EarningsBridge.MessageProcessingFailed", logProperties);
+
                 throw;
             }
-
 
             var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
 
             var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
 
-            if(!openCollectionPeriods.Any())
+            if (!openCollectionPeriods.Any())
             {
+                _logger.LogEarningsBridgeTrace("EarningsBridge.NoOpenCollectionPeriods", logProperties);
+
                 await _repository.SaveEarnings(growthAndSkillsEarningModel);
+
                 return;
             }
 
@@ -94,20 +112,38 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
             var fundingSourceEvents = _mapper.MapToDasEarningsReceivedEvents(message, openCollectionPeriods);
 
-
             foreach (var requiredPaymentsEvent in requiredPaymentsEvents)
             {
                 await _publisher.Publish<GSLShortCourseEarningsEvent>(requiredPaymentsEvent);
+
+                _logger.LogEarningsBridgeTrace("EarningsBridge.GSLShortCourseEarningsEventPublished",
+                new
+                {
+                    ExternalEarningsId = requiredPaymentsEvent.ExternalEarningsId,
+                    UKPRN = message.UKPRN,
+                    ULN = message.Learner.ULN,
+                    AcademicYear = message.Earnings?.FirstOrDefault()?.AcademicYear,
+                    CollectionPeriod = requiredPaymentsEvent.CollectionYear,
+                    FundingPlatformType = requiredPaymentsEvent.FundingPlatformType
+                });
             }
 
             foreach (var fundingSourceEvent in fundingSourceEvents)
             {
                 await _publisher.Publish<DasEarningsReceivedEvent>(fundingSourceEvent);
+
+                _logger.LogEarningsBridgeTrace("EarningsBridge.DasEarningsReceivedEventPublished",
+                new
+                {
+                    ExternalEarningsId = fundingSourceEvent.EarningsId,
+                    UKPRN = fundingSourceEvent.UKPRN,
+                    ULN = fundingSourceEvent.ULN,
+                    AcademicYear = message.Earnings?.FirstOrDefault()?.AcademicYear,
+                    CollectionPeriod = fundingSourceEvent.CollectionPeriod?.Period
+                });
             }
-            
 
             await _repository.SaveEarnings(growthAndSkillsEarningModel);
         }
     }
 }
-
