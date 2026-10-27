@@ -49,8 +49,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     {
                         Id = 1234,
                         Period = 6,
-                        CalendarMonth = 6,
-                        CalendarYear = 2026,
                         Status = CollectionPeriodStatus.Open
                     }
                 }
@@ -108,8 +106,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     {
                         Id = 1234,
                         Period = 13,
-                        CalendarMonth = 8,
-                        CalendarYear = 2025,
                         Status = CollectionPeriodStatus.Open
                     },
                 },
@@ -125,8 +121,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                     {
                         Id = 1235,
                         Period = 1,
-                        CalendarMonth = 1,
-                        CalendarYear = 2026,
                         Status = CollectionPeriodStatus.Open,
                     },
                 },

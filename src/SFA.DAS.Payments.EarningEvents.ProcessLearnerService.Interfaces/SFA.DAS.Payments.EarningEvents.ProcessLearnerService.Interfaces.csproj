@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net6.0</TargetFramework>
+	  <TargetFramework>net8.0</TargetFramework>
     <IsServiceFabricServiceProject>True</IsServiceFabricServiceProject>
     <ServerGarbageCollection>True</ServerGarbageCollection>
-    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <TargetLatestRuntimePatch>False</TargetLatestRuntimePatch>
+	<SelfContained>True</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
 	  <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.0.1001" />
-	  <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.4.1-prerelease-62" />
-	  <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.4.1-prerelease-62" />
+	  <PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.6.0-prerelease-9" />
+	  <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.6.0-prerelease-9" />
   </ItemGroup>
 
   <ItemGroup>

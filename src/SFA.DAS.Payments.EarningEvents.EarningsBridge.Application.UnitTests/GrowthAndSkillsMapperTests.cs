@@ -581,16 +581,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 {
                     new CollectionPeriod
                     {
-                        CalendarMonth = 6,
-                        CalendarYear = 2026,
                         Id = 1234,
                         Period = 6,
                         Status = CollectionPeriodStatus.Open
                     },
                     new CollectionPeriod
                     {
-                        CalendarMonth = 7,
-                        CalendarYear = 2026,
                         Id = 1235,
                         Period = 7,
                         Status = CollectionPeriodStatus.NotStarted
@@ -610,6 +606,41 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 models[i].Status.Should().Be(periods[i].Status);
                 models[i].Period.Should().Be(periods[i].Period);
                 models[i].Id.Should().Be(periods[i].Id);
+            }
+        }
+        [Test]
+        [TestCase("2026/07/31", 24, 0.95)]
+        [TestCase("2026/07/31", 25, 0.95)]
+        [TestCase("2026/08/01", 24, 1.0)]
+        [TestCase("2026/08/01", 25, 0.75)]
+        public void Levy_Employers_Sfa_Contribution_Set_To_2026_Rules(DateTime startDate, byte apprenticeAge, double expectedContribution)
+        {
+            // Arrange
+            decimal sfaContrib = (decimal)expectedContribution;
+
+            var collectionPeriods = new List<CollectionPeriodModel>
+            {
+                new()
+                {
+                    AcademicYear = 2526,
+                    Period = 1,
+                    Status = CollectionPeriodStatus.Open
+                }
+            };
+
+            // Act
+            _message.Training.StartDate = startDate;
+            _message.Training.AgeAtStartOfTraining = apprenticeAge;
+            var earningEvents = _sut.MapToShortCourseEarningEvents(_message, collectionPeriods);
+
+            // Assert
+            var earningEvent = earningEvents.First();
+            foreach (var earning in earningEvent.Earnings)
+            {
+                foreach (var earningPeriod in earning.Periods)
+                {
+                    earningPeriod.SfaContributionPercentage.Should().Be(sfaContrib);
+                }
             }
         }
 
