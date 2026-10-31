@@ -11,4 +11,8 @@
     <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.6.0-prerelease-9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.Internal\SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj" />
+  </ItemGroup>
+
 </Project>

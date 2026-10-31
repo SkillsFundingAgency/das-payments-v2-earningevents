@@ -1,5 +1,6 @@
 ﻿namespace SFA.DAS.Payments.EarningEvents.Model
 {
+
     public class GrowthAndSkillsEarningModel
     {
         public long Id { get; set; }

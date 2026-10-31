@@ -8,6 +8,8 @@ namespace SFA.DAS.Payments.EarningEvents.Data
     public class EarningsDataContext : DbContext, IEarningsDataContext
     {
         private readonly string connectionString;
+        public DbSet<ReceivedEarning> ReceivedEarnings{ get; set; }
+        public DbSet<ReceivedEarningProcessedCollectionPeriod> ReceivedEarningProcessedCollectionPeriods { get; set; }
 
         public DbSet<GrowthAndSkillsEarningModel> GrowthAndSkillsEarnings { get; set; }
         public DbSet<GrowthAndSkillsEarningPricePeriodModel> GrowthAndSkillsEarningPricePeriods { get; set; }
@@ -36,6 +38,8 @@ namespace SFA.DAS.Payments.EarningEvents.Data
             modelBuilder.HasDefaultSchema("Payments2");
             modelBuilder.ApplyConfiguration(new GrowthAndSkillsEarningModelConfiguration());
             modelBuilder.ApplyConfiguration(new GrowthAndSkillsEarningPricePeriodModelConfiguration());
+            modelBuilder.ApplyConfiguration(new ReceivedEarningConfiguration());
+            modelBuilder.ApplyConfiguration(new ReceivedEarningProcessedCollectionPeriodConfiguration());
         }
 
     }
