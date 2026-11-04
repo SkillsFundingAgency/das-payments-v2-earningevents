@@ -75,7 +75,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 
                 if (!earningsAreLatest)
                 {
-                    _logger.LogEarningsBridgeTrace("EarningsBridge.MessageReprocessed", logProperties);
+                    _logger.LogEarningsBridgeTrace("EarningsBridge.OutdatedEarningsSkipped", logProperties);
 
                     return; // If earnings are not the latest, don't proceed
                 }
