@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -300,16 +299,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
                 {
                     new CollectionPeriod
                     {
-                        CalendarMonth = 6,
-                        CalendarYear = 2026,
                         Id = 1234,
                         Period = 6,
                         Status = CollectionPeriodStatus.Open
                     },
                     new CollectionPeriod
                     {
-                        CalendarMonth = 7,
-                        CalendarYear = 2026,
                         Id = 1235,
                         Period = 7,
                         Status = CollectionPeriodStatus.NotStarted
