@@ -629,18 +629,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
         [Test]
         public void Validate_accepts_valid_command()
         {
-            var result = _sut.Validate(_message);
-
-            result.Should().BeTrue();
+            Assert.DoesNotThrow(() =>  _sut.Validate(_message));
         }
 
         [Test]
         public void Validate_Accepts_Valid_Message_Empty_Earnings()
         {
             _message.Earnings = new List<Earnings>();
-            var result = _sut.Validate(_message);
-
-            result.Should().BeTrue();
+            Assert.DoesNotThrow(() => _sut.Validate(_message));
         }
     }
 }

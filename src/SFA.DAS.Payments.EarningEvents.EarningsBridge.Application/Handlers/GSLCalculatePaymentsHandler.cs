@@ -40,10 +40,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
         {
             try
             {
-                if (!_validator.Validate(message))
-                {
-                    return;
-                };
+                _validator.Validate(message);
             }
             catch (Exception ex)
             {

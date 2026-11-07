@@ -5,7 +5,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
     // ReSharper disable once InconsistentNaming
     public class CalculateGSLPaymentsValidator: ICalculateGSLPaymentsValidator
     {
-        public bool Validate(CalculateGrowthAndSkillsPayments command)
+        public void Validate(CalculateGrowthAndSkillsPayments command)
         {
             if (command == null)
             {
@@ -26,7 +26,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators
             ValidateTraining(command);
             ValidateEarnings(command);
 
-            return true;
+            
         }
 
         private void ValidateLearner(CalculateGrowthAndSkillsPayments command)
