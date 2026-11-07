@@ -7,6 +7,7 @@ using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
+
     public class GSLCalculatePaymentsHandler : IGSLCalculatePaymentsHandler
     {
         private ICalculateGSLPaymentsValidator _validator;
@@ -53,8 +54,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
             try
             {
                 // Check if earnings in DB are the latest
-                var dbEarnings = await _repository.GetGrowthAndSkillsEarnings(ukPrn: message.UKPRN, uln: message.Learner.ULN, courseCode: message.Training.CourseCode);
-                var earningsAreLatest = _gslEarningsService.CheckEarningsAreLatest(dbEarnings, message.EarningsId);
+                var earningsId = await _repository.GetReceivedEarningEarningsId(message.UKPRN, message.Learner.ULN, message.Training.CourseType.ToModelCourseType(), message.Training.CourseCode, message.Training.CourseReference);
+                var earningsAreLatest = _gslEarningsService.CheckEarningsAreLatest(earningsId, message.EarningsId);
                 if (!earningsAreLatest)
                 {
                     _logger.LogWarning("Earnings received are not the latest. " +
@@ -71,6 +72,9 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 throw;
             }
 
+            //save the earnings
+
+            //_repository.SaveEarnings()
 
             var growthAndSkillsEarningModel = _mapper.MapToGrowthAndSkillsEarningModel(message);
 

@@ -23,6 +23,13 @@ public class GSLEarningsService : IGSLEarningsService
         return true;
     }
 
+    public bool CheckEarningsAreLatest(Guid lastReceivedEarningsId, Guid messageEarningsId)
+    {
+        if (lastReceivedEarningsId == Guid.Empty) return true;
+        return CompareTimestamps(messageEarningsId,
+                lastReceivedEarningsId);
+    }
+
     private bool CompareTimestamps(Guid messageTimestamp, Guid tableEntryTimestamp)
     {
         var messageDecode = UuidDecoder.TryDecodeTimestamp(messageTimestamp, out var messageTime);

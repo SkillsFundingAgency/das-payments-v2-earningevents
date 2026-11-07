@@ -5,6 +5,7 @@ using UUIDNext.Tools;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Services
 {
+
     [TestFixture]
     public class GslServiceTests
     {

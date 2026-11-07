@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
 using SFA.DAS.Payments.EarningEvents.Model;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
@@ -6,5 +7,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
 public interface IEarningsRepository
 {
     Task SaveEarnings(GrowthAndSkillsEarningModel growthAndSkillsEarningModel);
+    Task SaveEarnings(ReceivedEarning receivedEarnings);
     Task <List<GrowthAndSkillsEarningModel>> GetGrowthAndSkillsEarnings(long ukPrn, long uln, string courseCode);
+    Task<Guid> GetReceivedEarningEarningsId(long ukprn, long uln, CourseType courseType, string courseCode, string courseReference);
 }

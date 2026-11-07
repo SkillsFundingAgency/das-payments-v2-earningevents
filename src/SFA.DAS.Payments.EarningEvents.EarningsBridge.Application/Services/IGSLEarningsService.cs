@@ -6,5 +6,6 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
     public interface IGSLEarningsService
     {
         bool CheckEarningsAreLatest(List<GrowthAndSkillsEarningModel> earnings, Guid messageEarningsId);
+        bool CheckEarningsAreLatest(Guid lastReceivedEarningsId, Guid messageEarningsId);
     }
 }

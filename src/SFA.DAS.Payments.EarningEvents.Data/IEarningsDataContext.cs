@@ -6,6 +6,9 @@ namespace SFA.DAS.Payments.EarningEvents.Data
 {
     public interface IEarningsDataContext
     {
+        DbSet<ReceivedEarning> ReceivedEarnings { get; set; }
+        DbSet<ReceivedEarningProcessedCollectionPeriod> ReceivedEarningProcessedCollectionPeriods { get; set; }
+
         DbSet<GrowthAndSkillsEarningModel> GrowthAndSkillsEarnings { get; set; }
         DbSet<GrowthAndSkillsEarningPricePeriodModel> GrowthAndSkillsEarningPricePeriods { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken));
