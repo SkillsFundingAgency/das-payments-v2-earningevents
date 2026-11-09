@@ -53,6 +53,10 @@ namespace SFA.DAS.Payments.EarningEvents.Domain.UnitTests
                 .Setup(x => x.GetSetting("Settings", "DoNotGenerateACT2Payments"))
                 .Returns("false");
 
+            mocker.Mock<IHiringPaymentEarningEventConverter>()
+                .Setup(x => x.Convert(It.IsAny<List<EarningEvent>>()))
+                .Returns((List<EarningEvent> events) => events);
+
             validatorMock.Setup(x => x.Validate(It.IsAny<FM36Learner>())).Returns(new ValidationResult(new List<ValidationRuleResult>()));
             learner = new FM36Learner();
         }
