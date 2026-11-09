@@ -21,7 +21,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
         private readonly ScenarioContext scenarioContext;
         private readonly MessagingContext messagingContext;
         private TestSession testSession;
-        private Model.Core.CollectionPeriod collectionPeriod;
+        private CollectionPeriod collectionPeriod;
         private short currentAcademicYear;
         private CollectionPeriod currentPeriod;
         private Guid previousIdentifier;

@@ -30,7 +30,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
             _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
 
             var growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
-            await _gslCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
+            await _gslCalculatePaymentsHandler.HandleGSLCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
 
             await messageActions.CompleteMessageAsync(message);
         }
