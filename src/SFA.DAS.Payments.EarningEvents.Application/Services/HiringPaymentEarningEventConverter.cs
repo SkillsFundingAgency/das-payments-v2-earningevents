@@ -32,10 +32,10 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Services
 
         public List<EarningEvent> Convert(List<EarningEvent> earningEvents)
         {
-            return ConvertAsync(earningEvents).GetAwaiter().GetResult();
+            return ConvertEligibleEventsToGsl(earningEvents).GetAwaiter().GetResult();
         }
 
-        private async Task<List<EarningEvent>> ConvertAsync(List<EarningEvent> earningEvents)
+        private async Task<List<EarningEvent>> ConvertEligibleEventsToGsl(List<EarningEvent> earningEvents)
         {
             var converted = new List<EarningEvent>();
 
