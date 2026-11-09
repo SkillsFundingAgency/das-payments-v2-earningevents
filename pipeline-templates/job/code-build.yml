@@ -84,6 +84,7 @@ jobs:
       projects: src/SFA.DAS.Payments.EarningEvents.DASEarningsBridge.Function/SFA.DAS.Payments.EarningEvents.EarningsBridge.Function.csproj
       arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\EarningBridge'
       modifyOutputPath: false
+      zipAfterPublish: false
 
   - task: PublishPipelineArtifact@1
     displayName: 'Publish Pipeline Artifact'
