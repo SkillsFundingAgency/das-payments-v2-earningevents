@@ -1,8 +1,10 @@
 ﻿using Moq;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.External;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.Model;
 
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Services
@@ -59,11 +61,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 1,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -72,11 +74,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 2,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -85,11 +87,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 3,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -98,11 +100,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 4,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -111,11 +113,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 5,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -124,11 +126,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 6,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -137,11 +139,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 7,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -150,11 +152,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 8,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -163,11 +165,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 9,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -176,11 +178,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 10,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -189,11 +191,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 11,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -202,11 +204,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
                                     {
                                         Amount = 1000,
                                         DeliveryPeriod = 12,
-                                        EarningType = EarningType.Learning,
+                                        EarningType = Messages.External.EarningType.Learning,
                                         Employer = new Employer
                                         {
                                             AccountId = 12345,
-                                            EmployerType = EmployerType.Levy,
+                                            EmployerType = Messages.External.EmployerType.Levy,
                                             FundingAccountId = 12345
                                         },
                                         LearningId = 123
@@ -223,13 +225,21 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
         }
 
         [Test]
-        public async Task ProcessEarnings_Verifies_Earnings()
+        public async Task ProcessEarnings_Validates_ReceivedEarnings()
         {
             // Arrange
             // Act
             await processor.ProcessEarnings(earningsCommand);
             // Assert
             mocker.GetMock<ICalculateGSLPaymentsValidator>().Verify(x => x.Validate(It.IsAny<CalculateGrowthAndSkillsPayments>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ProcessEarnings_Saves_ReceivedEarnings() 
+        {
+            await processor.ProcessEarnings(earningsCommand);
+            // Assert
+            mocker.GetMock<IEarningsRepository>().Verify(x => x.SaveEarnings(It.IsAny<ReceivedEarning>()), Times.Once);
         }
     }
 }
