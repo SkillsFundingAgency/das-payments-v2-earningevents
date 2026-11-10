@@ -13,14 +13,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
     public class GSLEarningsProcessorTests
     {
         private Moq.AutoMock.AutoMocker mocker;
-        private GSLEarningsProcessor processor;
+        private ReceivedEarningsProcessor processor;
         private CalculateGrowthAndSkillsPayments earningsCommand;
 
         [SetUp]
         public void Setup()
         {
             mocker = new Moq.AutoMock.AutoMocker();
-            processor = mocker.CreateInstance<GSLEarningsProcessor>();
+            processor = mocker.CreateInstance<ReceivedEarningsProcessor>();
             earningsCommand = new CalculateGrowthAndSkillsPayments
             {
                 EarningsId = UUIDNext.Uuid.NewDatabaseFriendly(UUIDNext.Database.SqlServer),

@@ -63,7 +63,8 @@ builder.Services.AddScoped<IPaymentsServiceBusPublisher, PaymentsServiceBusPubli
 
 builder.Services.AddScoped<ICollectionPeriodService, CollectionPeriodService>();
 builder.Services.AddScoped<IGSLEarningsService, GSLEarningsService>();
-//builder.Services.AddScoped<IGrowthAndSkillsEarningsProcessor, GrowthAndSkillsEarningsProcessor>();
+
+builder.Services.AddScoped<IReceivedEarningsProcessor, ReceivedEarningsProcessor>();
 builder.Services.AddScoped<IGrowthAndSkillsMapper, GrowthAndSkillsMapper>();
 builder.Services.AddHostedService<ServiceBusQueueManager>();
 
