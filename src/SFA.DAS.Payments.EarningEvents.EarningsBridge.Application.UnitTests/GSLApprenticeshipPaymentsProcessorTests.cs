@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
@@ -160,6 +161,45 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             dasEarningsReceivedEvents[0].EarningsId.Should().Be(_message.EarningsId);
             dasEarningsReceivedEvents[0].CollectionPeriod.AcademicYear.Should().Be(2526);
             dasEarningsReceivedEvents[0].CollectionPeriod.Period.Should().Be(2);
+
+            _publisher.Verify(x => x.Publish<GSLApprenticeshipEarningsEvent>(It.IsAny<GSLApprenticeshipEarningsEvent>()), Times.Once);
+            _publisher.Verify(x => x.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Once);
+        }
+
+        [TestCase(EarningType.FirstEmployerHiringPayment)]
+        [TestCase(EarningType.SecondEmployerHiringPayment)]
+        public async Task Process_Does_Not_Publish_Events_When_Only_Hiring_Payment_Earnings_Are_Received(EarningType hiringEarningType)
+        {
+            _message.Earnings.First().PricePeriods.First().Periods.First().EarningType = hiringEarningType;
+
+            await _sut.Process(_message, _openCollectionPeriods);
+
+            _mapper.Verify(x => x.MapToApprenticeshipEarningEvents(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()), Times.Never);
+            _publisher.Verify(x => x.Publish<GSLApprenticeshipEarningsEvent>(It.IsAny<GSLApprenticeshipEarningsEvent>()), Times.Never);
+            _publisher.Verify(x => x.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
+        }
+
+        [TestCase(EarningType.FirstEmployerHiringPayment)]
+        [TestCase(EarningType.SecondEmployerHiringPayment)]
+        public async Task Process_Publishes_Events_When_Hiring_Payment_Earnings_Are_Received_With_Other_Earnings(EarningType hiringEarningType)
+        {
+            ((List<EarningPeriod>)_message.Earnings.First().PricePeriods.First().Periods).Add(new EarningPeriod
+            {
+                Employer = new Employer { EmployerType = EmployerType.Levy, AccountId = 10000, FundingAccountId = 10000 },
+                Amount = 1000m,
+                DeliveryPeriod = 1,
+                EarningType = hiringEarningType,
+                LearningId = 123456
+            });
+
+            _mapper.Setup(x => x.MapToApprenticeshipEarningEvents(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()))
+                .Returns(new[] { new GSLApprenticeshipEarningsEvent() });
+            _mapper.Setup(x => x.MapToDasEarningsReceivedEvents(It.IsAny<CalculateGrowthAndSkillsPayments>(), It.IsAny<IEnumerable<CollectionPeriodModel>>()))
+                .Returns(new[] { new DasEarningsReceivedEvent() });
+            _publisher.Setup(x => x.Publish<GSLApprenticeshipEarningsEvent>(It.IsAny<GSLApprenticeshipEarningsEvent>())).Returns(Task.CompletedTask);
+            _publisher.Setup(x => x.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>())).Returns(Task.CompletedTask);
+
+            await _sut.Process(_message, _openCollectionPeriods);
 
             _publisher.Verify(x => x.Publish<GSLApprenticeshipEarningsEvent>(It.IsAny<GSLApprenticeshipEarningsEvent>()), Times.Once);
             _publisher.Verify(x => x.Publish<DasEarningsReceivedEvent>(It.IsAny<DasEarningsReceivedEvent>()), Times.Once);

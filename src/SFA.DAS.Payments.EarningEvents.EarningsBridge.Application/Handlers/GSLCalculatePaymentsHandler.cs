@@ -6,6 +6,7 @@ using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Validators;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.Model;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
 {
@@ -87,9 +88,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 return;
             }
 
+            var holdForSubsequentProcessing = growthAndSkillsEarningModel.CourseType == CourseType.Apprenticeship
+                                              && message.ContainsOnlyHiringPaymentEarnings();
+
             foreach (var earning in growthAndSkillsEarningModel.PricePeriods)
             {
-                if (openCollectionPeriods.Any(x => x.AcademicYear == earning.AcademicYear))
+                if (!holdForSubsequentProcessing && openCollectionPeriods.Any(x => x.AcademicYear == earning.AcademicYear))
                 {
                     earning.ProcessedOn = DateTime.UtcNow;
                 }
