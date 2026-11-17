@@ -57,7 +57,7 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             ageAtStart = learnerAge;
         }
 
-        [Given("the learner has an apprenticeship with a (Levy|NonLevy) employer")]
+        [Given("the learner has an apprenticeship with a (.*) employer")]
         public async Task GivenTheLearnerHasAnApprenticeshipWithAnEmployer(string employerType)
         {
             var type = Enum.Parse<ApprenticeshipEmployerType>(employerType);
