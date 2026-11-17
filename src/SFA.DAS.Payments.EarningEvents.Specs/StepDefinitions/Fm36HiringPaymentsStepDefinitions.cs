@@ -191,6 +191,15 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             Assert.That(gslEvent.IncentiveEarnings.Any(x => x.Type == IncentiveEarningType.FirstEmployerHiringPayment || x.Type == IncentiveEarningType.SecondEmployerHiringPayment), Is.False);
         }
 
+        [Then("the GSL Apprenticeship Earnings Event does not include hiring payments for delivery period (.*)")]
+        public void ThenTheGslEventDoesNotIncludeHiringPaymentsForDeliveryPeriod(byte deliveryPeriod)
+        {
+            var gslEvent = GSLApprenticeshipEarningsEventHandler.GetEvents(testSession.Learner).Single();
+
+            Assert.That(gslEvent.IncentiveEarnings.SelectMany(x => x.Periods).Any(p => p.Period == deliveryPeriod), Is.False,
+                $"Expected no hiring payment earnings for delivery period {deliveryPeriod}");
+        }
+
         [Then("an ACT1 Earnings Event is published for the learner")]
         public async Task ThenAnAct1EarningsEventIsPublished()
         {

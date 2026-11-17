@@ -61,3 +61,17 @@ Scenario: Learner with a levy employer is published as a normal ACT1 event
 	When the learner is processed by Earning Events
 	Then an ACT1 Earnings Event is published for the learner
 	And no GSL Apprenticeship Earnings Event is published for the learner
+
+Scenario: Hiring payments for future delivery periods are not included in the GSL event
+	Given an FM36 apprenticeship learner who started on 2026-10-01 aged 18 at the start of learning
+	And the learner has an apprenticeship with a NonLevy employer
+	And the following hiring payment earnings are stored for the learner
+		| Delivery Period | Earning Type                | Amount |
+		| 3               | FirstEmployerHiringPayment  | 500    |
+		| 5               | SecondEmployerHiringPayment | 250    |
+	When the learner is processed by Earning Events
+	Then a GSL Apprenticeship Earnings Event is published for the learner
+	And the GSL Apprenticeship Earnings Event includes the stored hiring payments
+		| Delivery Period | Earning Type               | Amount |
+		| 3               | FirstEmployerHiringPayment | 500    |
+	And the GSL Apprenticeship Earnings Event does not include hiring payments for delivery period 5
