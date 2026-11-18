@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using SFA.DAS.Payments.EarningEvents.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Application.Repositories;
@@ -32,18 +31,13 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Services
 
         public List<EarningEvent> Convert(List<EarningEvent> earningEvents)
         {
-            return ConvertEligibleEventsToGsl(earningEvents).GetAwaiter().GetResult();
-        }
-
-        private async Task<List<EarningEvent>> ConvertEligibleEventsToGsl(List<EarningEvent> earningEvents)
-        {
             var converted = new List<EarningEvent>();
 
             foreach (var earningEvent in earningEvents)
             {
-                if (earningEvent is ApprenticeshipContractType1EarningEvent act1Event && await IsEligible(act1Event).ConfigureAwait(false))
+                if (earningEvent is ApprenticeshipContractType1EarningEvent act1Event && IsEligible(act1Event))
                 {
-                    converted.Add(await ConvertToGslEvent(act1Event).ConfigureAwait(false));
+                    converted.Add(ConvertToGslEvent(act1Event));
                     continue;
                 }
 
@@ -53,25 +47,23 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Services
             return converted;
         }
 
-        private async Task<bool> IsEligible(ApprenticeshipContractType1EarningEvent act1Event)
+        private bool IsEligible(ApprenticeshipContractType1EarningEvent act1Event)
         {
             if (!HiringPaymentEligibility.MeetsStartDateAndAge(act1Event))
             {
                 return false;
             }
 
-            var employerType = await employerTypeRepository
-                .GetEmployerType(act1Event.Ukprn, act1Event.Learner.Uln, act1Event.LearningAim.StandardCode)
-                .ConfigureAwait(false);
+            var employerType = employerTypeRepository
+                .GetEmployerType(act1Event.Ukprn, act1Event.Learner.Uln, act1Event.LearningAim.StandardCode);
 
             return employerType == Common.Entities.ApprenticeshipEmployerType.NonLevy;
         }
 
-        private async Task<GSLApprenticeshipEarningsEvent> ConvertToGslEvent(ApprenticeshipContractType1EarningEvent act1Event)
+        private GSLApprenticeshipEarningsEvent ConvertToGslEvent(ApprenticeshipContractType1EarningEvent act1Event)
         {
-            var storedEarnings = await repository
-                .GetLatestHiringPaymentEarnings(act1Event.Ukprn, act1Event.Learner.Uln, act1Event.LearningAim.StandardCode.ToString())
-                .ConfigureAwait(false);
+            var storedEarnings = repository
+                .GetLatestHiringPaymentEarnings(act1Event.Ukprn, act1Event.Learner.Uln, act1Event.LearningAim.StandardCode.ToString());
 
             var gslEvent = mapper.Map<GSLApprenticeshipEarningsEvent>(act1Event);
             gslEvent.ExternalEarningsId = storedEarnings?.EarningsId ?? Guid.Empty;

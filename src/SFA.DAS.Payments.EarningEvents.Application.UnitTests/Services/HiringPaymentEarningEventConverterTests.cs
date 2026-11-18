@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using FluentAssertions;
 using Moq;
@@ -37,7 +36,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Services
             repository = new Mock<IHiringPaymentEarningsRepository>();
             employerTypeRepository = new Mock<IApprenticeshipEmployerTypeRepository>();
             employerTypeRepository.Setup(x => x.GetEmployerType(Ukprn, Uln, StandardCode))
-                .ReturnsAsync(ApprenticeshipEmployerType.NonLevy);
+                .Returns(ApprenticeshipEmployerType.NonLevy);
             var mapperConfiguration = new MapperConfiguration(config => config.AddProfile<HiringPaymentEarningEventProfile>());
             converter = new HiringPaymentEarningEventConverter(repository.Object, employerTypeRepository.Object, mapperConfiguration.CreateMapper());
         }
@@ -87,7 +86,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Services
         public void Event_Is_Returned_Unchanged_When_The_Apprenticeship_Is_Levy()
         {
             employerTypeRepository.Setup(x => x.GetEmployerType(Ukprn, Uln, StandardCode))
-                .ReturnsAsync(ApprenticeshipEmployerType.Levy);
+                .Returns(ApprenticeshipEmployerType.Levy);
             var act1Event = CreateAct1Event(new DateTime(2026, 10, 1), 18);
 
             var result = converter.Convert(new List<EarningEvent> { act1Event });
@@ -100,7 +99,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Services
         public void Event_Is_Returned_Unchanged_When_No_Apprenticeship_Is_Found()
         {
             employerTypeRepository.Setup(x => x.GetEmployerType(Ukprn, Uln, StandardCode))
-                .ReturnsAsync((ApprenticeshipEmployerType?)null);
+                .Returns((ApprenticeshipEmployerType?)null);
             var act1Event = CreateAct1Event(new DateTime(2026, 10, 1), 18);
 
             var result = converter.Convert(new List<EarningEvent> { act1Event });
@@ -204,7 +203,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Services
         public void Gsl_Event_Is_Published_Without_Hiring_Payments_When_None_Are_Stored()
         {
             repository.Setup(x => x.GetLatestHiringPaymentEarnings(Ukprn, Uln, StandardCode.ToString()))
-                .ReturnsAsync((GrowthAndSkillsEarningModel)null);
+                .Returns((GrowthAndSkillsEarningModel)null);
             var act1Event = CreateAct1Event(new DateTime(2026, 10, 1), 18);
 
             var gslEvent = (GSLApprenticeshipEarningsEvent)(converter.Convert(new List<EarningEvent> { act1Event })).Single();
@@ -264,7 +263,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Services
         private void SetupStoredEarnings(params GrowthAndSkillsEarningPricePeriodModel[] periods)
         {
             repository.Setup(x => x.GetLatestHiringPaymentEarnings(Ukprn, Uln, StandardCode.ToString()))
-                .ReturnsAsync(new GrowthAndSkillsEarningModel
+                .Returns(new GrowthAndSkillsEarningModel
                 {
                     EarningsId = storedEarningsId,
                     PricePeriods = periods.ToList()

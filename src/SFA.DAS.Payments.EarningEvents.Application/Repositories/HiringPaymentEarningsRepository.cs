@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Payments.EarningEvents.Data;
 using SFA.DAS.Payments.EarningEvents.Model;
@@ -8,7 +7,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Repositories
 {
     public interface IHiringPaymentEarningsRepository
     {
-        Task<GrowthAndSkillsEarningModel> GetLatestHiringPaymentEarnings(long ukprn, long uln, string courseCode);
+        GrowthAndSkillsEarningModel GetLatestHiringPaymentEarnings(long ukprn, long uln, string courseCode);
     }
 
     public class HiringPaymentEarningsRepository : IHiringPaymentEarningsRepository
@@ -20,16 +19,15 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Repositories
             this.earningsDataContext = earningsDataContext;
         }
 
-        public async Task<GrowthAndSkillsEarningModel> GetLatestHiringPaymentEarnings(long ukprn, long uln, string courseCode)
+        public GrowthAndSkillsEarningModel GetLatestHiringPaymentEarnings(long ukprn, long uln, string courseCode)
         {
-            return await earningsDataContext.GrowthAndSkillsEarnings
+            return earningsDataContext.GrowthAndSkillsEarnings
                 .Where(x => x.UKPRN == ukprn && x.LearnerUln == uln && x.CourseCode == courseCode)
                 .OrderByDescending(x => x.Id)
                 .Include(x => x.PricePeriods.Where(p =>
                     p.EarningType == EarningType.FirstEmployerHiringPayment ||
                     p.EarningType == EarningType.SecondEmployerHiringPayment))
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
+                .FirstOrDefault();
         }
     }
 }

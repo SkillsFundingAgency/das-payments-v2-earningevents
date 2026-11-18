@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Entities;
@@ -8,7 +7,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Repositories
 {
     public interface IApprenticeshipEmployerTypeRepository
     {
-        Task<ApprenticeshipEmployerType?> GetEmployerType(long ukprn, long uln, long standardCode);
+        ApprenticeshipEmployerType? GetEmployerType(long ukprn, long uln, long standardCode);
     }
 
     public class ApprenticeshipEmployerTypeRepository : IApprenticeshipEmployerTypeRepository
@@ -20,15 +19,14 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Repositories
             this.paymentsDataContext = paymentsDataContext;
         }
 
-        public async Task<ApprenticeshipEmployerType?> GetEmployerType(long ukprn, long uln, long standardCode)
+        public ApprenticeshipEmployerType? GetEmployerType(long ukprn, long uln, long standardCode)
         {
-            return await paymentsDataContext.Apprenticeship
+            return paymentsDataContext.Apprenticeship
                 .Where(x => x.Ukprn == ukprn && x.Uln == uln && x.StandardCode == standardCode)
                 .OrderByDescending(x => x.Status == ApprenticeshipStatus.Active)
                 .ThenByDescending(x => x.AgreedOnDate)
                 .Select(x => (ApprenticeshipEmployerType?)x.ApprenticeshipEmployerType)
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
+                .FirstOrDefault();
         }
     }
 }

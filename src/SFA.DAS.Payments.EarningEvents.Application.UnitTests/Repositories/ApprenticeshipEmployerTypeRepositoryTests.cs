@@ -40,9 +40,9 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
         }
 
         [Test]
-        public async Task Returns_Null_When_There_Is_No_Apprenticeship()
+        public void Returns_Null_When_There_Is_No_Apprenticeship()
         {
-            var result = await repository.GetEmployerType(Ukprn, Uln, StandardCode);
+            var result = repository.GetEmployerType(Ukprn, Uln, StandardCode);
 
             result.Should().BeNull();
         }
@@ -54,7 +54,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
         {
             await Store(CreateApprenticeship(ukprn, uln, standardCode, ApprenticeshipEmployerType.NonLevy));
 
-            var result = await repository.GetEmployerType(Ukprn, Uln, StandardCode);
+            var result = repository.GetEmployerType(Ukprn, Uln, StandardCode);
 
             result.Should().BeNull();
         }
@@ -65,7 +65,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
         {
             await Store(CreateApprenticeship(Ukprn, Uln, StandardCode, employerType));
 
-            var result = await repository.GetEmployerType(Ukprn, Uln, StandardCode);
+            var result = repository.GetEmployerType(Ukprn, Uln, StandardCode);
 
             result.Should().Be(employerType);
         }
@@ -76,7 +76,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
             await Store(CreateApprenticeship(Ukprn, Uln, StandardCode, ApprenticeshipEmployerType.NonLevy, ApprenticeshipStatus.Active, new DateTime(2026, 9, 1)));
             await Store(CreateApprenticeship(Ukprn, Uln, StandardCode, ApprenticeshipEmployerType.Levy, ApprenticeshipStatus.Stopped, new DateTime(2026, 10, 1)));
 
-            var result = await repository.GetEmployerType(Ukprn, Uln, StandardCode);
+            var result = repository.GetEmployerType(Ukprn, Uln, StandardCode);
 
             result.Should().Be(ApprenticeshipEmployerType.NonLevy);
         }
@@ -87,7 +87,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
             await Store(CreateApprenticeship(Ukprn, Uln, StandardCode, ApprenticeshipEmployerType.Levy, ApprenticeshipStatus.Active, new DateTime(2026, 8, 1)));
             await Store(CreateApprenticeship(Ukprn, Uln, StandardCode, ApprenticeshipEmployerType.NonLevy, ApprenticeshipStatus.Active, new DateTime(2026, 10, 1)));
 
-            var result = await repository.GetEmployerType(Ukprn, Uln, StandardCode);
+            var result = repository.GetEmployerType(Ukprn, Uln, StandardCode);
 
             result.Should().Be(ApprenticeshipEmployerType.NonLevy);
         }

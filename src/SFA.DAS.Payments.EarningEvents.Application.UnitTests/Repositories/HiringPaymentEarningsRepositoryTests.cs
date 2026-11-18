@@ -41,9 +41,9 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
         }
 
         [Test]
-        public async Task Returns_Null_When_No_Earnings_Are_Stored()
+        public void Returns_Null_When_No_Earnings_Are_Stored()
         {
-            var result = await repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
+            var result = repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
 
             result.Should().BeNull();
         }
@@ -55,7 +55,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
         {
             await Store(CreateEarning(ukprn, uln, courseCode, EarningType.FirstEmployerHiringPayment));
 
-            var result = await repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
+            var result = repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
 
             result.Should().BeNull();
         }
@@ -69,7 +69,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
                 EarningType.SecondEmployerHiringPayment,
                 EarningType.Completion));
 
-            var result = await repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
+            var result = repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
 
             result.PricePeriods.Select(x => x.EarningType).Should()
                 .BeEquivalentTo(new[] { EarningType.FirstEmployerHiringPayment, EarningType.SecondEmployerHiringPayment });
@@ -83,7 +83,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
             await Store(older);
             await Store(latest);
 
-            var result = await repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
+            var result = repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
 
             result.EarningsId.Should().Be(latest.EarningsId);
             result.PricePeriods.Should().ContainSingle()
@@ -96,7 +96,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
             await Store(CreateEarning(Ukprn, Uln, CourseCode, EarningType.FirstEmployerHiringPayment));
             await Store(CreateEarning(Ukprn, Uln, CourseCode, EarningType.Learning));
 
-            var result = await repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
+            var result = repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
 
             result.PricePeriods.Should().BeEmpty();
         }
@@ -110,7 +110,7 @@ namespace SFA.DAS.Payments.EarningEvents.Application.UnitTests.Repositories
             earning.PricePeriods[0].ProcessedOn = DateTime.UtcNow;
             await Store(earning);
 
-            var result = await repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
+            var result = repository.GetLatestHiringPaymentEarnings(Ukprn, Uln, CourseCode);
 
             result.PricePeriods.Should().HaveCount(2);
         }
