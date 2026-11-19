@@ -53,6 +53,10 @@ namespace SFA.DAS.Payments.EarningEvents.Domain.UnitTests
                 .Setup(x => x.GetSetting("Settings", "DoNotGenerateACT2Payments"))
                 .Returns("false");
 
+            mocker.Mock<IHiringPaymentEarningEventConverter>()
+                .Setup(x => x.Convert(It.IsAny<List<EarningEvent>>()))
+                .Returns((List<EarningEvent> events) => events);
+
             validatorMock.Setup(x => x.Validate(It.IsAny<FM36Learner>())).Returns(new ValidationResult(new List<ValidationRuleResult>()));
             learner = new FM36Learner();
         }
@@ -449,6 +453,57 @@ namespace SFA.DAS.Payments.EarningEvents.Domain.UnitTests
             Assert.AreEqual(1, mathsEarning.Earnings[0].Periods[0].Period);
 
             Mock.Verify(validatorMock, actBuilder, functionalSkillBuilder);
+        }
+
+        [Test]
+        public void Hiring_Payments_In_Future_Delivery_Periods_Are_Removed_From_The_Gsl_Event()
+        {
+            var learnerSubmission = new ProcessLearnerCommand
+            {
+                Learner = learner,
+                CollectionYear = 2627,
+                CollectionPeriod = 3,
+                Ukprn = 12345,
+                JobId = 1
+            };
+
+            var gslEvent = new GSLApprenticeshipEarningsEvent
+            {
+                CollectionPeriod = new CollectionPeriod { AcademicYear = 2627, Period = 3 },
+                IncentiveEarnings = new List<IncentiveEarning>
+                {
+                    new IncentiveEarning
+                    {
+                        Type = IncentiveEarningType.FirstEmployerHiringPayment,
+                        Periods = new List<EarningPeriod>
+                        {
+                            new EarningPeriod { Period = 3, Amount = 500m },
+                            new EarningPeriod { Period = 5, Amount = 500m }
+                        }.AsReadOnly()
+                    },
+                    new IncentiveEarning
+                    {
+                        Type = IncentiveEarningType.SecondEmployerHiringPayment,
+                        Periods = new List<EarningPeriod>
+                        {
+                            new EarningPeriod { Period = 7, Amount = 250m }
+                        }.AsReadOnly()
+                    }
+                }
+            };
+
+            actBuilder.Setup(b => b.Build(learnerSubmission)).Returns(new List<ApprenticeshipContractTypeEarningsEvent>());
+            functionalSkillBuilder.Setup(b => b.Build(learnerSubmission)).Returns(new List<FunctionalSkillEarningsEvent>());
+            mocker.Mock<IHiringPaymentEarningEventConverter>()
+                .Setup(x => x.Convert(It.IsAny<List<EarningEvent>>()))
+                .Returns(new List<EarningEvent> { gslEvent });
+
+            var result = mocker.Create<LearnerSubmissionProcessor>().GenerateEarnings(learnerSubmission);
+
+            var published = result.EarningEvents.OfType<GSLApprenticeshipEarningsEvent>().Single();
+            published.IncentiveEarnings.Should().HaveCount(1);
+            published.IncentiveEarnings[0].Type.Should().Be(IncentiveEarningType.FirstEmployerHiringPayment);
+            published.IncentiveEarnings[0].Periods.Select(p => p.Period).Should().Equal(3);
         }
     }
 }

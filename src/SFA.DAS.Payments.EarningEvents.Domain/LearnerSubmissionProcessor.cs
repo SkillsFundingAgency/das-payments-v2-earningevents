@@ -21,14 +21,17 @@ namespace SFA.DAS.Payments.EarningEvents.Domain
         private readonly ILearnerValidator learnerValidator;
         private readonly IApprenticeshipContractTypeEarningsEventBuilder apprenticeshipContractTypeEarningsEventBuilder;
         private readonly IFunctionalSkillEarningsEventBuilder functionalSkillEarningsEventBuilder;
+        private readonly IHiringPaymentEarningEventConverter hiringPaymentEarningEventConverter;
         private readonly bool doNotGenerateAct1TransactionType4To16Payments;
         private readonly bool doNotGenerateAct2Payments;
 
         public LearnerSubmissionProcessor(ILearnerValidator learnerValidator,
             IApprenticeshipContractTypeEarningsEventBuilder apprenticeshipContractTypeEarningsEventBuilder,
             IFunctionalSkillEarningsEventBuilder functionalSkillEarningsEventBuilder,
+            IHiringPaymentEarningEventConverter hiringPaymentEarningEventConverter,
             IConfigurationHelper configurationHelper)
         {
+            this.hiringPaymentEarningEventConverter = hiringPaymentEarningEventConverter ?? throw new ArgumentNullException(nameof(hiringPaymentEarningEventConverter));
             this.learnerValidator = learnerValidator ?? throw new ArgumentNullException(nameof(learnerValidator));
             this.apprenticeshipContractTypeEarningsEventBuilder = apprenticeshipContractTypeEarningsEventBuilder ?? throw new ArgumentNullException(nameof(apprenticeshipContractTypeEarningsEventBuilder));
             this.functionalSkillEarningsEventBuilder = functionalSkillEarningsEventBuilder ?? throw new ArgumentNullException(nameof(functionalSkillEarningsEventBuilder));
@@ -48,7 +51,8 @@ namespace SFA.DAS.Payments.EarningEvents.Domain
             earningsEvent.AddRange(functionalSkillEarningsEventBuilder.Build(learnerSubmission));
 
             var validEarningsEvent = FilterEarningsEventBasedOnConfig(earningsEvent);
-            RemoveFuturePeriods(earningsEvent);
+            validEarningsEvent = hiringPaymentEarningEventConverter.Convert(validEarningsEvent);
+            RemoveFuturePeriods(validEarningsEvent);
 
             return (Validation: validationResult, EarningEvents: validEarningsEvent);
         }
