@@ -257,6 +257,43 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests
             _repository.Verify(r => r.MarkEarningProcessed(_message.EarningsId, 2526, 2, It.IsAny<DateTime>()), Times.Once);
         }
         
+        [TestCase(EarningType.FirstEmployerHiringPayment)]
+        [TestCase(EarningType.SecondEmployerHiringPayment)]
+        public async Task Apprenticeship_Earnings_With_Only_Hiring_Payments_Are_Stored_Without_Being_Marked_As_Processed(EarningType hiringEarningType)
+        {
+            _message.Training.CourseType = Messages.External.CourseType.Apprenticeship;
+            _message.Earnings.First().PricePeriods.First().Periods.First().EarningType = hiringEarningType;
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+                _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
+
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
+                y => y.PricePeriods.Any() && y.PricePeriods.All(p => p.ProcessedOn == null))), Times.Once);
+        }
+
+        [Test]
+        public async Task Apprenticeship_Earnings_With_Hiring_Payments_And_Other_Earnings_Are_Marked_As_Processed()
+        {
+            _message.Training.CourseType = Messages.External.CourseType.Apprenticeship;
+            _message.Earnings.First().PricePeriods.First().Periods.First().EarningType = EarningType.Learning;
+            ((List<EarningPeriod>)_message.Earnings.First().PricePeriods.First().Periods).Add(new EarningPeriod
+            {
+                Employer = new Employer { EmployerType = EmployerType.Levy, AccountId = 10000, FundingAccountId = 10000 },
+                Amount = 1000m,
+                DeliveryPeriod = 1,
+                EarningType = EarningType.FirstEmployerHiringPayment,
+                LearningId = 123456
+            });
+            var handler = new GSLCalculatePaymentsHandler(_validator, _mapper, _repository.Object, _gslService.Object,
+                _collectionPeriodService.Object, _processorFactory.Object, _logger.Object);
+
+            await handler.HandleGslCalculatePaymentsMessage(_message);
+
+            _repository.Verify(r => r.SaveEarnings(It.Is<GrowthAndSkillsEarningModel>(
+                y => y.PricePeriods.Any() && y.PricePeriods.All(p => p.ProcessedOn != null))), Times.Once);
+        }
+
         [Test]
         public async Task Earnings_are_not_processed_if_collection_period_is_not_open()
         {
