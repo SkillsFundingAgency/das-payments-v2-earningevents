@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<SelfContained>True</SelfContained>
@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    <!-- <PackageReference Include="SFA.DAS.Funding.ApprenticeshipEarnings.Types" Version="8.15.66-prerelease-36" /> -->
     <PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.6.0-prerelease-9" />
     <PackageReference Include="Autofac" Version="7.0.1" />
     <PackageReference Include="SFA.DAS.Payments.Core" Version="2.6.0-prerelease-9" />

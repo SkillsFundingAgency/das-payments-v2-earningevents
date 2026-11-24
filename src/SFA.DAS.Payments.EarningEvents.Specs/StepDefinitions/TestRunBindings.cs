@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Reqnroll;
+using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.Messages.Common;
 using System.Security.Cryptography;
@@ -25,14 +26,14 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
             DASEndpoint = await CreateEndpoint("DASServiceBusConnectionString", sendOnly: true);
             PV2Endpoint = await CreateEndpoint("ServiceBusConnectionString", sendOnly: false,
-                eventsToSubscribeTo: new[] { typeof(GSLShortCourseEarningsEvent), typeof(GSLApprenticeshipEarningsEvent) });
+                eventsToSubscribeTo: new[] { typeof(GSLShortCourseEarningsEvent), typeof(GSLApprenticeshipEarningsEvent), typeof(DasEarningsReceivedEvent) });
         }
 
         public static async Task<IEndpointInstance> CreateEndpoint(string connectionName, bool sendOnly = false, Type[] eventsToSubscribeTo = null)
         {
             var endpointConfig = new EndpointConfiguration("sfa-das-payments-earningevents-bridge-specs");
             var conventions = endpointConfig.Conventions();
-            conventions.DefiningMessagesAs(type => type.IsMessage());
+            conventions.DefiningMessagesAs(type => type.IsMessage() || type == typeof(WithholdPaymentsForLearningEvent));
             endpointConfig.UseSerialization<NewtonsoftJsonSerializer>();
             if (sendOnly)
                 endpointConfig.SendOnly();

@@ -51,7 +51,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers
                 _logger.LogError(ex, "Failed to validate GSL calculate payments message");
                 throw;
             }
-
+            
             if (!isReprocessing)
             {
                 try

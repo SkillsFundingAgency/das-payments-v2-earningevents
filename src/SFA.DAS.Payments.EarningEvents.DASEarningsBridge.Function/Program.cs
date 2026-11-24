@@ -62,6 +62,9 @@ builder.Services.AddScoped<IGSLProcessor,GSLApprenticeshipPaymentsProcessor>();
 builder.Services.AddScoped<IGSLProcessor, GSLShortCoursePaymentsProcessor>();
 builder.Services.AddScoped<IGSLProcessor, GSLFunctionalSkillProcessor>();
 builder.Services.AddScoped<IGSLProcessorFactory, GSLProcessorFactory>();
+builder.Services.AddScoped<CalculatePaymentsMessageProcessor>();
+builder.Services.AddScoped<WithholdPaymentsForLearningMessageProcessor>();
+builder.Services.AddScoped<IIncomingEarningsMessageProcessorFactory, IncomingEarningsMessageProcessorFactory>();
 
 
 builder.Services.AddHttpClient<ICollectionPeriodApiClient, CollectionPeriodApiClient>((sp, client) =>
