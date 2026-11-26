@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
@@ -21,6 +22,7 @@ public class WithholdPaymentsForLearningMessageProcessorTests
     private Mock<IEarningsRepository> _repository;
     private Mock<ICollectionPeriodService> _collectionPeriods;
     private Mock<IPaymentsServiceBusPublisher> _publisher;
+    private Mock<ILogger<WithholdPaymentsForLearningMessageProcessor>> _logger;
     private List<DasEarningsReceivedEvent> _published;
     private WithholdPaymentsForLearningMessageProcessor _processor;
 
@@ -61,12 +63,16 @@ public class WithholdPaymentsForLearningMessageProcessorTests
             .Callback<DasEarningsReceivedEvent>(_published.Add)
             .Returns(Task.CompletedTask);
 
+        _logger = new Mock<ILogger<WithholdPaymentsForLearningMessageProcessor>>();
+
         _processor = new WithholdPaymentsForLearningMessageProcessor(
             _repository.Object,
             _collectionPeriods.Object,
-            _publisher.Object);
+            _publisher.Object,
+            _logger.Object);
     }
-    //put down what event is actually being published
+
+
     [Test]
     public async Task PublishesOneDasEarningsReceivedEventPerOpenPeriodUsingTheEarningsId()
     {
@@ -96,28 +102,62 @@ public class WithholdPaymentsForLearningMessageProcessorTests
             && x.ULN == _message.ULN
             && x.CourseCode == _message.CourseCode
             && x.LearningAimReference == _message.LearningAimReference);
-            //^ originally course reference
     }
 
     [Test]
-    public async Task InvalidatesEarningsWithoutPublishingWhenThereAreNoOpenPeriods()
+    public async Task ThrowsExceptionWithoutPublishingWhenThereAreNoOpenPeriods()
     {
         // Arrange
         _collectionPeriods.Setup(x => x.GetOpenCollectionPeriods())
             .ReturnsAsync(Array.Empty<CollectionPeriodModel>());
 
         // Act
-        await _processor.Process(BinaryData.FromObjectAsJson(_message));
+        Func<Task> act = () =>
+            _processor.Process(BinaryData.FromObjectAsJson(_message));
 
         // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*no open collection periods*");
+
         _repository.Verify(x => x.InvalidateEarnings(
             It.IsAny<Guid>(),
             It.IsAny<long>(),
             It.IsAny<long>(),
             It.IsAny<string>(),
             It.IsAny<ModelCourseType>(),
-            It.IsAny<ModelLearningType>()), Times.Once);
-        _publisher.Verify(x => x.Publish(It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
+            It.IsAny<ModelLearningType>()), Times.Never);
+
+        _publisher.Verify(x => x.Publish(
+            It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
+
         _published.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task LogsErrorWhenThereAreNoOpenPeriods()
+    {
+        // Arrange
+        _collectionPeriods.Setup(x => x.GetOpenCollectionPeriods())
+            .ReturnsAsync(Array.Empty<CollectionPeriodModel>());
+
+        // Act
+        Func<Task> act = () =>
+            _processor.Process(BinaryData.FromObjectAsJson(_message));
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        _logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, type) =>
+                    value.ToString().Contains("Unable to process WithholdPaymentsForLearningEvent")
+                    && value.ToString().Contains(_message.LearningKey.ToString())
+                    && value.ToString().Contains(_message.UKPRN.ToString())
+                    && value.ToString().Contains(_message.ULN.ToString())
+                    && value.ToString().Contains(_message.CourseCode)),
+                It.IsAny<InvalidOperationException>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
     }
 }

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Funding.ApprenticeshipEarnings.Types;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
@@ -20,7 +21,8 @@ public class IncomingEarningsMessageProcessorFactoryTests
         var withholdProcessor = new WithholdPaymentsForLearningMessageProcessor(
             Mock.Of<IEarningsRepository>(),
             Mock.Of<ICollectionPeriodService>(),
-            Mock.Of<IPaymentsServiceBusPublisher>());
+            Mock.Of<IPaymentsServiceBusPublisher>(),
+            Mock.Of<ILogger<WithholdPaymentsForLearningMessageProcessor>>());
         var serviceProvider = new Mock<IServiceProvider>();
         serviceProvider
             .Setup(x => x.GetService(typeof(CalculatePaymentsMessageProcessor)))

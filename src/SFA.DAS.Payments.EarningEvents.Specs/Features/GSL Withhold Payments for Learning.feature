@@ -3,56 +3,35 @@ Feature: GSL Withhold Payments for Learning
 
 The Earnings Bridge invalidates earnings when changes require employer approval.
 
-Scenario Outline: AC01 - Invalidate the current earnings
-    Given a collection period is open for withholding
-    And received '<CourseType>' earnings are stored
-    And other received earnings differ by each identifying field
-    And Payments receives a WithholdPaymentsForLearningEvent
-    When the Earnings Events Bridge finds matching received earnings using the details on the event
+Scenario: AC01 - Invalidate the current earnings and notify Payments
+    Given there is at least one open collection period
+    And previously received earnings are stored
+    And non-matching earnings are stored
+    When Payments receives a WithholdPaymentsForLearningEvent
     Then the matching received earnings are marked as Invalidated
-    And the invalidated state is stored against the received earnings
+    And non-matching earnings remain unaffected
+    And a DasEarningsReceivedEvent is published for each open collection period
+    And each event contains the same temporary EarningsId based on the current time
 
-    Examples:
-        | CourseType     |
-        | apprenticeship |
-        | short course   |
+Scenario: AC02 - Ignore invalidated earnings
+    Given there is at least one open collection period
+    And previously received earnings have been marked as Invalidated
+    And valid earnings are awaiting reprocessing
+    When the earnings are reprocessed
+    Then an earnings event is published for the valid earnings
+    And the invalidated earnings remain invalidated
+    And no earnings events are published for the invalidated earnings
 
-Scenario Outline: AC02 - Ignore invalidated earnings during reprocessing
-    Given a collection period is open for withholding
-    And received '<CourseType>' earnings are stored
-    And a withholding event has invalidated the earnings
-    When the invalidated earnings are reprocessed
-    Then the invalidated earnings are ignored
-    And no further payments are generated from those earnings
+Scenario: AC03 - Process new approved earnings
+    Given there is at least one open collection period
+    And the previous earnings for the training have been invalidated
+    And new approved earnings are available for the training
+    When the new approved earnings are received
+    Then an earnings event is published for the new approved earnings
+    And the invalidated earnings remain ignored
 
-    Examples:
-        | CourseType     |
-        | apprenticeship |
-        | short course   |
-
-Scenario Outline: AC03 - Publish a DAS earnings received event for invalidated earnings
-    Given a collection period is open for withholding
-    And received '<CourseType>' earnings are stored
-    And a withholding event has invalidated the earnings
-    When the Earnings Events Bridge publishes a DAS earnings received event for invalidated earnings
-    Then a DasEarningsReceivedEvent is published with a temporary time-based EarningsId
-    And the original received earnings remain invalidated
-
-    Examples:
-        | CourseType     |
-        | apprenticeship |
-        | short course   |
-
-Scenario Outline: AC04 - Keep invalidated earnings ignored during reprocessing after new approved earnings arrive
-    Given a collection period is open for withholding
-    And received '<CourseType>' earnings are stored
-    And a withholding event has invalidated the earnings
-    When new approved earnings are received for the training
-    And the invalidated earnings are reprocessed
-    Then the invalidated earnings are ignored
-    And no further payments are generated from those earnings
-
-    Examples:
-        | CourseType     |
-        | apprenticeship |
-        | short course   |
+Scenario: AC04 - Withholding when there are no open collection periods
+    Given there are no open collection periods
+    And previously received earnings are stored
+    When Payments receives a WithholdPaymentsForLearningEvent
+    Then no DasEarningsReceivedEvent is published
