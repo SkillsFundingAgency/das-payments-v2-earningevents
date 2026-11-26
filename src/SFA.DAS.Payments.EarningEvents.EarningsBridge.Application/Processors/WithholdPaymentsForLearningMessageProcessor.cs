@@ -85,7 +85,5 @@ public class WithholdPaymentsForLearningMessageProcessor : IIncomingEarningsMess
 
             throw;
         }
-
-
     }
 }

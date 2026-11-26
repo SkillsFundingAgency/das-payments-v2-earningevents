@@ -1,5 +1,4 @@
-﻿using SFA.DAS.Payments.EarningEvents.Messages.External.Commands; // can be removed as not used
-using SFA.DAS.Payments.EarningEvents.Model;
+﻿using SFA.DAS.Payments.EarningEvents.Model;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories;
 
