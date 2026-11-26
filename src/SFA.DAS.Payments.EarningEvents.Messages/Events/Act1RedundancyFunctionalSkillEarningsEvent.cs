@@ -9,6 +9,7 @@ namespace SFA.DAS.Payments.EarningEvents.Messages.Events
         {
             ContractType = ContractType.Act1;
             EventId = Guid.NewGuid();
+            FundingPlatformType = FundingPlatformType.SubmitLearnerData;
         }
     }
 }

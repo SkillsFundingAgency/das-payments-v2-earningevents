@@ -1,4 +1,5 @@
 ﻿
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
@@ -23,6 +24,11 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services
             foreach (var collectionYear in collectionYears)
             {
                 var collectionYearWithPeriods = await _collectionPeriodApiClient.GetOpenCollectionPeriods(collectionYear.Year.ToString());
+                if (collectionYearWithPeriods == null || collectionYearWithPeriods.Periods == null)
+                {
+                    continue;
+                }
+
                 collectionPeriods.AddRange(_mapper.MapCollectionYearToCollectionPeriodModels(collectionYearWithPeriods));
             }
 
