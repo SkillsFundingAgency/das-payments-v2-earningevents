@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+     <TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
@@ -16,6 +16,7 @@
 		<PackageReference Include="NUnit" Version="3.14.0" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
 		<PackageReference Include="Reqnroll.NUnit" Version="3.3.4" />
+		 <PackageReference Include="SFA.DAS.Funding.ApprenticeshipEarnings.Types" Version="8.15.67-prerelease-50" /> 
 		<PackageReference Include="NUnit.ConsoleRunner" Version="3.22.0" />
 
 
@@ -37,13 +38,13 @@
 	  </None>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Features\" />
+    <ItemGroup>
 	  <Folder Include="Handlers\" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Data\SFA.DAS.Payments.EarningEvents.Data.csproj" />
+	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application\SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
 	</ItemGroup>

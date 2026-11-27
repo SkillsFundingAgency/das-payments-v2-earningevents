@@ -1,8 +1,7 @@
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
-using SFA.DAS.Payments.EarningEvents.Messages.External.Commands;
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Processors;
 // ReSharper disable InconsistentNaming
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
@@ -11,12 +10,12 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
     public class DASEarningsReceiver
     {
         private readonly ILogger<DASEarningsReceiver> _logger;
-        private readonly IGSLCalculatePaymentsHandler _gslCalculatePaymentsHandler;
+        private readonly IIncomingEarningsMessageProcessorFactory _processorFactory;
 
-        public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IGSLCalculatePaymentsHandler gslCalculatePaymentsHandler)
+        public DASEarningsReceiver(ILogger<DASEarningsReceiver> logger, IIncomingEarningsMessageProcessorFactory processorFactory)
         {
             _logger = logger;
-            _gslCalculatePaymentsHandler = gslCalculatePaymentsHandler;
+            _processorFactory = processorFactory;
         }
 
         [Function(nameof(DASEarningsReceiver))]
@@ -29,8 +28,14 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Function
             _logger.LogInformation("Message Body: {body}", message.Body);
             _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
 
-            var growthAndSkillsPaymentsMessage = message.Body.ToObjectFromJson<CalculateGrowthAndSkillsPayments>();
-            await _gslCalculatePaymentsHandler.HandleGslCalculatePaymentsMessage(growthAndSkillsPaymentsMessage);
+            if (!message.ApplicationProperties.TryGetValue("NServiceBus.EnclosedMessageTypes", out var enclosedMessageType)
+                || enclosedMessageType is not string enclosedMessageTypeHeader)
+            {
+                throw new InvalidOperationException("The NServiceBus.EnclosedMessageTypes header is missing or invalid.");
+            }
+
+            var processor = _processorFactory.Create(enclosedMessageTypeHeader);
+            await processor.Process(message.Body);
 
             await messageActions.CompleteMessageAsync(message);
         }

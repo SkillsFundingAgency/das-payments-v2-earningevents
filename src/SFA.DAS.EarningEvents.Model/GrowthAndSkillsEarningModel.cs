@@ -19,6 +19,7 @@
         public decimal EmployerContribution { get; set; }
         public CourseType CourseType { get; set; }
         public Guid? LearningKey { get; set; }
+        public bool? IsInvalidated { get; set; }
 
         public List<GrowthAndSkillsEarningPricePeriodModel> PricePeriods { get; set; } = new List<GrowthAndSkillsEarningPricePeriodModel>();
     }

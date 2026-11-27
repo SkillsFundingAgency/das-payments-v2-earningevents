@@ -45,13 +45,40 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
             }
         }
 
+        public async Task InvalidateEarnings(
+            Guid learningKey,
+            long ukPrn,
+            long uln,
+            string courseCode,
+            CourseType courseType,
+            LearningType learningType, 
+            string learningAimReference)
+        {
+            var earnings = await _earningsDataContext.GrowthAndSkillsEarnings
+                .Where(x => x.LearningKey == learningKey
+                            && x.UKPRN == ukPrn
+                            && x.LearnerUln == uln
+                            && x.CourseCode == courseCode
+                            && x.CourseType == courseType
+                            && x.LearningType == learningType
+                            && x.CourseReference == learningAimReference)
+                .ToListAsync();
+
+            foreach (var earning in earnings)
+            {
+                earning.IsInvalidated = true;
+            }
+
+            await _earningsDataContext.SaveChangesAsync();
+        }
         public async Task<List<GrowthAndSkillsEarningModel>> GetUnprocessedEarningsForCollectionPeriod(short academicYear, byte collectionPeriod)
         {
             try
             {
                 return await _earningsDataContext.GrowthAndSkillsEarnings
                     .Include(x => x.PricePeriods)
-                    .Where(x => x.PricePeriods.Any(p => p.AcademicYear == academicYear)
+                    .Where(x => x.IsInvalidated != true
+                                && x.PricePeriods.Any(p => p.AcademicYear == academicYear)
                                 && !_earningsDataContext.GrowthAndSkillsEarningsProcessing.Any(p =>
                                     p.GrowthAndSkillsEarningId == x.EarningsId
                                     && p.AcademicYear == academicYear
