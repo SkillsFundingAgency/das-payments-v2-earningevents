@@ -34,23 +34,33 @@ public class WithholdPaymentsForLearningMessageProcessor : IIncomingEarningsMess
         var message = messageBody.ToObjectFromJson<WithholdPaymentsForLearningEvent>()
             ?? throw new InvalidOperationException("The WithholdPaymentsForLearningEvent message body is empty.");
 
-        var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
-
         try
         {
-            if (!openCollectionPeriods.Any())
-            {
-                throw new InvalidOperationException(
-                    "WithholdPaymentsForLearningEvent received when there are no open collection periods.");
-            }
-
             await _repository.InvalidateEarnings(
                 message.LearningKey,
                 message.UKPRN,
                 message.ULN,
                 message.CourseCode,
                 (CourseType)message.CourseType,
-                (LearningType)message.LearningType);
+                (LearningType)message.LearningType,
+                message.LearningAimReference);
+
+            var openCollectionPeriods = await _collectionPeriodService.GetOpenCollectionPeriods();
+
+            if (!openCollectionPeriods.Any())
+            {
+                _logger.LogWarning(
+                    "WithholdPaymentsForLearningEvent received when there are no open collection periods. " +
+                    "LearningKey: {LearningKey}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}, " +
+                    "LearningAimReference: {LearningAimReference}",
+                    message.LearningKey,
+                    message.UKPRN,
+                    message.ULN,
+                    message.CourseCode,
+                    message.LearningAimReference);
+
+                return;
+            }
 
             var temporaryEarningsId = Uuid.NewDatabaseFriendly(Database.SqlServer);
 
@@ -70,18 +80,19 @@ public class WithholdPaymentsForLearningMessageProcessor : IIncomingEarningsMess
                     }
                 });
             }
-
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex)
         {
             _logger.LogError(
                 ex,
-                "Unable to process WithholdPaymentsForLearningEvent" +
-                "LearningKey: {LearningKey}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}",
+                "Unable to process WithholdPaymentsForLearningEvent. " +
+                "LearningKey: {LearningKey}, UKPRN: {UKPRN}, ULN: {ULN}, CourseCode: {CourseCode}, " +
+                "LearningAimReference: {LearningAimReference}",
                 message.LearningKey,
                 message.UKPRN,
                 message.ULN,
-                message.CourseCode);
+                message.CourseCode,
+                message.LearningAimReference);
 
             throw;
         }

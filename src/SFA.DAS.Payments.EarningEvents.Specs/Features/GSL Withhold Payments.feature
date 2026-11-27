@@ -1,7 +1,10 @@
 @withholdEarnings
-Feature: GSL Withhold Payments for Learning
+Feature: GSL Withhold Payments
 
-The Earnings Bridge invalidates earnings when changes require employer approval.
+A new ILR submission may include a change to the Start Date, End Date or Price which requires employer approval.
+When this happens, the earnings currently held by Payments may no longer match the latest ILR submission.
+Payments will receive a WithholdPaymentsForLearningEvent to confirm that payments for the training should be withheld until new approved earnings are received.
+PV2-4403
 
 Scenario: AC01 - Invalidate the current earnings and notify Payments
     Given there is at least one open collection period
@@ -34,4 +37,5 @@ Scenario: AC04 - Withholding when there are no open collection periods
     Given there are no open collection periods
     And previously received earnings are stored
     When Payments receives a WithholdPaymentsForLearningEvent
-    Then no DasEarningsReceivedEvent is published
+    Then the matching received earnings are marked as Invalidated
+    And no DasEarningsReceivedEvent is published

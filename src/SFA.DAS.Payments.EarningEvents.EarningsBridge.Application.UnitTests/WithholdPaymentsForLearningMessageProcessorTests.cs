@@ -47,7 +47,8 @@ public class WithholdPaymentsForLearningMessageProcessorTests
                 It.IsAny<long>(),
                 It.IsAny<string>(),
                 It.IsAny<ModelCourseType>(),
-                It.IsAny<ModelLearningType>()))
+                It.IsAny<ModelLearningType>(),
+                It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         _collectionPeriods = new Mock<ICollectionPeriodService>();
@@ -89,7 +90,8 @@ public class WithholdPaymentsForLearningMessageProcessorTests
             _message.ULN,
             _message.CourseCode,
             (ModelCourseType)_message.CourseType,
-            (ModelLearningType)_message.LearningType), Times.Once);
+            (ModelLearningType)_message.LearningType,
+            _message.LearningAimReference), Times.Once);
 
         _published.Should().HaveCount(2);
         _published.Select(x => x.EarningsId).Distinct().Should().ContainSingle();
@@ -105,27 +107,24 @@ public class WithholdPaymentsForLearningMessageProcessorTests
     }
 
     [Test]
-    public async Task ThrowsExceptionWithoutPublishingWhenThereAreNoOpenPeriods()
+    public async Task InvalidatesButDoesNotPublishWhenThereAreNoOpenPeriods()
     {
         // Arrange
         _collectionPeriods.Setup(x => x.GetOpenCollectionPeriods())
             .ReturnsAsync(Array.Empty<CollectionPeriodModel>());
 
         // Act
-        Func<Task> act = () =>
-            _processor.Process(BinaryData.FromObjectAsJson(_message));
+        await _processor.Process(BinaryData.FromObjectAsJson(_message));
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*no open collection periods*");
-
         _repository.Verify(x => x.InvalidateEarnings(
             It.IsAny<Guid>(),
             It.IsAny<long>(),
             It.IsAny<long>(),
             It.IsAny<string>(),
             It.IsAny<ModelCourseType>(),
-            It.IsAny<ModelLearningType>()), Times.Never);
+            It.IsAny<ModelLearningType>(),
+            It.IsAny<string>()), Times.Once);
 
         _publisher.Verify(x => x.Publish(
             It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
@@ -134,7 +133,7 @@ public class WithholdPaymentsForLearningMessageProcessorTests
     }
 
     [Test]
-    public async Task LogsErrorWhenThereAreNoOpenPeriods()
+    public async Task LogsWarningWhenThereAreNoOpenPeriods()
     {
         // Arrange
         _collectionPeriods.Setup(x => x.GetOpenCollectionPeriods())
@@ -145,7 +144,113 @@ public class WithholdPaymentsForLearningMessageProcessorTests
             _processor.Process(BinaryData.FromObjectAsJson(_message));
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().NotThrowAsync();
+
+        _logger.Verify(x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, type) =>
+                    value.ToString().Contains("WithholdPaymentsForLearningEvent received when there are no open collection periods.")
+                    && value.ToString().Contains(_message.LearningKey.ToString())
+                    && value.ToString().Contains(_message.UKPRN.ToString())
+                    && value.ToString().Contains(_message.ULN.ToString())
+                    && value.ToString().Contains(_message.CourseCode)
+                    && value.ToString().Contains(_message.LearningAimReference)),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task LogsErrorAndDoesNotPublishWhenInvalidatingEarningsFails()
+    {
+        // Arrange
+        var exception = new InvalidOperationException(
+            "Unable to invalidate earnings.");
+
+        _repository.Setup(x => x.InvalidateEarnings(
+                It.IsAny<Guid>(),
+                It.IsAny<long>(),
+                It.IsAny<long>(),
+                It.IsAny<string>(),
+                It.IsAny<ModelCourseType>(),
+                It.IsAny<ModelLearningType>(),
+                It.IsAny<string>()))
+            .ThrowsAsync(exception);
+
+        // Act
+        Func<Task> act = () =>
+            _processor.Process(BinaryData.FromObjectAsJson(_message));
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage(exception.Message);
+
+        _logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, type) =>
+                    value.ToString().Contains("Unable to process WithholdPaymentsForLearningEvent")),
+                exception,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+
+        _collectionPeriods.Verify(x => x.GetOpenCollectionPeriods(),
+            Times.Never);
+
+        _publisher.Verify(x => x.Publish(
+            It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
+    }
+
+    [Test]
+    public async Task LogsErrorAndDoesNotPublishWhenCollectionPeriodServiceThrowsException()
+    {
+        // Arrange
+        var exception = new HttpRequestException(
+            "Unable to retrieve open collection periods.");
+
+        _collectionPeriods.Setup(x => x.GetOpenCollectionPeriods())
+            .ThrowsAsync(exception);
+
+        // Act
+        Func<Task> act = () =>
+            _processor.Process(BinaryData.FromObjectAsJson(_message));
+
+        // Assert
+        await act.Should().ThrowAsync<HttpRequestException>()
+            .WithMessage(exception.Message);
+
+        _logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, type) =>
+                    value.ToString().Contains("Unable to process WithholdPaymentsForLearningEvent")),
+                exception,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+
+        _publisher.Verify(x => x.Publish(
+            It.IsAny<DasEarningsReceivedEvent>()), Times.Never);
+
+        _published.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task LogsErrorWhenPublishingFails()
+    {
+        // Arrange
+        var exception = new InvalidOperationException("Unable to publish event.");
+
+        _publisher.Setup(x => x.Publish(It.IsAny<DasEarningsReceivedEvent>()))
+            .ThrowsAsync(exception);
+
+        // Act
+        Func<Task> act = () =>
+            _processor.Process(BinaryData.FromObjectAsJson(_message));
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage(exception.Message);
 
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
@@ -155,9 +260,10 @@ public class WithholdPaymentsForLearningMessageProcessorTests
                     && value.ToString().Contains(_message.LearningKey.ToString())
                     && value.ToString().Contains(_message.UKPRN.ToString())
                     && value.ToString().Contains(_message.ULN.ToString())
-                    && value.ToString().Contains(_message.CourseCode)),
-                It.IsAny<InvalidOperationException>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                    && value.ToString().Contains(_message.CourseCode)
+                    && value.ToString().Contains(_message.LearningAimReference)),
+                exception,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
     }
 }

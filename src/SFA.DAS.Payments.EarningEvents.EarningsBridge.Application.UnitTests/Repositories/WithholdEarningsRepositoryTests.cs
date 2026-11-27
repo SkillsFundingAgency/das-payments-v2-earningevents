@@ -80,7 +80,8 @@ public class WithholdEarningsRepositoryTests
             _message.ULN,
             _message.CourseCode,
             (CourseType)_message.CourseType,
-            (LearningType)_message.LearningType);
+            (LearningType)_message.LearningType, 
+            _message.LearningAimReference);
 
         // Assert
         var storedEarnings = await _dataContext.GrowthAndSkillsEarnings.AsNoTracking().ToListAsync();
@@ -104,7 +105,8 @@ public class WithholdEarningsRepositoryTests
             _message.ULN,
             _message.CourseCode,
             (CourseType)_message.CourseType,
-            (LearningType)_message.LearningType);
+            (LearningType)_message.LearningType,
+            _message.LearningAimReference);
 
         var newApprovedEarning = CreateEarning();
         _dataContext.GrowthAndSkillsEarnings.Add(newApprovedEarning);

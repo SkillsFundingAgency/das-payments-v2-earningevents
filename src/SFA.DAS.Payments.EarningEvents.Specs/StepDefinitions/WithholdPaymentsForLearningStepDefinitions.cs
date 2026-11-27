@@ -173,9 +173,9 @@ namespace SFA.DAS.Payments.EarningEvents.Specs.StepDefinitions
                 UKPRN = previouslyReceivedEarning.UKPRN,
                 ULN = previouslyReceivedEarning.Learner.ULN,
                 CourseCode = previouslyReceivedEarning.Training.CourseCode,
-                LearningAimReference = previouslyReceivedEarning.Training.CourseReference,
                 CourseType = previouslyReceivedEarning.Training.CourseType,
-                LearningType = previouslyReceivedEarning.Training.LearningType
+                LearningType = previouslyReceivedEarning.Training.LearningType,
+                LearningAimReference = previouslyReceivedEarning.Training.CourseReference
             };
 
             scenarioContext.Set(DateTime.UtcNow, "WithholdingSentAt");

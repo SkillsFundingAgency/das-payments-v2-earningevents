@@ -51,7 +51,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
             long uln,
             string courseCode,
             CourseType courseType,
-            LearningType learningType)
+            LearningType learningType, 
+            string learningAimReference)
         {
             var earnings = await _earningsDataContext.GrowthAndSkillsEarnings
                 .Where(x => x.LearningKey == learningKey
@@ -59,7 +60,8 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Repositories
                             && x.LearnerUln == uln
                             && x.CourseCode == courseCode
                             && x.CourseType == courseType
-                            && x.LearningType == learningType)
+                            && x.LearningType == learningType
+                            && x.CourseReference == learningAimReference)
                 .ToListAsync();
 
             foreach (var earning in earnings)
