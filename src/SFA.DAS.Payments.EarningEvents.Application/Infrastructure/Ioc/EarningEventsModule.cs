@@ -11,6 +11,7 @@ using SFA.DAS.Payments.EarningEvents.Application.Interfaces;
 using SFA.DAS.Payments.EarningEvents.Application.Mapping;
 using SFA.DAS.Payments.EarningEvents.Application.Repositories;
 using SFA.DAS.Payments.EarningEvents.Application.Services;
+using SFA.DAS.Payments.EarningEvents.Data;
 using SFA.DAS.Payments.EarningEvents.Domain;
 using SFA.DAS.Payments.EarningEvents.Domain.Mapping;
 using SFA.DAS.Payments.EarningEvents.Domain.Validation.Global;
@@ -37,6 +38,15 @@ namespace SFA.DAS.Payments.EarningEvents.Application.Infrastructure.Ioc
                 .InstancePerLifetimeScope();
             builder.RegisterType<ApprenticeshipContractTypeEarningsEventBuilder>()
                 .As<IApprenticeshipContractTypeEarningsEventBuilder>()
+                .InstancePerLifetimeScope();
+            builder.Register(context => new EarningsDataContext(context.Resolve<IConfigurationHelper>().GetConnectionString("PaymentsConnectionString")))
+                .As<IEarningsDataContext>()
+                .InstancePerLifetimeScope();
+            builder.RegisterType<HiringPaymentEarningsRepository>()
+                .As<IHiringPaymentEarningsRepository>()
+                .InstancePerLifetimeScope();
+            builder.RegisterType<HiringIncentiveEarningsProvider>()
+                .As<IHiringIncentiveEarningsProvider>()
                 .InstancePerLifetimeScope();
             builder.RegisterType<FunctionalSkillEarningEventBuilder>()
                 .As<IFunctionalSkillEarningsEventBuilder>()
