@@ -46,6 +46,7 @@
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Data\SFA.DAS.Payments.EarningEvents.Data.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
+	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.Internal\SFA.DAS.Payments.EarningEvents.Messages.Internal.csproj" />
 	</ItemGroup>
 
 </Project>

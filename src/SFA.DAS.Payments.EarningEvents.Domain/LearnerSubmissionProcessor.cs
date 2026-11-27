@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.Core.Validation;
@@ -7,6 +8,7 @@ using SFA.DAS.Payments.EarningEvents.Domain.Mapping;
 using SFA.DAS.Payments.EarningEvents.Domain.Validation.Learner;
 using SFA.DAS.Payments.EarningEvents.Messages.Events;
 using SFA.DAS.Payments.EarningEvents.Messages.Internal.Commands;
+using SFA.DAS.Payments.Model.Core;
 using SFA.DAS.Payments.Model.Core.Incentives;
 
 namespace SFA.DAS.Payments.EarningEvents.Domain
@@ -21,14 +23,17 @@ namespace SFA.DAS.Payments.EarningEvents.Domain
         private readonly ILearnerValidator learnerValidator;
         private readonly IApprenticeshipContractTypeEarningsEventBuilder apprenticeshipContractTypeEarningsEventBuilder;
         private readonly IFunctionalSkillEarningsEventBuilder functionalSkillEarningsEventBuilder;
+        private readonly IHiringIncentiveEarningsProvider hiringIncentiveEarningsProvider;
         private readonly bool doNotGenerateAct1TransactionType4To16Payments;
         private readonly bool doNotGenerateAct2Payments;
 
         public LearnerSubmissionProcessor(ILearnerValidator learnerValidator,
             IApprenticeshipContractTypeEarningsEventBuilder apprenticeshipContractTypeEarningsEventBuilder,
             IFunctionalSkillEarningsEventBuilder functionalSkillEarningsEventBuilder,
+            IHiringIncentiveEarningsProvider hiringIncentiveEarningsProvider,
             IConfigurationHelper configurationHelper)
         {
+            this.hiringIncentiveEarningsProvider = hiringIncentiveEarningsProvider ?? throw new ArgumentNullException(nameof(hiringIncentiveEarningsProvider));
             this.learnerValidator = learnerValidator ?? throw new ArgumentNullException(nameof(learnerValidator));
             this.apprenticeshipContractTypeEarningsEventBuilder = apprenticeshipContractTypeEarningsEventBuilder ?? throw new ArgumentNullException(nameof(apprenticeshipContractTypeEarningsEventBuilder));
             this.functionalSkillEarningsEventBuilder = functionalSkillEarningsEventBuilder ?? throw new ArgumentNullException(nameof(functionalSkillEarningsEventBuilder));
@@ -48,9 +53,69 @@ namespace SFA.DAS.Payments.EarningEvents.Domain
             earningsEvent.AddRange(functionalSkillEarningsEventBuilder.Build(learnerSubmission));
 
             var validEarningsEvent = FilterEarningsEventBasedOnConfig(earningsEvent);
-            RemoveFuturePeriods(earningsEvent);
+            validEarningsEvent = AddHiringIncentiveEarnings(validEarningsEvent);
+
+            RemoveFuturePeriods(validEarningsEvent);
 
             return (Validation: validationResult, EarningEvents: validEarningsEvent);
+        }
+
+        private List<EarningEvent> AddHiringIncentiveEarnings(List<EarningEvent> earningEvents)
+        {
+            var candidates = new List<ApprenticeshipContractType1EarningEvent>();
+            foreach (var earningEvent in earningEvents)
+            {
+                if (earningEvent is ApprenticeshipContractType1EarningEvent act1Event
+                    && MeetsStartDateAndAgeCriteria(act1Event))
+                {
+                    candidates.Add(act1Event);
+                }
+            }
+
+            if (!candidates.Any())
+            {
+                return earningEvents;
+            }
+
+            foreach (var (act1Event, hiringIncentives) in hiringIncentiveEarningsProvider.GetHiringIncentiveEarnings(candidates))
+            {
+                act1Event.IncentiveEarnings = MergeIncentiveEarnings(act1Event.IncentiveEarnings, hiringIncentives);
+            }
+
+            return earningEvents;
+        }
+
+        private static bool MeetsStartDateAndAgeCriteria(ApprenticeshipContractType1EarningEvent act1Event)
+        {
+            return act1Event.StartDate >= HiringPaymentEligibility.StartDateFrom
+                   && act1Event.AgeAtStartOfLearning.HasValue
+                   && act1Event.AgeAtStartOfLearning.Value < HiringPaymentEligibility.AgeLimit;
+        }
+
+        private static List<IncentiveEarning> MergeIncentiveEarnings(List<IncentiveEarning> existing, List<IncentiveEarning> hiringIncentives)
+        {
+            existing = existing ?? new List<IncentiveEarning>();
+            var hiringTypes = hiringIncentives.Select(x => x.Type).ToList();
+
+            var combined = hiringIncentives.Select(hiringEarning =>
+            {
+                var prior = existing.FirstOrDefault(x => x.Type == hiringEarning.Type);
+                return prior == null
+                    ? hiringEarning
+                    : new IncentiveEarning
+                    {
+                        Type = hiringEarning.Type,
+                        Periods = new ReadOnlyCollection<EarningPeriod>(prior.Periods
+                            .Concat(hiringEarning.Periods)
+                            .OrderBy(x => x.Period)
+                            .ToList())
+                    };
+            });
+
+            return existing
+                .Where(x => !hiringTypes.Contains(x.Type))
+                .Concat(combined)
+                .ToList();
         }
 
         private List<EarningEvent> FilterEarningsEventBasedOnConfig(List<EarningEvent> earningsEvent)
