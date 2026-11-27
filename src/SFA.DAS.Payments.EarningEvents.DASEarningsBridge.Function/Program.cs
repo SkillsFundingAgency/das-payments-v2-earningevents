@@ -6,6 +6,8 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Payments.EarningEvents.Data;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Handlers;
@@ -36,6 +38,9 @@ builder.Services.AddSingleton<IEarningsBridgeConfiguration>(sp =>
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
+
+var minimumLogLevel = builder.Configuration.GetValue<LogLevel>("LogLevel", LogLevel.Warning);
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>(category: "", level: minimumLogLevel);
 
 builder.Services.AddDbContext<IEarningsDataContext, EarningsDataContext>((sp, options) =>
 {
