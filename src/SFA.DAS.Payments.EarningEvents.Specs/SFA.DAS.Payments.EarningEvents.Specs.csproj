@@ -29,6 +29,9 @@
 	  <None Update="appSettings.development.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <None Update="appSettings.development.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="appSettings.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
@@ -40,6 +43,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Data\SFA.DAS.Payments.EarningEvents.Data.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages.External\SFA.DAS.Payments.EarningEvents.Messages.External.csproj" />
 	  <ProjectReference Include="..\SFA.DAS.Payments.EarningEvents.Messages\SFA.DAS.Payments.EarningEvents.Messages.csproj" />
 	</ItemGroup>

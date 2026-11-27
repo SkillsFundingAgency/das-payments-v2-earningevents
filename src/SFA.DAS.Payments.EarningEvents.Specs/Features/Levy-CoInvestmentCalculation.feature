@@ -1,5 +1,8 @@
 Feature: PV2-4162 - Apply 100% SFA Funding for Levy Employers with Insufficient/Zero Funds and Learners aged under 25
 
+Background:
+Given the collection period has opened recently
+
 Scenario: Levy employer with insufficient balance - Fully funded from co-investment - Start date on or after 1st August - Learner aged under 25 (happy path)
 
 Given a message is received for a Levy employer with a GSO learner

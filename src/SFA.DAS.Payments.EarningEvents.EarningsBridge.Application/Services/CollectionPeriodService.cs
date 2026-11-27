@@ -1,4 +1,5 @@
 ﻿
+using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Mapping;
 using SFA.DAS.Payments.Model.Core.Entities;
 
 namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services

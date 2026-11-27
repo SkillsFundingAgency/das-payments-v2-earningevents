@@ -1,4 +1,7 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using FluentAssertions;
+using NUnit.Framework;
 using SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.Services;
 using SFA.DAS.Payments.EarningEvents.Model;
 using UUIDNext.Tools;
@@ -7,7 +10,7 @@ namespace SFA.DAS.Payments.EarningEvents.EarningsBridge.Application.UnitTests.Se
 {
 
     [TestFixture]
-    public class GslServiceTests
+    public class GSLServiceTests
     {
         private IGSLEarningsService _service;
 

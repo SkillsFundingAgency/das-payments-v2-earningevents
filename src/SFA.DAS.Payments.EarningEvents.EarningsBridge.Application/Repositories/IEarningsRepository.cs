@@ -10,4 +10,7 @@ public interface IEarningsRepository
     Task SaveEarnings(ReceivedEarning receivedEarnings);
     Task <List<GrowthAndSkillsEarningModel>> GetGrowthAndSkillsEarnings(long ukPrn, long uln, string courseCode);
     Task<Guid> GetReceivedEarningEarningsId(long ukprn, long uln, CourseType courseType, string courseCode, string courseReference);
+    Task<List<GrowthAndSkillsEarningModel>> GetUnprocessedEarningsForCollectionPeriod(short academicYear, byte collectionPeriod);
+    Task MarkEarningProcessed(Guid earningsId, short academicYear, byte collectionPeriod, DateTime processedOn);
+    Task MarkPricePeriodsProcessed(Guid earningsId, short academicYear, DateTime processedOn);
 }
